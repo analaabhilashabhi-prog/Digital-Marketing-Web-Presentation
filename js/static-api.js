@@ -12,7 +12,8 @@
     let role = null;
     try { role = sessionStorage.getItem(KEY); } catch {}
     if (url.startsWith('/api/deck')) return role ? real('api/deck.json') : reply(401, { error: 'Not signed in' });
-    if (url === '/api/auth/config') return reply(200, { hint: null });
+    // the sign-in page fills the presenter login in, so visitors just press Sign in
+    if (url === '/api/auth/config') return reply(200, { hint: { presenter: PRESENTER, admin: PRESENTER } });
     if (url === '/api/auth/me') return role ? reply(200, { role }) : reply(401, { error: 'Not signed in' });
     if (url === '/api/auth/logout') { try { sessionStorage.removeItem(KEY); } catch {} return reply(200, { ok: true }); }
     if (url === '/api/auth/login') {
