@@ -144,6 +144,7 @@ const SOCIAL = {
   linkedin: ['LinkedIn', '#0A66C2', '<rect x="3" y="3" width="18" height="18" rx="4.5"/><path d="M7.6 10.4 V16.4 M7.6 7.6 V7.7 M11.2 16.4 V10.4 M11.2 13.2 C11.2 11.4 12.4 10.3 13.9 10.3 C15.5 10.3 16.5 11.3 16.5 13.2 V16.4"/>'],
   instagram: ['Instagram', '#D6297B', '<rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8 V6.9"/>'],
   facebook: ['Facebook', '#1877F2', '<circle cx="12" cy="12" r="9"/><path d="M13.2 21 V13.3 H15.6 M10.3 13.3 H13.2 M13.2 13.3 V10.4 C13.2 9.2 13.9 8.6 15 8.6 H15.9"/>'],
+  youtube: ['YouTube', '#FF0000', '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.2 9.4 L14.8 12 L10.2 14.6 Z"/>'],
 };
 function socials(n) {
   if (!n.socials) return '';
