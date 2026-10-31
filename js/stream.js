@@ -48,14 +48,23 @@ function ytFilm(src, cls, start = 0, solo = false) {
   Object.defineProperty(box, 'muted', { get: () => muted, set: m => { muted = m; if (player?.mute) m ? player.mute() : player.unMute(); } });
   box.rewind = () => player?.seekTo?.(start, true);
   box.stop = () => { want = false; player?.destroy?.(); player = null; };
+  box.quality = () => player?.getPlaybackQuality?.();
+  /* The best the film has (2026-10-31: "play at max quality"). YouTube picks by
+     the connection unless held to one level, so it is asked for the top one,
+     the first it lists, as soon as it plays and again whenever it buffers. */
+  const best = p => {
+    const top = p.getAvailableQualityLevels?.()[0] || 'highres';
+    p.setPlaybackQualityRange?.(top, top);
+    p.setPlaybackQuality?.(top);
+  };
   loadYT().then(YT => {
     if (!want) return;   // stopped before the player loaded
     player = new YT.Player(spot, {
       videoId: src.slice(3),
-      playerVars: { autoplay: 1, mute: muted ? 1 : 0, controls: solo ? 1 : 0, start, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: solo ? 0 : 1, fs: solo ? 1 : 0, modestbranding: 1 },
+      playerVars: { vq: 'highres', autoplay: 1, mute: muted ? 1 : 0, controls: solo ? 1 : 0, start, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: solo ? 0 : 1, fs: solo ? 1 : 0, modestbranding: 1 },
       events: {
-        onReady: e => { muted ? e.target.mute() : e.target.unMute(); want ? e.target.playVideo() : e.target.pauseVideo(); },
-        onStateChange: e => { if (e.data === 0) fire('ended'); if (e.data === 1) box.classList.add('is-playing'); },
+        onReady: e => { best(e.target); muted ? e.target.mute() : e.target.unMute(); want ? e.target.playVideo() : e.target.pauseVideo(); },
+        onStateChange: e => { if (e.data === 1 || e.data === 3) best(e.target); if (e.data === 0) fire('ended'); if (e.data === 1) box.classList.add('is-playing'); },
         onError: () => fire('error'),
       },
     });
