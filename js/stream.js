@@ -22,7 +22,47 @@ const RAIL_IDLE = 2600; // how long a press with no pointer to follow shows the 
 const QUIET = 1500;    // how long a film keeps the row and words over it
 const PREVIEW = 1600;  // how long a scroll's highlight lasts before going back to the playing card
 
-const isFilm = src => /\.(mp4|webm|mov|m4v)(#|$)/i.test(src);
+const isFilm = src => /^yt:|\.(mp4|webm|mov|m4v)(#|$)/i.test(src);
+const isYT = src => src.startsWith('yt:');
+
+/* A film streamed from YouTube ('yt:<id>', 2026-10-31: "play it straight from
+   YouTube, like the downloaded ones"). It plays in YouTube's own player, dressed
+   as the others: no controls, its titles and logo cropped away, muted until
+   Sound is on, and its end moves the page on. The box answers play, pause,
+   muted, rewind and stop the way the stream treats a <video>. */
+let ytApi;
+const loadYT = () => ytApi ||= new Promise(res => {
+  if (window.YT?.Player) return res(window.YT);
+  const prev = window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady = () => { prev?.(); res(window.YT); };
+  document.head.append(Object.assign(document.createElement('script'), { src: 'https://www.youtube.com/iframe_api' }));
+});
+function ytFilm(src, cls, start = 0, solo = false) {
+  const spot = document.createElement('div');
+  const box = h('div', { class: `${cls} sg-yt${solo ? ' is-solo' : ''}` }, h('div', { class: 'sg-yt__frame' }, spot), solo ? null : h('i', { class: 'sg-yt__shield' }));
+  if (start) box.dataset.start = start;
+  let player = null, muted = !solo, want = true;
+  const fire = type => box.dispatchEvent(new Event(type));
+  box.play = () => { want = true; player?.playVideo?.(); return Promise.resolve(); };
+  box.pause = () => { want = false; player?.pauseVideo?.(); };
+  Object.defineProperty(box, 'muted', { get: () => muted, set: m => { muted = m; if (player?.mute) m ? player.mute() : player.unMute(); } });
+  box.rewind = () => player?.seekTo?.(start, true);
+  box.stop = () => { want = false; player?.destroy?.(); player = null; };
+  loadYT().then(YT => {
+    if (!want) return;   // stopped before the player loaded
+    player = new YT.Player(spot, {
+      videoId: src.slice(3),
+      playerVars: { autoplay: 1, mute: muted ? 1 : 0, controls: solo ? 1 : 0, start, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: solo ? 0 : 1, fs: solo ? 1 : 0, modestbranding: 1 },
+      events: {
+        onReady: e => { muted ? e.target.mute() : e.target.unMute(); want ? e.target.playVideo() : e.target.pauseVideo(); },
+        onStateChange: e => { if (e.data === 0) fire('ended'); if (e.data === 1) box.classList.add('is-playing'); },
+        onError: () => fire('error'),
+      },
+    });
+  });
+  return box;
+}
+const FILMS = 'video, .sg-yt';
 
 function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
@@ -96,7 +136,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
   const paintSound = () => { soundBtn.innerHTML = (sound ? SOUND_ON : SOUND_OFF) + `<span>${sound ? 'Sound on' : 'Sound off'}</span>`; };
   paintSound();
   // With several reels side by side only the first one speaks
-  const applySound = () => stage.querySelectorAll('.sg-layer.is-on video').forEach((v, i) => { v.muted = !sound || i > 0; });
+  const applySound = () => stage.querySelectorAll('.sg-layer.is-on :is(video, .sg-yt)').forEach((v, i) => { v.muted = !sound || i > 0; });
   soundBtn.addEventListener('click', e => { e.stopPropagation(); sound = !sound; paintSound(); applySound(); });
 
   let current = 0, item = 0, layer = null, timer = 0;
@@ -104,6 +144,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
   const later = (fn, ms) => { const t = setTimeout(() => { timers.delete(t); fn(); }, ms); timers.add(t); return t; };
 
   function video(src, cls, attrs = {}, start = 0) {
+    if (isYT(src)) return ytFilm(src, cls, start);
     const v = h('video', { class: cls, src, autoplay: true, playsinline: true, preload: 'auto', ...attrs });
     v.muted = true;
     if (start) {
@@ -113,7 +154,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     return v;
   }
   // back to where a film begins: its start, if it has one
-  const rewind = v => { v.currentTime = +v.dataset.start || 0; };
+  const rewind = v => { if (v.rewind) v.rewind(); else v.currentTime = +v.dataset.start || 0; };
 
   /* Horizontal films as full-width bands stacked top to bottom, edge to edge
      (2026-10-30, to a reference: each film the whole width and an equal share
@@ -176,7 +217,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     requestAnimationFrame(() => requestAnimationFrame(() => { next.classList.add('is-on'); applySound(); }));
     const old = layer;
     layer = next;
-    if (old) later(() => { old.querySelectorAll('video').forEach(stop); old.remove(); }, FADE + 80);
+    if (old) later(() => { old.querySelectorAll(FILMS).forEach(stop); old.remove(); }, FADE + 80);
     info.querySelectorAll('.sg-dot').forEach((s, n) => s.classList.toggle('is-on', n === item));
     root.classList.toggle('is-reels', reelsAt(g, item));
     root.classList.toggle('is-stack', stackAt(g, item));
@@ -188,10 +229,10 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     const g = groups[current];
     const n = pagesOf(g).length;
     if (n > 1) { item = (item + 1) % n; paint(); }
-    else if (manyAt(g, 0)) layer?.querySelectorAll('video').forEach(v => { rewind(v); v.play?.().catch(() => {}); });
+    else if (manyAt(g, 0)) layer?.querySelectorAll(FILMS).forEach(v => { rewind(v); v.play?.().catch(() => {}); });
     else if (filmAt(g, 0)) {
       /* A lone film plays again, from its start. */
-      const v = layer?.querySelector('video');
+      const v = layer?.querySelector(FILMS);
       if (v) { rewind(v); v.play?.().catch(() => {}); }
     }
   }
@@ -382,7 +423,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
   words(); paint(); tick();
   requestAnimationFrame(updateFocus);
 
-  function stop(v) { v.pause(); v.removeAttribute('src'); v.load(); }
+  function stop(v) { if (v.stop) return v.stop(); v.pause(); v.removeAttribute('src'); v.load(); }
 
   /* Click a film and it opens on its own, large, with sound and controls; the
      page under it waits. Back, Esc or the film ending returns to it. */
@@ -395,9 +436,9 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
   function openSolo(src, start = 0) {
     closeSolo(false);
     clearTimeout(timer);
-    stage.querySelectorAll('video').forEach(v => v.pause());
-    const v = h('video', { class: 'sg-solo__video', src, controls: true, autoplay: true, playsinline: true, preload: 'auto' });
-    if (start) v.addEventListener('loadedmetadata', () => { if (v.duration > start + 5) v.currentTime = start; }, { once: true });
+    stage.querySelectorAll(FILMS).forEach(v => v.pause());
+    const v = isYT(src) ? ytFilm(src, 'sg-solo__video', start, true) : h('video', { class: 'sg-solo__video', src, controls: true, autoplay: true, playsinline: true, preload: 'auto' });
+    if (start && !isYT(src)) v.addEventListener('loadedmetadata', () => { if (v.duration > start + 5) v.currentTime = start; }, { once: true });
     v.muted = false;
     v.play?.().catch(() => { v.muted = true; v.play?.().catch(() => {}); });
     const back = h('button', { type: 'button', class: 'sg-solo__back', 'aria-label': 'Back', title: 'Back (Esc)' });
@@ -418,9 +459,9 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     root.classList.remove('is-solo');
     if (document.fullscreenElement === s) document.exitFullscreen().catch(() => {});
     s.classList.add('is-leaving');
-    later(() => { s.querySelectorAll('video').forEach(stop); s.remove(); }, 320);
+    later(() => { s.querySelectorAll(FILMS).forEach(stop); s.remove(); }, 320);
     if (resume) {
-      stage.querySelectorAll('.sg-layer.is-on video').forEach(v => v.play?.().catch(() => {}));
+      stage.querySelectorAll(`.sg-layer.is-on :is(${FILMS})`).forEach(v => v.play?.().catch(() => {}));
       tick();
       wake(); settle();
     }
@@ -436,7 +477,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     timers.forEach(clearTimeout); timers.clear();
     clearTimeout(timer); clearTimeout(quietTimer); clearTimeout(railTimer); clearTimeout(previewTimer);
     ro?.disconnect();
-    root.querySelectorAll('video').forEach(stop);
+    root.querySelectorAll(FILMS).forEach(stop);
   };
   /* Next and Prev play the next or previous category; past either end the deck moves on. */
   cleanup.step = dir => {

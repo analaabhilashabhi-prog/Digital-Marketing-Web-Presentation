@@ -407,3 +407,23 @@
 .sg-root.is-stack .sg-page--stagger { position: absolute; inset: 0; container-type: normal; display: block; }
 .sg-page--stagger .sg-shot { position: absolute; margin: 0; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
 .sg-page--stagger .sg-shot video { width: 100%; height: 100%; object-fit: cover; }
+
+/* A film streamed from YouTube (2026-10-31). The player is drawn three times as
+   tall as its box and centred, so the film fills the box while YouTube's title
+   bar and logo, at the player's top and foot, fall outside it and are cropped
+   away; the frame covers the box as a <video> with object-fit: cover would.
+   A clear shield over it takes the pointer, so YouTube shows nothing on hover
+   and a click opens the film on its own. It fades in once it is playing. */
+.sg-yt:not(.sg-solo__video) { position: relative; }
+.sg-yt { overflow: hidden; background: #000; container-type: size; }
+.sg-yt__frame {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  width: max(100cqw, 177.78cqh); aspect-ratio: 16 / 9;
+  opacity: 0; transition: opacity 0.8s ease;
+}
+.sg-yt.is-playing .sg-yt__frame, .sg-yt.is-solo .sg-yt__frame { opacity: 1; }
+.sg-yt__frame iframe { position: absolute; left: 0; top: -100%; width: 100%; height: 300%; border: 0; pointer-events: none; }
+.sg-yt__shield { position: absolute; inset: 0; cursor: pointer; }
+/* on its own, with YouTube's controls: the whole player, fitted */
+.sg-yt.is-solo .sg-yt__frame { width: min(100cqw, 177.78cqh); }
+.sg-yt.is-solo .sg-yt__frame iframe { top: 0; height: 100%; pointer-events: auto; }
