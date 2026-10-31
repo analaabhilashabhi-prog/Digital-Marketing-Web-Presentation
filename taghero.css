@@ -1,0 +1,99 @@
+/* The t@g opening slide (js/taghero.js), after the "Get your inbox back" poster:
+   warm paper, a pile of requests, two pipes into the cube, one calm card.
+   Laid out on the 1920×1080 canvas. */
+
+.tag-hero {
+  position: absolute; inset: 0; overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif; color: #3B3E3D;
+  background:
+    radial-gradient(50% 45% at 55% 35%, #FBFAF8 0%, transparent 75%),
+    linear-gradient(180deg, #F2F0ED 0%, #ECE9E5 100%);
+}
+
+/* ---------- Headline ---------- */
+.th-head { position: absolute; left: 0; right: 0; top: 66px; text-align: center; z-index: 5; }
+.th-in { opacity: 0; will-change: transform, opacity, filter; }
+.th-head h1 {
+  margin: 0; font-family: 'DM Serif Display', Georgia, serif; font-weight: 400;
+  font-size: 96px; line-height: 1; letter-spacing: -.005em; text-transform: uppercase; color: #484B4A;
+}
+.th-head h1 em { font-style: normal; color: #C9714F; }
+.th-head p { margin: 26px auto 0; max-width: 980px; font-size: 32px; line-height: 1.35; color: #4A4D4C; text-wrap: balance; }
+
+/* ---------- The pile ---------- */
+.th-pile { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.th-ask { position: absolute; left: 0; top: 0; width: 300px; height: 84px; will-change: transform; }
+.th-ask__in {
+  height: 100%; box-sizing: border-box; padding: 11px 14px 0 16px; border-radius: 12px;
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;
+  background: linear-gradient(180deg, #FBFBFA, #F1F0EE);
+  border: 1px solid rgba(35, 38, 37, .08);
+  box-shadow: 0 6px 14px rgba(35, 38, 37, .10), 0 1px 2px rgba(35, 38, 37, .06);
+}
+.th-ask__body { display: grid; gap: 3px; min-width: 0; }
+.th-ask__body b { font-size: 15px; font-weight: 700; color: #2B2E2D; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th-ask__body i { font-style: normal; font-size: 13px; color: #6E7271; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th-ask__side { display: grid; justify-items: end; gap: 8px; }
+.th-ask__side small { font-size: 11px; color: #8C908F; }
+.th-ask__side s { width: 9px; height: 9px; border-radius: 50%; background: #3B8BEB; }
+
+/* ---------- The pipes ---------- */
+.th-pipes { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 1; overflow: visible; }
+.th-pipe path { fill: none; stroke-linecap: round; }
+.th-pipe__shade { stroke: rgba(120, 60, 35, .14); stroke-width: 30px; transform: translate(0, 10px); }
+.th-pipe__body { stroke: #CC7D60; stroke-width: 24px; }
+.th-pipe__shine { stroke: rgba(255, 255, 255, .28); stroke-width: 4px; transform: translate(0, -6px); }
+.th-pipe__flow { stroke: #FBE3D8; stroke-width: 6px; stroke-dasharray: 2 90; opacity: 0; transition: opacity 1.2s; }
+.th-pipe.is-flowing .th-pipe__flow { opacity: .7; animation: th-flow 3.2s linear infinite; }
+@keyframes th-flow { to { stroke-dashoffset: -92; } }
+.th-arrow { fill: #CC7D60; opacity: 0; }
+
+/* ---------- The cube ---------- */
+.th-cube { position: absolute; left: 860px; top: 540px; width: 200px; height: 200px; z-index: 4; opacity: 0; }
+.th-cube__glass {
+  position: absolute; inset: 0; border-radius: 40px; display: grid; place-items: center;
+  background:
+    radial-gradient(70% 60% at 30% 20%, rgba(255, 255, 255, .95), transparent 70%),
+    linear-gradient(150deg, rgba(255, 255, 255, .9), rgba(253, 236, 228, .82));
+  border: 1.5px solid rgba(255, 255, 255, .95);
+  box-shadow: 0 30px 60px rgba(204, 125, 96, .22), 0 8px 18px rgba(35, 38, 37, .08),
+    inset 0 -14px 30px rgba(204, 125, 96, .14), inset 0 2px 0 #fff;
+  animation: th-float 5s ease-in-out infinite;
+}
+.th-cube__glass img { width: 150px; height: auto; }
+.th-cube__glass strong { font-size: 56px; font-weight: 800; color: #F05D29; }
+.th-cube__line {
+  position: absolute; left: 50%; top: 100%; margin-top: 34px; transform: translateX(-50%); white-space: nowrap;
+  font-size: 17px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #7A7E7D;
+}
+@keyframes th-float { 50% { transform: translateY(-6px); } }
+
+/* ---------- The card ---------- */
+.th-card {
+  position: absolute; left: 1316px; top: 470px; width: 470px; z-index: 4; opacity: 0;
+  box-sizing: border-box; padding: 34px 38px 26px; border-radius: 22px;
+  background: linear-gradient(180deg, #FBF8F4, #F5F1EC);
+  border: 1px solid rgba(35, 38, 37, .05);
+  box-shadow: 0 34px 70px rgba(35, 38, 37, .12), 0 2px 4px rgba(35, 38, 37, .05);
+}
+.th-card__head { margin-bottom: 24px; font-size: 27px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #3B3E3D; }
+.th-card__row {
+  display: grid; grid-template-columns: 52px 1fr; align-items: baseline;
+  margin-bottom: 18px; padding-left: 16px; border-left: 2px solid #CC7D60; opacity: 0;
+}
+.th-card__row b { font-size: 26px; font-weight: 500; color: #C9714F; font-variant-numeric: tabular-nums; }
+.th-card__row strong { display: block; font-size: 25px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: #3B3E3D; }
+.th-card__row i { display: block; margin-top: 4px; font-style: normal; font-size: 16px; color: #7A7E7D; }
+.th-card__foot { display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 16px; border-top: 1px solid #E6E0D9; }
+.th-tick { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #CFCBC6; transition: background .6s, transform .6s cubic-bezier(.3, 1.5, .5, 1); }
+.th-tick svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.th-tick.on { background: #4A4D4C; transform: scale(1.08); }
+
+/* ---------- The line along the bottom ---------- */
+.th-strip {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 96px; z-index: 6;
+  display: grid; place-items: center; background: #EBE8E4; border-top: 1px solid #DDD8D2;
+  font-size: 30px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: #3B3E3D;
+}
+.th-strip span { opacity: 0; }
+.tag-hero.paused * { animation-play-state: paused !important; }

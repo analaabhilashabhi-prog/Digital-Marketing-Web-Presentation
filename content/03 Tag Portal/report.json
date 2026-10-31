@@ -1,0 +1,87 @@
+{
+  "group": "Nagarjuna Group of Institutions",
+  "department": "Branding & Marketing Department",
+  "groupLogo": "Logos/ngi-group-of-institutions.png",
+  "from": "01 Sep 2026",
+  "to": "22 Oct 2026",
+  "period": "01 September 2026 – 22 October 2026",
+  "days": 53,
+  "generated": "22 Oct 2026",
+  "glance": [
+    { "value": "387", "label": "Posts published", "color": "#12A06B" },
+    { "value": "3.19 L", "label": "Organic reach", "color": "#2F6BFF" },
+    { "value": "20,552", "label": "Likes earned", "color": "#F5822A" },
+    { "value": "+1,453", "label": "New followers", "color": "#8B5CF6" }
+  ],
+  "weeks": ["01–07 Sep", "08–14 Sep", "15–21 Sep", "22–28 Sep", "29 Sep–05 Oct", "06–12 Oct", "13–19 Oct", "20–22 Oct"],
+  "timeline": [
+    { "label": "Design requests raised", "total": 178, "color": "#F5822A", "soft": "#FBCFA9", "values": [15, 14, 30, 29, 34, 24, 30, 2] },
+    { "label": "Designs completed", "total": 128, "color": "#2B7BDB", "soft": "#A9C9EF", "values": [9, 13, 28, 27, 29, 14, 8, 0] },
+    { "label": "Social posts published", "total": 387, "color": "#0F9D6E", "soft": "#9BD8C1", "values": [78, 90, 38, 43, 77, 27, 28, 6] }
+  ],
+  "overview": [
+    { "value": "178", "label": "Requests raised", "color": "#E0542A" },
+    { "value": "128", "label": "Designs completed", "color": "#2B7BDB" },
+    { "value": "34", "label": "Design pending", "color": "#141E3C" },
+    { "value": "16", "label": "Design cancelled", "color": "#9AA3B5" },
+    { "value": "42.9%", "label": "Delivered on time", "color": "#0F9D6E" },
+    { "value": "387", "label": "Posts published", "color": "#E0294A" },
+    { "value": "20,552", "label": "Likes", "color": "#5B4BE0" },
+    { "value": "74%", "label": "First-pass approval", "color": "#0F9D6E" },
+    { "value": "0.4", "label": "Avg revision rounds", "color": "#E0542A" },
+    { "value": "318,511", "label": "Organic reach", "color": "#5B4BE0" },
+    { "value": "+1,453", "label": "Follower growth", "color": "#0F9D6E" },
+    { "value": "Rs 0", "label": "Ad spend", "color": "#E0542A" }
+  ],
+  "notes": {
+    "positives": ["74% of designs cleared on the first pass.", "20,552 likes across 387 organic posts.", "+1,453 net new followers this period."],
+    "improvements": ["34 design requests (19.1%) still pending."],
+    "critical": ["Only 42.9% of designs were delivered on time.", "No web tasks recorded for this period.", "No ad campaigns recorded, so the paid section is empty."]
+  },
+  "colleges": [
+    { "name": "NCET", "followers": 25488, "growth": 544, "posts": 121, "reach": 131158, "likes": 8400, "logo": "Logos/NGI Institutions/01 Nagarjuna College of Engineering & Technology.png",
+      "platforms": { "LinkedIn": 51, "Instagram": 35, "YouTube": 0, "Facebook": 35 }, "activity": [34, 26, 12, 3, 29, 11, 5, 1] },
+    { "name": "NCMS", "followers": 9590, "growth": 187, "posts": 113, "reach": 73336, "likes": 4478, "logo": "Logos/NGI Institutions/02 Nagarjuna College of Management Studies.png",
+      "platforms": { "LinkedIn": 44, "Instagram": 34, "YouTube": 1, "Facebook": 34 }, "activity": [19, 25, 7, 26, 21, 7, 7, 1] },
+    { "name": "NDC", "followers": 7476, "growth": 314, "posts": 49, "reach": 26888, "likes": 1373, "logo": "Logos/NGI Institutions/03 Nagarjuna Degree College.png",
+      "platforms": { "LinkedIn": 19, "Instagram": 15, "YouTube": 0, "Facebook": 15 }, "activity": [9, 10, 8, 9, 9, 1, 2, 1] },
+    { "name": "ToriiMinds", "followers": 4500, "growth": 404, "posts": 58, "reach": 42853, "likes": 2898, "logo": "Logos/torii-minds-mark.png",
+      "platforms": { "LinkedIn": 55, "Instagram": 0, "YouTube": 3, "Facebook": 0 }, "activity": [6, 13, 5, 5, 8, 8, 11, 2] },
+    { "name": "NPUC Yelahanka", "followers": 9574, "growth": 0, "posts": 24, "reach": 42167, "likes": 3219, "logo": "Logos/NGI Institutions/04 Nagarjuna Pre-University College.png",
+      "platforms": { "LinkedIn": 6, "Instagram": 9, "YouTube": 0, "Facebook": 9 }, "activity": [4, 8, 2, 0, 6, 0, 3, 1] },
+    { "name": "NPUC CBPur", "followers": 2474, "growth": 4, "posts": 12, "reach": 2066, "likes": 183, "logo": "Logos/NGI Institutions/04 Nagarjuna Pre-University College.png",
+      "platforms": { "LinkedIn": 0, "Instagram": 6, "YouTube": 0, "Facebook": 6 }, "activity": [4, 4, 2, 0, 2, 0, 0, 0] },
+    { "name": "EduCare", "followers": 72, "growth": 0, "posts": 10, "reach": 43, "likes": 1, "logo": "",
+      "platforms": { "LinkedIn": 0, "Instagram": 5, "YouTube": 0, "Facebook": 5 }, "activity": [2, 4, 2, 0, 2, 0, 0, 0] }
+  ],
+  "reach": [
+    { "name": "Instagram", "people": 219641, "share": 69, "color": "#C2367E" },
+    { "name": "LinkedIn", "people": 98870, "share": 31, "color": "#0A66C2" }
+  ],
+  "focus": {
+    "name": "NCET",
+    "rank": "#1 of 7",
+    "coordinators": [["Mr. Subhakar M", 50, 43], ["Bagadi Ganesh", 14, 5], ["Karthik H V", 12, 10], ["Periyasamy Kesavan", 2, 1], ["Anushree M", 1, 1]],
+    "raised": [5, 8, 17, 10, 17, 9, 14, 1],
+    "completed": [1, 8, 17, 10, 16, 4, 4, 0],
+    "best": [
+      ["From Caps to Careers: The Journey Doesn't…", "Instagram", "480", "4,039 reach"],
+      ["10 Selections | Package up to 6.5 LPA…", "LinkedIn", "172", "5,476 impressions"],
+      ["Celebrating a Visionary Leader |…", "Facebook", "49", "0 views"]
+    ],
+    "design": { "raised": 81, "completed": 60, "onTime": "62.1%", "firstPass": "77.6%",
+      "status": [["Completed", 60, 74.1], ["Waiting for a designer", 11, 13.6], ["Being designed", 1, 1.2], ["Cancelled", 9, 11.1]],
+      "kinds": [["Social Media Posts", 16], ["LED Screen Content", 8], ["Banners", 8], ["Digital Posters", 6], ["Invitations", 6], ["Standees", 3]] },
+    "platforms": [
+      ["LinkedIn", 51, "82,547", "2,602", "12,084", "+453"],
+      ["Instagram", 35, "90,783", "5,595", "3,760", "+81"],
+      ["YouTube", 0, "0", "0", "1,590", "+10"],
+      ["Facebook", 35, "0", "203", "8,054", "+0"]
+    ],
+    "notes": {
+      "positives": ["74.1% of requests raised were completed.", "77.6% approved on the first pass.", "8,400 likes on 121 posts (about 69 per post)."],
+      "improvements": ["62.1% on-time delivery: aim for 80% or more.", "12 requests (14.8%) are still pending."],
+      "critical": ["Nothing critical this period."]
+    }
+  }
+}

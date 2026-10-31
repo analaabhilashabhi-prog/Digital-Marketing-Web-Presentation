@@ -1,0 +1,409 @@
+/* The streaming video player, ported from the NGI presentation's StreamGallery
+   (frontend/public/styles/app.css) with its sizes as they were: it is drawn at
+   1600x900 and scaled to the 1920x1080 slide. NGI's navy and orange are
+   Torii's ink and orange here; nothing else changed. */
+
+/* ---------- Film grain and letterbox bars ---------- */
+.ch-grain {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* Letterbox bars: they close in at the start and stay, as a film's frame. */
+.ch-bar { position: absolute; left: 0; right: 0; height: 46px; background: #000000; z-index: 4; transform: scaleY(0); animation: ch-bar 1.1s 0.1s cubic-bezier(.7,0,.2,1) forwards; }
+.ch-bar--top { top: 0; transform-origin: top; }
+.ch-bar--bottom { bottom: 0; transform-origin: bottom; }
+
+/* ---------- Keyframes shared with the opening ---------- */
+@keyframes ch-push { from { transform: scale(1.2); } to { transform: scale(1.04); } }
+@keyframes ch-fade { from { opacity: 0; } }
+@keyframes ch-bar { to { transform: scaleY(1); } }
+@keyframes ch-up { from { opacity: 0; transform: translateY(26px); } }
+@keyframes ch-letter { from { opacity: 0; transform: translateY(60%) rotate(4deg); filter: blur(10px); } }
+@keyframes ch-draw { from { transform: scaleX(0); } }
+@keyframes ch-pulse { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
+
+/* ---------- The streaming layout ---------- */
+.sg-root {
+  --sg-rail-h: 190px;
+  position: relative; flex: 0 0 auto;
+  height: var(--slide-h, 860px); max-height: var(--slide-h, 860px);
+  overflow: hidden; background: #141615; color: #FFFFFF; isolation: isolate;
+}
+.sg-stage { position: absolute; inset: 0; overflow: hidden; }
+.sg-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+.sg-layer.is-on { opacity: 1; }
+.sg-layer__media {
+  display: block; width: 100%; height: 100%; max-width: none; object-fit: cover;
+  animation: sg-push 9s cubic-bezier(.2,.6,.2,1) both;
+}
+.sg-grade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(20, 22, 21, 0.86) 0%, rgba(20, 22, 21, 0.55) 30%, rgba(20, 22, 21, 0) 62%),
+    linear-gradient(0deg, rgba(20, 22, 21, 0.96) 0%, rgba(20, 22, 21, 0.6) 24%, rgba(20, 22, 21, 0) 52%),
+    linear-gradient(180deg, rgba(20, 22, 21, 0.55) 0%, rgba(20, 22, 21, 0) 18%);
+}
+.sg-top {
+  position: absolute; top: 40px; left: 70px; right: 70px; z-index: 2;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  animation: sg-fade 1s 0.2s ease both;
+}
+.sg-brand { margin: 0; max-width: 220px; font-family: var(--display); font-size: 24px; font-weight: 700; line-height: 1.02; letter-spacing: 0.01em; }
+.sg-count { font-size: 14px; font-weight: 700; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.72); font-variant-numeric: tabular-nums; }
+
+.sg-info {
+  position: absolute; left: 70px; z-index: 2; max-width: 820px;
+  bottom: calc(var(--sg-rail-h) + var(--deck-bar-clear, 0px) + 44px);
+}
+.sg-kicker { margin: 0 0 12px; font-size: 14px; font-weight: 700; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(255, 255, 255, 0.74); animation: sg-up 0.8s 0.05s cubic-bezier(.2,.7,.2,1) both; }
+.sg-title { margin: 0; font-family: var(--display); font-size: 96px; font-weight: 700; line-height: 0.98; letter-spacing: -0.005em; text-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); animation: sg-up 0.9s 0.15s cubic-bezier(.2,.7,.2,1) both; }
+.sg-meta { margin: 14px 0 0; font-size: 17px; font-weight: 600; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.8); animation: sg-up 0.8s 0.3s cubic-bezier(.2,.7,.2,1) both; }
+.sg-progress { display: flex; gap: 6px; margin-top: 20px; animation: sg-up 0.8s 0.4s cubic-bezier(.2,.7,.2,1) both; }
+.sg-seg { width: 26px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.28); transition: background 0.5s ease, width 0.5s ease; }
+.sg-seg.is-on { width: 42px; background: #FFFFFF; }
+
+.sg-rail {
+  position: absolute; left: 0; right: 0; z-index: 2; overflow: hidden;
+  height: var(--sg-rail-h); bottom: var(--deck-bar-clear, 0px);
+}
+.sg-track { display: flex; height: 100%; transition: transform 0.7s cubic-bezier(.2,.7,.2,1); will-change: transform; }
+.sg-card {
+  position: relative; flex: 0 0 320px; height: 100%; padding: 0; border: 0; overflow: hidden;
+  background: #141615; cursor: pointer; font: inherit; color: #FFFFFF; text-align: left;
+  transition: opacity 0.38s ease;
+  animation: sg-up 0.8s calc(0.5s + var(--i, 0) * 0.06s) cubic-bezier(.2,.7,.2,1) both;
+}
+.sg-card.is-out { opacity: 0; }
+.sg-card__media { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; transition: transform 0.6s cubic-bezier(.2,.7,.2,1), filter 0.4s ease; filter: brightness(0.82); }
+.sg-card__shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20, 22, 21, 0.85) 0%, rgba(20, 22, 21, 0) 60%); }
+.sg-card__text { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.sg-card__name { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.05; }
+.sg-card__count { font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.7); font-variant-numeric: tabular-nums; }
+.sg-card::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); transition: box-shadow 0.35s ease; pointer-events: none; }
+.sg-card:hover .sg-card__media { transform: scale(1.06); filter: brightness(1); }
+.sg-card:hover::after { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9); }
+
+@keyframes sg-push { from { transform: scale(1.08); } to { transform: scale(1); } }
+@keyframes sg-up { from { opacity: 0; transform: translateY(22px); } }
+@keyframes sg-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .sg-layer, .sg-card { transition: none; }
+  .sg-layer__media, .sg-top, .sg-kicker, .sg-title, .sg-meta, .sg-progress, .sg-card { animation: none !important; }
+}
+
+/* Slower, dots, and full screen (2026-09-25). The crossfade is 1.8s to match
+   HOLD/FADE in StreamGallery. The count in words is gone; small dots stand one
+   a photograph, the lit one a short pill that moves along. The row waits below
+   the frame and slides up when the pointer reaches the bottom of the slide
+   (.is-rail), and the words drop with it, so the photograph is full screen. */
+.sg-layer { transition: opacity 1.8s ease; }
+.sg-layer__media { animation-duration: 12s; }
+.sg-dots { display: flex; align-items: center; gap: 8px; margin-top: 22px; animation: sg-up 0.8s 0.3s cubic-bezier(.2,.7,.2,1) both; }
+.sg-dot { width: 8px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.35); transition: width 0.6s cubic-bezier(.2,.7,.2,1), background 0.6s ease; }
+.sg-dot.is-on { width: 24px; background: #FFFFFF; }
+.sg-rail {
+  transform: translateY(calc(100% + var(--deck-bar-clear, 0px) + 12px));
+  transition: transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+.sg-root.is-rail .sg-rail { transform: none; }
+.sg-info { transform: translateY(var(--sg-rail-h)); transition: transform 0.7s cubic-bezier(.2,.7,.2,1); }
+.sg-root.is-rail .sg-info { transform: none; }
+/* The bottom of the grade eases off while the row is away. */
+.sg-grade { transition: opacity 0.7s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .sg-rail, .sg-info { transition: none; }
+}
+
+/* The row answers the pointer at once (2026-09-25: "it should be responsive"):
+   a quicker slide, and the words move with it on the same clock. */
+.sg-rail, .sg-info { transition-duration: 0.32s; transition-timing-function: cubic-bezier(.3,.7,.2,1); }
+
+/* Films on the big screen (2026-09-25): both infrastructure films are a
+   2.34:1 picture inside a 1920x1080 frame, 131 rows of black baked in top and
+   bottom (measured at 3s, 10s and 20s). Scaled past the frame, as the brand
+   film is, so the picture fills it. `scale` composes with the push-in's
+   `transform`, so the two do not fight. */
+.sg-layer.is-film .sg-layer__media { scale: 1.33; }
+
+/* 'rows' (Placements and Student Achievements, 2026-09-25): a screen is a
+   page of photographs side by side at one height, filling the width with an
+   18px gap, every photograph its own shape (flex-grow = its ratio and
+   aspect-ratio = its ratio, so all share one height, and the row is capped
+   by the box's height through container units). A blurred, dimmed copy of
+   the page's first photograph fills the screen behind it. The words are
+   smaller, so a long achievement name takes two lines, not four. */
+.sg-layer__rows { animation: none; position: relative; overflow: hidden; }
+.sg-ambient {
+  position: absolute; inset: -60px; width: calc(100% + 120px); height: calc(100% + 120px); max-width: none;
+  object-fit: cover; filter: blur(40px) brightness(0.42) saturate(0.8);
+}
+.sg-page {
+  position: absolute; left: 70px; right: 70px; top: 104px;
+  bottom: calc(var(--deck-bar-clear, 0px) + 190px);
+  container-type: size; display: flex; align-items: center; justify-content: center;
+}
+.sg-page__row {
+  display: flex; gap: 18px;
+  width: min(100cqw, calc(100cqh * var(--sum) + (var(--n) - 1) * 18px));
+}
+.sg-shot {
+  flex: calc(var(--ar) * 100) 1 0; min-width: 0; aspect-ratio: var(--ar); margin: 0;
+  border-radius: 10px; overflow: hidden; background: #141615;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: sg-up 0.9s calc(0.1s + var(--k, 0) * 0.09s) cubic-bezier(.2,.7,.2,1) both;
+}
+.sg-shot img { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.sg-root.is-rows .sg-grade {
+  background: linear-gradient(0deg, rgba(20, 22, 21, 0.92) 0%, rgba(20, 22, 21, 0.5) 20%, rgba(20, 22, 21, 0) 38%);
+}
+.sg-root.is-rows .sg-info { max-width: 1180px; bottom: calc(var(--sg-rail-h) + var(--deck-bar-clear, 0px) + 26px); }
+.sg-root.is-rows .sg-kicker { margin-bottom: 8px; font-size: 13px; }
+.sg-root.is-rows .sg-title {
+  font-size: 50px; line-height: 1.02;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sg-root.is-rows .sg-dots { margin-top: 14px; }
+.sg-root.is-rows .sg-card__name { font-size: 19px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .sg-shot { animation: none; } }
+
+/* The Located in Bengaluru opening on the streaming layout (2026-09-25: Legacy
+   & Infrastructure, Placements, Student Achievements). It reuses the city
+   hero's own keyframes and bars (.ch-bar, .ch-grain, ch-push, ch-fade, ch-up,
+   ch-letter), so the two stay one motion.
+   - The letterbox bars close in once and stay; the brand moves below the top
+     bar, and the row always stands above the bottom one.
+   - Every photograph and film fades up and pushes in from 1.2 to 1.04 over
+     11s, as Bengaluru's photograph does; a page's photographs rise in turn,
+     each pushing in inside its own frame and ending at its true size.
+   - Every category's name arrives letter by letter out of a blur, the kicker
+     and dots rising round it; `--sg-t0` waits for the bars on arrival and is
+     short on every change after. */
+.sg-root .ch-bar { z-index: 4; }
+.sg-root .ch-grain { z-index: 1; }
+.sg-top { top: 66px; }
+.sg-rail { bottom: max(var(--deck-bar-clear, 0px), 46px); }
+.sg-layer__media { transform-origin: 58% 45%; animation: ch-push 11s cubic-bezier(.2,.6,.2,1) both, ch-fade 1.6s ease both; }
+.sg-layer.is-film .sg-layer__media { animation: ch-push 11s cubic-bezier(.2,.6,.2,1) both, ch-fade 1.6s ease both; }
+.sg-layer__rows { animation: ch-fade 1.4s ease both; }
+.sg-page { top: 120px; }
+.sg-shot { animation: ch-up 1s calc(0.15s + var(--k, 0) * 0.14s) cubic-bezier(.2,.7,.2,1) both; }
+.sg-shot img { transform-origin: 55% 45%; animation: sg-shot-push 9s cubic-bezier(.2,.6,.2,1) both; }
+@keyframes sg-shot-push { from { transform: scale(1.14); } to { transform: scale(1); } }
+.sg-kicker { animation: ch-up 0.9s var(--sg-t0, 0.25s) cubic-bezier(.2,.7,.2,1) both; }
+.sg-title { animation: none; text-shadow: none; }
+.sg-title__word { display: inline-block; white-space: nowrap; }
+.sg-title__ch {
+  display: inline-block; text-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  animation: ch-letter 1.1s calc(var(--sg-t0, 0.25s) + 0.2s + var(--d, 0s)) cubic-bezier(.2,.8,.2,1) both;
+}
+.sg-dots { animation: ch-up 0.9s calc(var(--sg-t0, 0.25s) + 1.1s) cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .sg-layer__media, .sg-layer__rows, .sg-shot, .sg-shot img, .sg-kicker, .sg-title__ch, .sg-dots { animation: none !important; }
+  .sg-root .ch-bar { animation: none; transform: scaleY(1); }
+}
+/* Everything that stood on the slide's foot now stands on the bottom bar. */
+.sg-rail { transform: translateY(calc(100% + max(var(--deck-bar-clear, 0px), 46px) + 12px)); }
+.sg-root.is-rail .sg-rail { transform: none; }
+.sg-info { bottom: calc(var(--sg-rail-h) + max(var(--deck-bar-clear, 0px), 46px) + 44px); }
+.sg-root.is-rows .sg-info { bottom: calc(var(--sg-rail-h) + max(var(--deck-bar-clear, 0px), 46px) + 26px); }
+.sg-page { bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + 190px); }
+
+
+/* ---------- The category's line ---------- */
+.sg-lead {
+  margin: 16px 0 0; max-width: 760px; font-size: 20px; font-weight: 500; line-height: 1.4;
+  color: rgba(255, 255, 255, 0.86); text-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  animation: ch-up 0.9s calc(var(--sg-t0, 0.25s) + 0.8s) cubic-bezier(.2,.7,.2,1) both;
+}
+.sg-root.is-rows .sg-lead { margin-top: 8px; max-width: 1180px; font-size: 18px; }
+.sg-root.is-full .sg-lead { display: none; }
+
+/* ---------- A wide film played whole ---------- */
+.sg-layer.is-contain { background: #141615; }
+.sg-layer.is-contain .sg-layer__media { object-fit: contain; object-position: 80% 50%; scale: 1; }
+
+.sg-root.is-rows .sg-title { padding-bottom: 0.08em; }
+.sg-lead { max-width: 820px; }
+
+/* ---------- Reels side by side ---------- */
+.sg-shot.is-reel { background: #141615; }
+.sg-shot.is-reel video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+/* A page of reels (Campus Events › Sports, 2026-09-28: "cover entire screen
+   with that video… 80 percent… videos… 20 percent… a small title and
+   description"). The reels fill the right 80% of the frame between the
+   letterbox bars, sharing it equally, each cropped to its panel (cover); the
+   kicker, the name and the line stand in the left 20%, centred. */
+.sg-root.is-reels .sg-page { left: 20%; right: 24px; top: 62px; bottom: calc(max(var(--deck-bar-clear, 0px), 46px) - 30px); }
+.sg-root.is-reels .sg-page__row { width: 100%; height: 100%; gap: 16px; }
+.sg-root.is-reels .sg-shot { flex: 1 1 0; aspect-ratio: auto; height: 100%; border-radius: 14px; }
+.sg-root.is-reels .sg-shot video { object-position: 50% 45%; }
+.sg-root.is-reels .sg-count { display: none; }
+.sg-root.is-reels .sg-grade { background: none; }
+.sg-root.is-reels .sg-info,
+.sg-root.is-reels.is-rail .sg-info {
+  left: 56px; right: auto; width: calc(20% - 84px); max-width: none;
+  top: 50%; bottom: auto; transform: translateY(-50%);
+}
+.sg-root.is-reels .sg-title { font-size: 46px; -webkit-line-clamp: 3; }
+.sg-root.is-reels .sg-lead { max-width: none; font-size: 16px; line-height: 1.5; margin-top: 12px; }
+.sg-root.is-reels .sg-kicker { font-size: 12px; letter-spacing: 0.22em; }
+
+
+/* ---------- The row stays up ---------- */
+.sg-root .sg-rail, .sg-root.is-rail .sg-rail { transform: none; }
+.sg-root .sg-info { transform: none; }
+/* A page of photographs: the name and its line sit between the page and the
+   row, so the page stops short of both. */
+.sg-root.is-rows .sg-page { bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + var(--sg-rail-h) + 150px); }
+.sg-root.is-rows .sg-info { bottom: calc(var(--sg-rail-h) + max(var(--deck-bar-clear, 0px), 46px) + 20px); }
+/* Placements' full pages (words at the top) and a page of reels (words at
+   the left) run down to just above the row. */
+.sg-root.is-full .sg-page { bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + var(--sg-rail-h) + 14px); }
+.sg-root.is-reels .sg-page { bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + var(--sg-rail-h) + 14px); }
+/* On a tab of photo pages the row is lower, so the pages keep their height:
+   the page from 110 down to the words, the words just over the row. */
+.sg-root.is-rowsblock { --sg-rail-h: 160px; }
+.sg-root.is-rows .sg-page { top: 110px; bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + var(--sg-rail-h) + 124px); }
+.sg-root.is-rows .sg-info { bottom: calc(var(--sg-rail-h) + max(var(--deck-bar-clear, 0px), 46px) + 16px); }
+/* Placements' words are one line at the top: the photo-page rule above must
+   not give it a bottom as well (it stretched the line and dropped the dots
+   into the page). */
+.sg-root.is-full .sg-info, .sg-root.is-full.is-rail .sg-info { bottom: auto; }
+
+/* ---------- While a film plays, everything over it fades ---------- */
+.sg-root .sg-rail,
+.sg-root .sg-info {
+  transition: transform 0.32s cubic-bezier(.3,.7,.2,1), opacity 0.6s cubic-bezier(.4,0,.2,1);
+}
+.sg-root .sg-grade,
+.sg-root .sg-count,
+.sg-root .sg-brand,
+.sg-root > .ch-bar { transition: opacity 0.6s cubic-bezier(.4,0,.2,1); }
+.sg-root.is-quiet .sg-rail,
+.sg-root.is-quiet .sg-info { opacity: 0; pointer-events: none; }
+.sg-root.is-quiet .sg-grade,
+.sg-root.is-quiet .sg-count,
+.sg-root.is-quiet .sg-brand,
+.sg-root.is-quiet > .ch-bar { opacity: 0; }
+/* A page of reels keeps its words: they are the left fifth of that layout. */
+.sg-root.is-quiet.is-reels .sg-info { opacity: 1; }
+/* A page of reels runs the full height, down to the bottom bar; the row lies
+   over its foot only for the moment it is showing. */
+.sg-root.is-reels .sg-page { top: 62px; bottom: calc(max(var(--deck-bar-clear, 0px), 46px) + 14px); }
+@media (prefers-reduced-motion: reduce) {
+  .sg-root .sg-rail, .sg-root .sg-info, .sg-root .sg-grade, .sg-root .sg-count,
+  .sg-root .sg-brand, .sg-root > .ch-bar { transition: none; }
+}
+
+/* The fade, smoother (2026-09-30, second pass: "it works but not that
+   smooth"). One easing and one length for everything that fades, a little
+   longer going out than coming in, and the row and the words drift 14px and
+   8px as they go, so they read as settling away rather than switching off.
+   The bars and the grade go more slowly still, since a whole band of dark
+   lifting off a bright film is the largest change on the screen. */
+.sg-root {
+  --sg-ease: cubic-bezier(.22, .61, .36, 1);
+}
+.sg-root .sg-rail,
+.sg-root .sg-info {
+  transition: opacity 0.55s var(--sg-ease), transform 0.55s var(--sg-ease);
+}
+.sg-root.is-quiet .sg-rail { transform: translateY(14px); transition-duration: 0.8s; }
+.sg-root.is-quiet .sg-info { transform: translateY(8px); transition-duration: 0.8s; }
+.sg-root.is-quiet.is-reels .sg-info { transform: none; }
+.sg-root .sg-grade,
+.sg-root .sg-count,
+.sg-root .sg-brand,
+.sg-root > .ch-bar { transition: opacity 0.7s var(--sg-ease); }
+.sg-root.is-quiet .sg-grade,
+.sg-root.is-quiet > .ch-bar { transition-duration: 1.1s; }
+.sg-root .sg-rail, .sg-root .sg-info { will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) {
+  .sg-root .sg-rail, .sg-root .sg-info, .sg-root .sg-grade, .sg-root .sg-count,
+  .sg-root .sg-brand, .sg-root > .ch-bar { transition: none; }
+  .sg-root.is-quiet .sg-rail, .sg-root.is-quiet .sg-info { transform: none; }
+}
+
+/* ---------- The card under the pointer is lit, the rest dimmed ---------- */
+.sg-rail { overflow-x: clip; overflow-y: visible; }
+.sg-card {
+  animation-fill-mode: backwards;
+  transition: opacity 0.38s ease,
+    transform 0.55s var(--sg-ease, cubic-bezier(.22,.61,.36,1)),
+    box-shadow 0.55s var(--sg-ease, cubic-bezier(.22,.61,.36,1));
+}
+.sg-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: rgba(20, 22, 21, 0.5); opacity: 0;
+  transition: opacity 0.55s var(--sg-ease, cubic-bezier(.22,.61,.36,1));
+}
+.sg-rail.has-focus .sg-card:not(.is-focus)::before { opacity: 1; }
+.sg-rail .sg-card:hover .sg-card__media { transform: none; filter: brightness(0.82); }
+.sg-rail .sg-card:hover::after { box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); }
+.sg-rail .sg-card.is-focus { transform: scale(1.07); z-index: 2; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45); }
+.sg-rail .sg-card.is-focus .sg-card__media { transform: scale(1.06); filter: brightness(1); }
+.sg-rail .sg-card.is-focus::after { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9); }
+@media (prefers-reduced-motion: reduce) {
+  .sg-card, .sg-card::before { transition: none; }
+}
+
+.sg-root.is-nobars .ch-bar { display: none; }
+
+/* ---------- In this deck ---------- */
+.v-stream { padding: 0; background: #000; }
+.v-stream > .sg-root {
+  position: absolute; left: 0; top: 0; width: calc(100% / 1.2); height: 900px; max-height: none;
+  transform: scale(1.2); transform-origin: top left;
+  --display: 'Inter', system-ui, sans-serif; font-family: 'Inter', system-ui, sans-serif;
+}
+/* Films that are not 16:9 (a 2.34:1 short film, a 4:5 clip) play whole, letterboxed */
+.sg-layer.is-whole .sg-layer__media { object-fit: contain; }
+/* Sound: the films start muted, as browsers require; one press turns it on for the tab */
+.sg-tools { display: flex; align-items: center; gap: 16px; }
+.sg-sound {
+  display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; background: rgba(0, 0, 0, 0.35);
+  color: #FFFFFF; font: 600 13px/1 'Inter', sans-serif; cursor: pointer; transition: background .2s;
+}
+.sg-sound:hover { background: rgba(255, 255, 255, 0.14); }
+.sg-sound svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sg-root.is-quiet .sg-sound { opacity: 0; }
+.sg-sound { transition: opacity 0.7s var(--sg-ease, ease), background .2s; }
+
+/* ---------- A film opened on its own (2026-10-30) ----------
+   Click any film: it fills the frame, plays with sound and controls, the page
+   under it waits; the white square at the top left (as in the reference)
+   returns to it. */
+.sg-shot video.is-openable, .sg-layer__media.is-openable { cursor: zoom-in; }
+.sg-solo {
+  position: absolute; inset: 0; z-index: 10; background: #000;
+  animation: sg-solo-in 0.45s var(--sg-ease, ease) both;
+}
+.sg-solo.is-leaving { animation: sg-solo-out 0.3s ease forwards; pointer-events: none; }
+.sg-solo__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; animation: sg-solo-zoom 0.6s var(--sg-ease, ease) both; }
+.sg-solo__back {
+  position: absolute; left: 22px; top: 22px; width: 52px; height: 52px; border: 0; border-radius: 14px;
+  background: #FFFFFF; color: #141615; cursor: pointer; display: grid; place-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); transition: transform 0.25s var(--sg-ease, ease);
+}
+.sg-solo__back:hover { transform: scale(1.06); }
+.sg-solo__back svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sg-root.is-solo .sg-rail, .sg-root.is-solo .sg-info, .sg-root.is-solo .sg-top { opacity: 0; pointer-events: none; }
+.sg-solo:fullscreen { width: 100vw; height: 100vh; }
+@keyframes sg-solo-in { from { opacity: 0; } }
+@keyframes sg-solo-out { to { opacity: 0; } }
+@keyframes sg-solo-zoom { from { transform: scale(0.92); } }
+
+/* ---------- Reels four across, no heading (2026-10-30) ---------- */
+.sg-root.is-reels .sg-info, .sg-root.is-reels.is-rail .sg-info { display: none; }
+.sg-root.is-reels .sg-page { left: 24px; right: 24px; }
+.sg-root.is-reels .sg-page__row { gap: 14px; }
+
+/* ---------- Horizontal films as full-width bands, top to bottom (2026-10-30) ----------
+   Positions come from stagger() in stream.js; no heading, as with reels. */
+.sg-root.is-stack .sg-grade { background: none; }
+.sg-root.is-stack .sg-count,
+.sg-root.is-stack .sg-info, .sg-root.is-stack.is-rail .sg-info { display: none; }
+.sg-root.is-stack .sg-page--stagger { position: absolute; inset: 0; container-type: normal; display: block; }
+.sg-page--stagger .sg-shot { position: absolute; margin: 0; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+.sg-page--stagger .sg-shot video { width: 100%; height: 100%; object-fit: cover; }

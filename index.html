@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Marketing · Torii Minds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="home.css">
+<link rel="stylesheet" href="showcase.css">
+<link rel="stylesheet" href="stream.css">
+<link rel="stylesheet" href="tag.css">
+<link rel="stylesheet" href="taghero.css">
+<link rel="stylesheet" href="tagreport.css">
+<link rel="stylesheet" href="tagroles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+
+<!-- ============ Sign in, as in the Torii and NGI decks ============ -->
+<section class="screen login" id="login" hidden>
+  <div class="login-art">
+    <div class="eyebrow">Digital Marketing Presentation Portal</div>
+    <h1>Torii Minds. Every search is an opportunity.</h1>
+    <p>How we handle digital marketing: our clients, our own brands, the Tag Portal workflow and the creatives behind it, presented section by section.</p>
+    <div class="org-tile">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M17 94 V13 H83 V94" fill="none" stroke="var(--torii-orange)" stroke-width="7"/>
+        <rect x="46.5" y="36" width="7" height="58" fill="currentColor"/>
+        <path d="M50 18 V32 M43 25 H57 M45 20 L55 30 M55 20 L45 30" stroke="var(--torii-orange)" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      <div><strong>Torii Minds</strong><span>Digital Marketing</span></div>
+    </div>
+  </div>
+  <div class="login-side">
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <h2>Sign in</h2>
+      <p class="login-help" id="loginHelp">Sign in with your email and password.</p>
+      <div class="roles" role="tablist">
+        <button type="button" class="role" data-role="admin">Admin</button>
+        <button type="button" class="role on" data-role="presenter">Presenter</button>
+      </div>
+      <label>Email<input id="email" type="email" required autocomplete="username"></label>
+      <label>Password<input id="password" type="password" required autocomplete="current-password"></label>
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" type="submit">Sign in</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ Signed in: start the presentation ============ -->
+<section class="screen welcome" id="welcome" hidden>
+  <div class="orbit" id="orbit"></div>
+  <div class="welcome-body">
+    <div class="session-pill"><i></i><span id="sessionLabel">Presenter session</span></div>
+    <h1>Stay <span>visible.</span><br>Every search is an <em>opportunity.</em></h1>
+    <p>How Torii Minds runs digital marketing for our clients and for our own brands: designs, videos and the workflow that ties them together.</p>
+    <div class="welcome-actions">
+      <button class="start-btn" id="startBtn">Start the presentation <b>→</b></button>
+      <button class="ghost-btn" data-signout>Sign out</button>
+    </div>
+  </div>
+</section>
+
+<div class="app" id="app" hidden>
+
+  <!-- Side navigation, as in the Torii and NGI decks -->
+  <aside class="side">
+    <div class="side-head">
+      <svg class="side-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M17 94 V13 H83 V94" fill="none" stroke="var(--torii-orange)" stroke-width="7"/>
+        <rect x="46.5" y="36" width="7" height="58" fill="var(--ink)"/>
+        <path d="M50 18 V32 M43 25 H57 M45 20 L55 30 M55 20 L45 30" stroke="var(--torii-orange)" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      <span class="side-name">TORII<b>MINDS</b></span>
+      <button class="icon-btn side-fold" data-side="min" title="Collapse the menu" aria-label="Collapse the menu">
+        <svg viewBox="0 0 24 24"><path d="M12 7 L7 12 L12 17 M18 7 L13 12 L18 17"/></svg>
+      </button>
+      <button class="icon-btn side-open" data-side="open" title="Open the menu" aria-label="Open the menu">
+        <svg viewBox="0 0 24 24"><path d="M6 7 L11 12 L6 17 M12 7 L17 12 L12 17"/></svg>
+      </button>
+      <button class="icon-btn" data-signout title="Sign out" aria-label="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M15 4 H19 A1.5 1.5 0 0 1 20.5 5.5 V18.5 A1.5 1.5 0 0 1 19 20 H15 M10 16 L14 12 L10 8 M14 12 H3.5"/></svg>
+      </button>
+    </div>
+    <div class="side-pill" id="deckTitle">Digital Marketing</div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div class="crumbs-wrap"><div class="crumbs" id="crumbs"></div><span class="mode" id="mode">Presenting</span></div>
+      <div class="top-actions">
+        <button class="btn" id="prev">‹ Prev</button>
+        <button class="btn" id="next">Next ›</button>
+        <button class="btn btn-dark" id="present">▶ Present</button>
+      </div>
+    </header>
+
+    <!-- Every slide is drawn on a 1920×1080 canvas and scaled to fit -->
+    <section class="frame" id="frame">
+      <div class="slide" id="slide">
+        <div class="canvas" id="canvas"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Full-screen viewer for posters and videos -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
+  <figure class="lb-stage" id="lbStage"></figure>
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
+  <div class="lb-caption" id="lbCaption"></div>
+</div>
+
+<!-- Asked before signing out -->
+<div class="confirm" id="confirm" hidden>
+  <div class="confirm-card" role="alertdialog" aria-labelledby="confirmTitle">
+    <span class="confirm-ic"><svg viewBox="0 0 24 24"><path d="M15 4 H19 A1.5 1.5 0 0 1 20.5 5.5 V18.5 A1.5 1.5 0 0 1 19 20 H15 M10 16 L14 12 L10 8 M14 12 H3.5"/></svg></span>
+    <h3 id="confirmTitle">Sign out?</h3>
+    <p>You will need to sign in again to continue the presentation.</p>
+    <div class="confirm-btns"><button class="btn" id="confirmNo">Stay signed in</button><button class="btn btn-dark" id="confirmYes">Sign out</button></div>
+  </div>
+</div>
+
+<script src="js/static-api.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

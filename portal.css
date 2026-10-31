@@ -1,0 +1,82 @@
+/* The Platform overview slide (js/portal.js): dark and cinematic, unlike the
+   light pages around it. Laid out on the 1920×1080 canvas. */
+
+.pv {
+  padding: 0; overflow: hidden; color: #fff; font-family: 'Inter', system-ui, sans-serif;
+  background: radial-gradient(120% 90% at 50% 0%, #161B24 0%, #0B0E13 60%, #08090C 100%);
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+.pv-glow { position: absolute; width: 1200px; height: 900px; right: -260px; top: -320px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(240, 93, 41, .30), rgba(240, 93, 41, 0)); animation: pv-breathe 7s ease-in-out infinite; }
+.pv-grid { position: absolute; inset: 0; opacity: .5;
+  background-image: linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+  background-size: 80px 80px; -webkit-mask-image: radial-gradient(70% 70% at 60% 35%, #000, transparent); mask-image: radial-gradient(70% 70% at 60% 35%, #000, transparent); }
+@keyframes pv-breathe { 50% { transform: scale(1.08); opacity: .8; } }
+
+/* things that fade up as the slide opens */
+.pv-in { opacity: 0; animation: pv-up 1s var(--ease) var(--d, 0s) both; }
+@keyframes pv-up { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Left: brand, headline, line, link ---------- */
+.pv-left { position: absolute; left: 120px; top: 110px; width: 700px; z-index: 2; }
+.pv-brand { display: flex; align-items: center; gap: 20px; }
+.pv-logo { display: grid; place-items: center; height: 64px; padding: 0 18px; background: #fff; border-radius: 16px; }
+.pv-logo img { height: 46px; width: auto; }
+.pv-brand > span:last-child { font-size: 15px; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: #8C93A0; }
+.pv h1 { margin: 54px 0 0; font-size: 100px; line-height: 1.02; font-weight: 800; letter-spacing: -.04em; }
+.pv-mask { display: block; overflow: hidden; padding-bottom: 6px; }
+.pv-mask > span { display: block; animation: pv-rise 1.1s var(--ease) var(--d) both; }
+.pv h1 em { font-style: normal; color: #F05D29; }
+@keyframes pv-rise { from { transform: translateY(105%); } to { transform: none; } }
+.pv-left p { margin: 30px 0 0; font-size: 25px; line-height: 1.5; color: #A3A9B4; max-width: 620px; }
+.pv-link {
+  display: inline-flex; align-items: center; gap: 14px; margin-top: 40px; padding: 16px 26px; border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, .18); color: #fff; text-decoration: none; font-size: 20px; font-weight: 600;
+  transition: border-color .3s, background .3s;
+}
+.pv-link:hover { border-color: #F05D29; background: rgba(240, 93, 41, .12); }
+.pv-link i { width: 10px; height: 10px; border-radius: 50%; background: #3BD58A; box-shadow: 0 0 0 6px rgba(59, 213, 138, .18); animation: pv-live 2s ease-in-out infinite; }
+.pv-link b { color: #F05D29; }
+@keyframes pv-live { 50% { box-shadow: 0 0 0 10px rgba(59, 213, 138, 0); } }
+
+/* ---------- Right: the screens, in a tilted stack that takes turns ---------- */
+.pv-stage { position: absolute; left: 860px; top: 120px; width: 940px; height: 560px; perspective: 2200px; z-index: 1; }
+.pv-shot {
+  position: absolute; left: 60px; top: 70px; width: 860px; margin: 0; border-radius: 16px; overflow: hidden; cursor: zoom-in;
+  background: #11151C; border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 60px 120px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .3);
+  transform-origin: 50% 50%; transition: transform 1.4s var(--ease), opacity 1.2s ease, filter 1.2s ease;
+  animation: pv-fly 1.6s var(--ease) both;
+}
+.pv-shot[data-pos="0"] { transform: rotateY(-16deg) rotateX(7deg) translateZ(0); z-index: 3; }
+.pv-shot[data-pos="1"] { transform: rotateY(-16deg) rotateX(7deg) translate3d(-120px, -95px, -240px); z-index: 2; opacity: .6; filter: blur(1px) brightness(.65); }
+.pv-shot[data-pos="2"] { transform: rotateY(-16deg) rotateX(7deg) translate3d(-140px, -140px, -440px); z-index: 1; opacity: .3; filter: blur(2px) brightness(.5); }
+.pv-shot:nth-child(1) { animation-delay: .5s; } .pv-shot:nth-child(2) { animation-delay: .2s; } .pv-shot:nth-child(3) { animation-delay: 0s; }
+@keyframes pv-fly { from { opacity: 0; translate: 160px 120px; rotate: 6deg; } }
+.pv-bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #1A1F28; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+.pv-bar i { width: 11px; height: 11px; border-radius: 50%; background: #3A404B; }
+.pv-bar i:first-child { background: #F05D29; }
+.pv-bar span { margin-left: 16px; padding: 4px 16px; border-radius: 8px; background: #0F1218; font-size: 13px; color: #8C93A0; }
+.pv-shot img { display: block; width: 100%; height: auto; }
+.pv-none { position: absolute; inset: 120px 60px; display: grid; place-items: center; border: 2px dashed rgba(255, 255, 255, .15); border-radius: 18px; color: #8C93A0; font-size: 22px; }
+
+/* ---------- Bottom: the six steps, a light running along them ---------- */
+.pv-flow { position: absolute; left: 120px; right: 120px; top: 760px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; z-index: 2; }
+.pv-rail { position: absolute; left: 32px; right: calc(100% / 6 - 32px); top: 31px; height: 2px; background: rgba(255, 255, 255, .1); }
+.pv-rail i { display: block; height: 100%; background: linear-gradient(90deg, #F05D29, #FF9A62); transform: scaleX(0); transform-origin: left; transition: transform 1.2s var(--ease); box-shadow: 0 0 14px rgba(240, 93, 41, .8); }
+.pv-step { position: relative; opacity: 0; animation: pv-up .9s var(--ease) var(--d) both; }
+.pv-dot {
+  position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
+  background: #12161D; border: 1.5px solid rgba(255, 255, 255, .14); color: #8C93A0;
+  transition: background .5s, border-color .5s, color .5s, box-shadow .5s, transform .5s var(--ease);
+}
+.pv-dot svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.pv-step small { display: block; margin-top: 22px; font-size: 14px; font-weight: 700; letter-spacing: .2em; color: #5D6470; transition: color .5s; }
+.pv-step b { display: block; margin-top: 6px; font-size: 28px; font-weight: 700; color: #C9CED6; transition: color .5s; }
+.pv-step p { margin: 8px 0 0; font-size: 17px; line-height: 1.45; color: #6E7582; max-width: 250px; transition: color .5s; }
+.pv-step.done .pv-dot { border-color: rgba(240, 93, 41, .6); color: #F05D29; }
+.pv-step.on .pv-dot { background: #F05D29; border-color: #F05D29; color: #fff; transform: scale(1.12); box-shadow: 0 0 0 10px rgba(240, 93, 41, .16), 0 0 40px rgba(240, 93, 41, .55); }
+.pv-step.on small { color: #F05D29; }
+.pv-step.on b { color: #fff; }
+.pv-step.on p { color: #C9CED6; }
+
+.pv-upload { position: absolute; right: 40px; bottom: 30px; z-index: 5; }

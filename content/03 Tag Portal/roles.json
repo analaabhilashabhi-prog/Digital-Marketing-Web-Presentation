@@ -1,0 +1,55 @@
+{
+  "kicker": "t@g roles and flow",
+  "groupLogo": "Logos/ngi-group-of-institutions.png",
+  "roles": {
+    "super": { "name": "Super Admin", "tag": "Platform owner", "color": "#141E3C", "icon": "crown",
+      "can": ["Creates institutions and accounts", "Holds the branding register", "Gives the final sign-off"],
+      "sees": "Every institution" },
+    "admin": { "name": "Institution Admin", "tag": "Runs a college", "color": "#4B5BA8", "icon": "building",
+      "can": ["Reviews and approves work", "Allocates work to the team", "Answers for the college's numbers"],
+      "sees": "Their own colleges" },
+    "coord": { "name": "Coordinator", "tag": "Asks and accepts", "color": "#F5822A", "icon": "megaphone",
+      "can": ["Raises what the college needs", "Picks the pages it should go on", "Accepts or declines finished work"],
+      "sees": "Their college's requests" },
+    "designer": { "name": "Designer", "tag": "Makes the work", "color": "#6C5CE7", "icon": "pen",
+      "can": ["Claims jobs from the shared board", "Submits designs for approval", "Fixes the change points"],
+      "sees": "The designers' board" },
+    "handler": { "name": "Social Handler", "tag": "Puts it out", "color": "#138A8A", "icon": "send",
+      "can": ["Writes copy for each channel", "Publishes, or schedules it", "Marks it posted, with the date"],
+      "sees": "The pages they run" }
+  },
+  "colleges": ["NCET", "NCMS", "NDC"],
+  "moreColleges": "+ 5 more",
+  "counts": [["8", "Institutions"], ["26", "People"], ["5", "Roles"]],
+  "steps": [
+    { "role": "coord", "title": "Raise", "text": "The college says what it needs, by when." },
+    { "role": "designer", "title": "Design", "text": "A designer claims it and does the work." },
+    { "role": "admin", "title": "Approve", "text": "The group checks the quality." },
+    { "role": "coord", "title": "Accept", "text": "The college confirms it is what they asked for." },
+    { "role": "handler", "title": "Publish", "text": "The handler puts it out." }
+  ],
+  "request": { "title": "Placement poster", "from": "NCET", "due": "Needed by Fri, 9 AM" },
+  "changes": [
+    ["Image", "Use the new campus photo"],
+    ["Content", "The date is 12 Nov, not 11 Nov"],
+    ["Other", "Make the venue line bigger"]
+  ],
+  "fork": {
+    "social": { "title": "Social media work", "text": "Goes to the handlers who run the pages" },
+    "other": { "title": "Print · LED screen · Web banner", "text": "File delivered back to the coordinator. Done." }
+  },
+  "channels": [
+    ["LinkedIn", "10 selections, package up to 6.5 LPA. A proud week for our placement cell…"],
+    ["Instagram", "From caps to careers 🎓 Ten offers this week! #Placements #NCET"],
+    ["Facebook", "Congratulations to our ten students placed this week."],
+    ["YouTube", "Placement week highlights, with the students who made it."]
+  ],
+  "rules": [
+    ["person", "One name at every moment", "The platform always knows whose desk the work is on, and for how long."],
+    ["gates", "Two gates, not one", "The group checks the quality; the college confirms it is what they asked for."],
+    ["steps", "Nothing skips a step", "A stage can only be reached from the one before it."],
+    ["log", "Every action is logged", "Uploads, approvals and changes: who did it, and when. Permanently."],
+    ["lock", "Each college sees its own", "A college's data is walled off on the server, not just hidden."],
+    ["key", "Only the Super Admin creates accounts", "Everyone else is refused, institution heads included."]
+  ]
+}

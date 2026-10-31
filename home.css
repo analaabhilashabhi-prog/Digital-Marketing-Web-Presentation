@@ -1,0 +1,145 @@
+/* The Home slide: the bridge scene, drawn on the deck's 1920×1080 canvas */
+.home { position: absolute; inset: 0; overflow: hidden;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBFAF8 60%, #F4F2EF 100%); }
+.home > * { position: absolute; }
+
+/* ---------- Torii mark ---------- */
+.home .brand {
+  left: 72px; top: 56px;
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none; color: var(--ink);
+}
+.home .brand svg { width: 40px; height: 40px; }
+.home .brand span { font-size: 16px; font-weight: 700; letter-spacing: 6px; }
+.home .brand b { font-weight: 400; margin-left: 8px; color: var(--muted); }
+.home .brand svg g { transform-origin: 50px 25px; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.home .brand:hover svg g { transform: rotate(90deg); }
+
+/* ---------- Headline: letters fade in one by one ---------- */
+.home .hero { left: 0; right: 0; top: 150px; text-align: center; transition: transform .4s ease-out; }
+.home .headline {
+  font-size: 96px; font-weight: 700; letter-spacing: -2.5px; line-height: 1.1;
+  color: var(--torii-orange);
+}
+.home .sub {
+  margin-top: 14px;
+  font-size: 34px; font-weight: 500; letter-spacing: -.4px; line-height: 1.3;
+  color: var(--ink);
+}
+.home .headline span {
+  display: inline-block;
+  animation: fade 1.2s calc(.2s + var(--i) * 55ms) both cubic-bezier(.2,.7,.2,1);
+}
+.home .sub { animation: fade 1.6s 1s both cubic-bezier(.2,.7,.2,1); }
+@keyframes fade {
+  from { opacity: 0; filter: blur(14px); transform: translateY(10px); }
+}
+
+/* ---------- Callouts ---------- */
+.home .callout { top: 610px; width: 300px; text-align: center; font-size: 22px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.home .callout-left { left: 65px; }    /* centred over the storefront (x≈215) */
+.home .callout-right { left: 1574px; } /* centred over the customers (x≈1724) */
+.home .callout .stem {
+  position: absolute; top: 40px; left: calc(50% - .75px); width: 1.5px; height: 46px; background: #b9bcbb;
+  transform-origin: top; animation: grow 1s 1.4s both cubic-bezier(.2,.8,.2,1);
+}
+.home .callout .stem::after {
+  content: ""; position: absolute; left: -2.75px; bottom: -3px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--torii-orange);
+}
+@keyframes grow { from { transform: scaleY(0); } }
+
+/* ---------- Cliffs ---------- */
+.home .cliffs { inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+
+/* ---------- Bridge / search bar ---------- */
+.home .bridge { left: 400px; top: 720px; width: 1120px; height: 110px; z-index: 3; }
+
+/* Deck under the bar: one plank per service, dropped in one by one */
+.home .deck {
+  position: absolute; left: 70px; right: 70px; top: 86px; height: 50px;
+  display: flex; gap: 4px;
+}
+.home .plank {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding-top: 8px;
+  background: var(--ink);
+  color: #fff; font-size: 15px; font-weight: 500; letter-spacing: .1px; white-space: nowrap;
+  border-radius: 0 0 10px 10px;
+  animation: drop .6s calc(.5s + var(--i) * .15s) both cubic-bezier(.3,1.4,.5,1);
+}
+.home .plank svg { flex: none; width: 18px; height: 18px; fill: none; stroke: var(--torii-orange); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes drop { from { opacity: 0; transform: translateY(-80px); } }
+
+/* Grey underside of the search bar, as in the original poster */
+.home .slab {
+  position: absolute; left: 18px; right: 18px; top: 50px; height: 50px;
+  border-radius: 0 0 44px 44px / 0 0 26px 26px;
+  background: linear-gradient(180deg, #d9d9d9, #a9a9a9 70%, #8f8f8f);
+  animation: pillIn .9s 1.3s both cubic-bezier(.2,.8,.2,1);
+}
+.home .pill { animation: pillIn .9s 1.3s both cubic-bezier(.2,.8,.2,1); }
+@keyframes pillIn { from { opacity: 0; transform: scaleX(.2); } }
+.home .tag {
+  position: absolute; left: 50%; top: 152px; transform: translateX(-50%);
+  font-size: 16px; color: var(--muted); white-space: nowrap; letter-spacing: .2px;
+  animation: fade 1s 2s both cubic-bezier(.2,.7,.2,1);
+}
+.home .tag b { color: var(--torii-orange); font-weight: 600; }
+
+/* Google-style search bar */
+.home .pill {
+  position: absolute; inset: 0 0 auto 0; height: 92px;
+  display: flex; align-items: center; gap: 22px;
+  padding: 0 42px 0 38px;
+  border-radius: 46px;
+  background: linear-gradient(180deg, #fbfbfb 0%, #ececec 55%, #dcdcdc 100%);
+  border: 3px solid #c9c9c9;
+  box-shadow:
+    inset 0 2px 0 #fff,
+    inset 0 -6px 10px rgba(0,0,0,.08),
+    0 3px 0 #b8b8b8,
+    0 10px 18px -8px rgba(0,0,0,.3);
+}
+.home .search-icon { display: grid; place-items: center; }
+.home .search-icon svg { width: 36px; height: 36px; }
+.home .query {
+  flex: 1; min-width: 0; display: flex; align-items: center;
+  font-size: 26px; font-weight: 500; color: #3b3b3b; letter-spacing: .1px; white-space: pre;
+}
+.home .query b { color: var(--torii-orange); font-weight: 600; }
+.home .caret {
+  width: 2px; height: 32px; margin-left: 2px; background: #3b3b3b;
+  animation: caret 1s steps(1) infinite;
+}
+.home .caret.typing { animation: none; }
+@keyframes caret { 50% { opacity: 0; } }
+.home .mic { display: grid; place-items: center; }
+.home .mic svg { width: 26px; height: 42px; }
+
+/* ---------- Your business: storefront ---------- */
+.home .business { left: 150px; top: 720px; width: 130px; height: 100px; z-index: 4; cursor: pointer; }
+.home .store { display: block; width: 130px; height: 100px; overflow: visible; transition: filter .3s; }
+.home .store .window { fill: #3a3d3c; }
+.home .store .open { fill: #5a5e5d; }
+.home .business:hover .store { filter: drop-shadow(0 0 10px rgba(240,93,41,.45)); }
+
+/* ---------- Your customers: person icons with a badge ---------- */
+.home .customer { top: 754px; width: 46px; height: 66px; z-index: 4; cursor: pointer; }
+.home .avatar { display: block; width: 46px; height: 66px; overflow: visible; color: #3d4140; }
+.home .customer:nth-of-type(odd) .avatar { color: #565a59; }
+.home .customer:hover .avatar { filter: drop-shadow(0 0 6px rgba(240,93,41,.6)); }
+
+/* ---------- Tooltip ---------- */
+.home .tip {
+  z-index: 10; pointer-events: none;
+  background: var(--ink); color: #fff; font-size: 16px; font-weight: 500;
+  padding: 8px 12px; border-radius: 8px; white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 12px)); opacity: 0; transition: opacity .15s;
+}
+.home .tip.show { opacity: 1; }
+
+/* ---------- Entrance ---------- */
+.home .reveal { animation: rise .9s var(--d, 0s) both cubic-bezier(.2,.8,.2,1); }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+
