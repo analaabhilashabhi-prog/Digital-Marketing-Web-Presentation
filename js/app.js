@@ -345,7 +345,7 @@ async function show(n) {
     // Designs from every brand in "sources", each also known as "Brand/file name" (e.g. "TH/03 CEO Talk.jpg")
     const pool = Object.entries(n.sources || { '': n.folder }).flatMap(([brand, folder]) =>
       (media[folder]?.items || []).filter(i => i.kind === 'image').map(i => ({ ...i, key: brand ? `${brand}/${i.name}` : i.name })));
-    cleanup = mountShowcase(canvas, { ...n, logo: n.logo && asset(n.logo), scene3 }, pool, openLightbox, arrows);
+    cleanup = mountShowcase(canvas, { ...n, logo: n.logo && asset(n.logo), logo2: n.logo2 && asset(n.logo2), scene3 }, pool, openLightbox, arrows);
     arrows();
     return;
   }

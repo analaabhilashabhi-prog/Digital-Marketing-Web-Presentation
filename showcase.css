@@ -27,6 +27,7 @@
   animation: scFade .8s .1s both;
 }
 .sc-logo { height: 46px; width: auto; }
+.sc-logo2 { height: 34px; padding-left: 18px; border-left: 1.5px solid #D9D8D4; box-sizing: content-box; }
 .sc-kicker {
   font-size: 15px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #8A8D8B;
   padding-left: 18px; border-left: 1.5px solid #D9D8D4;

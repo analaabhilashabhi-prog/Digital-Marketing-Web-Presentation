@@ -31,6 +31,8 @@ button { font: inherit; color: inherit; }
 .side-mark { width: 30px; height: 30px; }
 .side-name { font-size: 14px; font-weight: 700; letter-spacing: 5px; }
 .side-name b { font-weight: 400; margin-left: 6px; color: var(--muted); }
+.side-head2 { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; margin-top: -6px; }
+.side-mark2 { width: 28px; height: auto; }
 .side-pill {
   background: var(--torii-orange); color: #fff; text-align: center;
   font-weight: 600; font-size: 14px; padding: 10px; border-radius: 10px; margin-bottom: 18px;
@@ -450,6 +452,7 @@ body.side-min .side { width: 76px; padding: 22px 10px 16px; z-index: 20; }
 body.side-min .side-head { flex-direction: column; gap: 14px; padding: 0 0 18px; }
 body.side-min .side-head .icon-btn { margin-left: 0; }
 body.side-min .side-name, body.side-min .side-pill { display: none; }
+body.side-min .side-head2 { justify-content: center; padding: 0 0 18px; margin-top: 0; }
 body.side-min .nav { overflow: visible; align-items: center; }
 body.side-min .nav a, body.side-min .nav a.lvl-1, body.side-min .nav a.lvl-2, body.side-min .nav a.lvl-3 { width: 44px; height: 40px; padding: 0; justify-content: center; }
 body.side-min .nav a.lvl-0 { margin-top: 6px; }

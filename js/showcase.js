@@ -239,6 +239,7 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
         <div class="sc-hero">
           <div class="sc-top">
             ${n.logo ? `<img class="sc-logo" src="${esc(n.logo)}" alt="">` : ''}
+            ${n.logo2 ? `<img class="sc-logo sc-logo2" src="${esc(n.logo2)}" alt="">` : ''}
             <span class="sc-kicker">${esc(n.kicker || '')}</span>
           </div>
           <h1 class="sc-head">${words(n.heading || n.title)}</h1>
