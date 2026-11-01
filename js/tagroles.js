@@ -309,36 +309,7 @@ export function roleChapters(D, L) {
     /* 3 · One request, five steps: one real poster, from the brief to the feed */
     story(D, R, L),
 
-    /* 4 · Accept, then the fork */
-    {
-      name: 'Accept, then the fork', hold: 12,
-      title: 'Accept, then the fork',
-      line: 'Approved is not finished. The college that asked has the final say.',
-      html: `
-        <div class="rl"><div class="rl-c">
-          <div class="rl-accept"${A('up', .3)}>
-            <div class="rl-accept__head">${badge(R.coord)}<span><b>${esc(R.coord.name)}</b><small>${esc(D.request.from)}</small></span></div>
-            <p>Is this what we asked for?</p>
-            <div class="rl-accept__btns"><span>Decline</span><span class="yes">${ric('check')}Accept</span></div>
-          </div>
-          <svg class="rl-lines" viewBox="0 0 1920 1080">
-            <path class="tr-draw rl-arrow" pathLength="1" style="--d:3.2s" d="M 660 500 H 820 C 940 500, 940 300, 1080 300"/>
-            <path class="tr-draw rl-arrow" pathLength="1" style="--d:3.6s" d="M 820 500 C 940 500, 940 700, 1080 700"/>
-          </svg>
-          <div class="rl-dest d1"${A('left', 4.4, `--c:${R.handler.color}`)}>
-            <small>Goes to a page</small>
-            <div>${badge(R.handler)}<span><b>${esc(D.fork.social.title)}</b><i>${esc(D.fork.social.text)}</i></span></div>
-          </div>
-          <div class="rl-dest d2"${A('left', 5.4, `--c:${R.coord.color}`)}>
-            <small>Has no page</small>
-            <div><span class="rl-ic" style="--c:#0F9D6E">${ric('check')}</span><span><b>${esc(D.fork.other.title)}</b><i>${esc(D.fork.other.text)}</i></span></div>
-          </div>
-          <p class="rl-note"${A('up', 7.6)}>${ric('clock')}A coordinator can't raise a new request while finished work waits on them.</p>
-        </div></div>`,
-      tick(t, el) { el.querySelector('.rl-accept').classList.toggle('yes', t > 2.4); },
-    },
-
-    /* 5 · Publish, or schedule */
+    /* 4 · Publish, or schedule */
     {
       name: 'Publish, or schedule', hold: 13,
       title: 'Publish, or schedule',

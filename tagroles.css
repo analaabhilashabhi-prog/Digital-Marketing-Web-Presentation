@@ -234,23 +234,7 @@
 @keyframes fl-ripple { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
 .fl-cursor em { position: absolute; left: 26px; top: 28px; padding: 5px 11px; border-radius: 9px; background: var(--c, #F5822A); color: #fff; font-style: normal; font-size: 14px; font-weight: 800; white-space: nowrap; }
 
-/* ---------- 4 · Accept, then the fork ---------- */
-.rl-accept { position: absolute; left: 160px; top: 290px; width: 500px; box-sizing: border-box; padding: 30px; background: #fff; border-radius: 24px; box-shadow: 0 16px 34px rgba(20, 30, 60, .1); }
-.rl-accept__head { display: flex; align-items: center; gap: 16px; }
-.rl-accept__head b { display: block; font-size: 24px; font-weight: 800; }
-.rl-accept__head small { font-size: 16px; color: #6A7286; }
-.rl-accept p { margin: 26px 0; font-size: 30px; font-weight: 700; }
-.rl-accept__btns { display: flex; gap: 14px; }
-.rl-accept__btns span { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; height: 64px; border-radius: 14px; border: 2px solid #E2E6EE; font-size: 21px; font-weight: 800; color: #6A7286; transition: background .4s, color .4s, border-color .4s, transform .3s; }
-.rl-accept.yes .yes { background: #0F9D6E; border-color: #0F9D6E; color: #fff; transform: scale(1.04); }
-.rl-dest { position: absolute; left: 1080px; width: 700px; box-sizing: border-box; padding: 24px 28px; background: #fff; border-radius: 22px; border-left: 6px solid var(--c); box-shadow: 0 16px 34px rgba(20, 30, 60, .08); }
-.rl-dest.d1 { top: 210px; } .rl-dest.d2 { top: 610px; border-left-color: #0F9D6E; }
-.rl-dest small { display: block; margin-bottom: 14px; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #6A7286; }
-.rl-dest > div { display: flex; align-items: center; gap: 20px; }
-.rl-dest b { display: block; font-size: 26px; font-weight: 800; }
-.rl-dest i { display: block; margin-top: 4px; font-style: normal; font-size: 19px; color: #6A7286; }
-
-/* ---------- 5 · Publish, or schedule ---------- */
+/* ---------- 4 · Publish, or schedule ---------- */
 .rl-handler { position: absolute; left: 120px; top: 210px; width: 420px; box-sizing: border-box; padding: 34px 30px; background: #fff; border-radius: 24px; box-shadow: 0 16px 34px rgba(20, 30, 60, .1); }
 .rl-handler > b { display: block; margin-top: 20px; font-size: 30px; font-weight: 800; }
 .rl-handler > small { display: block; margin-top: 6px; font-size: 18px; color: #6A7286; }
