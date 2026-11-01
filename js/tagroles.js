@@ -35,10 +35,9 @@ const pchip = p => `<span class="tr-pf" style="background:${PLATFORM[p][1]}">${P
 
 /* ---------- 1 · The hierarchy, left to right ----------
    University Admin → its schools → the Digital Marketing Manager → the team the
-   manager assigns (2026-11-01: "try the horizontal way"). Each column slides in,
-   the links draw across, then a soft light keeps running along them in order, so
-   the work is seen to travel from the admin to the team. Hovering a card lights
-   its whole path and says what it does. */
+   manager assigns (2026-11-01: "try the horizontal way", then "just normal lines
+   ... everything normal, minimal"). Each column slides in and plain links draw
+   across; every card looks alike. Hovering a card lights its path and says what it does. */
 const COL = { top: [40, 330], org: [510, 330], mgr: [980, 450], team: [1570, 350] };   // left, width
 const ROWS = [345, 505, 665];                        // centres of the three stacked cards
 const MID = 505;                                     // the admin and the manager sit on the middle row
@@ -68,7 +67,6 @@ function hierarchy(D, R) {
         ${heads.map(([t, k, s]) => `<span class="rl-h-head"${A('fade', s, `left:${COL[k][0]}px;width:${COL[k][1]}px`)}>${esc(t)}</span>`).join('')}
         <svg class="rl-lines rl-h-svg" viewBox="0 0 1920 1080">
           ${links.map((l, i) => `<path class="tr-draw rl-h-link" data-i="${i}" pathLength="1" style="--d:${l.d}s;--c:${l.color}" d="${d(l)}"/>`).join('')}
-          ${links.map((l, i) => `<path class="rl-h-flow" data-i="${i}" pathLength="1" style="--c:${l.color};--s:${l.step}" d="${d(l)}"/>`).join('')}
         </svg>
         ${nodes.map(n => `
           <div class="rl-h-node c-${n.col}" data-node="${n.id}"${A('left', n.d, `left:${COL[n.col][0]}px;top:${n.y - CARD_H[n.col] / 2}px;width:${COL[n.col][1]}px;height:${CARD_H[n.col]}px;--c:${n.color}`)}>
@@ -99,7 +97,7 @@ export function roleChapters(D) {
         // hover a card: its whole path stays lit, everything else steps back
         const up = id => tree.links.filter(l => l.to === id).flatMap(l => [l, ...up(l.from)]);
         const down = id => tree.links.filter(l => l.from === id).flatMap(l => [l, ...down(l.to)]);
-        const lit = root.querySelectorAll('.rl-h-link, .rl-h-flow');
+        const lit = root.querySelectorAll('.rl-h-link');
         root.addEventListener('mouseover', e => {
           const n = e.target.closest('[data-node]');
           if (!n) return;
