@@ -309,47 +309,7 @@ export function roleChapters(D, L) {
     /* 3 · One request, five steps: one real poster, from the brief to the feed */
     story(D, R, L),
 
-    /* 4 · The approval loop */
-    {
-      name: 'The approval loop', hold: 13,
-      title: 'The approval loop',
-      line: 'Changes are written as a checklist, not an argument.',
-      html: `
-        <div class="rl"><div class="rl-c">
-          <div class="rl-poster"${A('up', .3)}>
-            <div class="rl-poster__head">${badge(R.designer)}<span><b>${esc(R.designer.name)}</b><small class="ver"><i>Version 1</i><i>Version 2</i></small></span></div>
-            <div class="rl-poster__art"><i></i><i></i><i></i><i></i><span>${esc(D.request.title)}</span></div>
-            <div class="rl-stamp">${ric('check')}Approved</div>
-          </div>
-          <svg class="rl-lines" viewBox="0 0 1920 1080">
-            <path class="tr-draw rl-arrow" pathLength="1" style="--d:1.2s" d="M 640 420 H 730"/>
-            <path class="tr-draw rl-arrow back" pathLength="1" style="--d:5.4s" d="M 960 840 C 960 930, 400 930, 400 850"/>
-          </svg>
-          <div class="rl-review"${A('up', 1.4)}>
-            <div class="rl-review__head">${badge(R.admin)}<span><b>Admin review</b><small>Round <em class="r1">1</em><em class="r2">2</em></small></span></div>
-            ${D.changes.map(([k, v], i) => `
-              <div class="rl-change k${i}"${A('left', 2.2 + i * .6)}><span>${esc(k)}</span><b>${esc(v)}</b>${ric('check', 'fix')}</div>`).join('')}
-            <div class="rl-review__btns"${A('up', 4.2)}><span class="send">${ric('back')}Send back</span><span class="ok">${ric('check')}Approve</span></div>
-          </div>
-          <div class="rl-round"${A('fade', 5.8)}>Round 2: the designer fixes each point</div>
-          <div class="rl-learn"${A('up', 9.6)}>
-            <small>Because every round is counted</small>
-            <div><b>Right first time?</b><span>Measured for every design</span></div>
-            <div><b>What keeps recurring?</b><span>Image, content or other</span></div>
-            <div><b>How long, end to end?</b><span>From raised to delivered</span></div>
-          </div>
-        </div></div>`,
-      tick(t, el) {
-        el.querySelector('.rl-poster').classList.toggle('v2', t > 6.4);
-        el.querySelector('.rl-review').classList.toggle('r2', t > 6.4);
-        el.querySelectorAll('.rl-change').forEach((c, i) => c.classList.toggle('fixed', t > 6.8 + i * .5));
-        el.querySelector('.rl-review__btns').classList.toggle('sent', t > 4.8 && t < 6.4);
-        el.querySelector('.rl-review__btns').classList.toggle('approved', t > 8.6);
-        el.querySelector('.rl-stamp').classList.toggle('on', t > 8.9);
-      },
-    },
-
-    /* 5 · Accept, then the fork */
+    /* 4 · Accept, then the fork */
     {
       name: 'Accept, then the fork', hold: 12,
       title: 'Accept, then the fork',
@@ -378,7 +338,7 @@ export function roleChapters(D, L) {
       tick(t, el) { el.querySelector('.rl-accept').classList.toggle('yes', t > 2.4); },
     },
 
-    /* 6 · Publish, or schedule */
+    /* 5 · Publish, or schedule */
     {
       name: 'Publish, or schedule', hold: 13,
       title: 'Publish, or schedule',
@@ -405,22 +365,6 @@ export function roleChapters(D, L) {
         el.querySelector('.rl-when').classList.toggle('picked', t > 7.2);
         el.querySelector('.rl-when').classList.toggle('posted', t > 9);
       },
-    },
-
-    /* 7 · The rules */
-    {
-      name: 'The rules', hold: 12,
-      title: 'The rules that keep it honest',
-      line: 'Built so nothing goes unaccounted for.',
-      html: `
-        <div class="rl"><div class="rl-c">
-          <div class="rl-rules">${D.rules.map(([ic, title, text], i) => `
-            <div class="rl-rule"${A('rise', .3 + i * .35)}>
-              <span class="rl-ic" style="--c:${['#F5822A', '#4B5BA8', '#6C5CE7', '#138A8A', '#141E3C', '#E0294A'][i % 6]}">${ric(ic)}</span>
-              <b>${esc(title)}</b><p>${esc(text)}</p>
-            </div>`).join('')}
-          </div>
-        </div></div>`,
     },
   ];
 }
