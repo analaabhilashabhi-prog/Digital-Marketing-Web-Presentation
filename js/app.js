@@ -67,7 +67,11 @@ async function load() {
 
 const itemsOf = n => n.categories
   ? n.categories.flatMap(c => c.youtube ? [].concat(c.youtube).map(id => ({ kind: 'video', url: 'yt:' + id })) : media[c.folder]?.items || [])
-  : (n.folder && media[n.folder]?.items) || [];
+  : [...(n.folder && media[n.folder]?.items) || [],
+     // films kept on YouTube, listed in deck.json as { id, title }
+     ...(n.youtube || []).map(y => ({ kind: 'video', url: 'yt:' + y.id, name: y.title, w: 1920, h: 1080 }))];
+const ytId = it => it.url.startsWith('yt:') ? it.url.slice(3) : null;
+const ytEmbed = (id, q) => `https://www.youtube-nocookie.com/embed/${id}?${q}&playsinline=1&rel=0&modestbranding=1`;
 const logoOf = n => (n.folder && media[n.folder]?.logo) || null;
 // A file under content/, e.g. "Logos/tag-portal.png"
 const asset = rel => 'content/' + rel.split('/').map(encodeURIComponent).join('/');
@@ -262,10 +266,12 @@ const views = {
         col.html += `
           <a class="tile pin" data-i="${i}">
             <div class="tile-media" style="aspect-ratio:${it.w && it.h ? `${it.w} / ${it.h}` : '4 / 5'}">
-              ${isAdmin() ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
+              ${isAdmin() && !ytId(it) ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
               ${it.kind === 'image'
                 ? `<img src="${it.url}" alt="${esc(prettify(it.name))}" loading="lazy">`
-                : `<video src="${it.url}" muted loop playsinline preload="metadata" data-auto></video>`}
+                : ytId(it)
+                  ? `<iframe src="${ytEmbed(ytId(it), `autoplay=1&mute=1&loop=1&playlist=${ytId(it)}&controls=0`)}" allow="autoplay; encrypted-media" loading="lazy" title="${esc(it.name)}"></iframe>`
+                  : `<video src="${it.url}" muted loop playsinline preload="metadata" data-auto></video>`}
             </div>
             <div class="pin-name"><span>${esc(prettify(it.name))}</span><i>•••</i></div>
           </a>`;
@@ -488,7 +494,9 @@ function showItem(i) {
   const it = lbList[lbIndex];
   lbStage.innerHTML = it.kind === 'image'
     ? `<img src="${it.full || it.url}" alt="${esc(prettify(it.name))}">`
-    : `<video src="${it.url}" controls autoplay playsinline></video>`;
+    : ytId(it)
+      ? `<iframe src="${ytEmbed(ytId(it), 'autoplay=1')}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="${esc(it.name)}"></iframe>`
+      : `<video src="${it.url}" controls autoplay playsinline></video>`;
   lbCaption.innerHTML = `<b>${esc(prettify(it.name))}</b>${lbIndex + 1} / ${lbList.length}`;
   $('lbPrev').hidden = $('lbNext').hidden = lbList.length < 2;
 }
