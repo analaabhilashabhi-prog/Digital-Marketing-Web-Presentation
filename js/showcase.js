@@ -230,7 +230,9 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
   // the closer look: one card a picture, captioned with the brand it was made for
   const closerItems = deal((closerData.items || []).length || 7).map(it => ({ title: BRAND_NAME[brandOf(it)] || brandOf(it), image: it.key }));
   const waveItems = deal(PER_ROW * 2);
-  const visionPosters = deal(6);
+  // the brand panels' six designs are fixed too: deck.json "vision"
+  const fixed = (names, k) => { const d = deal(k); return (names || []).length ? names.slice(0, k).map((nm, i) => byName(nm) || d[i]) : d; };
+  const visionPosters = fixed(n.vision, 6);
   // The logo row is drawn twice back to back, so sliding it by exactly one copy loops without a seam
   const logoSet = (three.logos || []).map(l =>
     `<span class="sc-brand"><img src="${esc(l.src)}" alt="${esc(l.name)}" title="${esc(l.name)}" draggable="false"${l.height ? ` style="height:${+l.height}px"` : ''}></span>`).join('');
@@ -610,10 +612,10 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
 
   // A fresh deal for every picture: each fades out, its new poster is decoded, then fades in
   // the opening fan: its fixed designs on the first screen, a fresh deal of others anywhere else
-  const heroCards = [...cards];
+  // (2026-11-01: fixed as well): deck.json "hero" on the first screen, "fan2" after it
+  const heroCards = [...cards], fan2Cards = fixed(n.fan2, heroCards.length);
   const groups = [
-    [nodes.map(c => c.querySelector('img')), cards, null, () => target === STOPS[0] ? heroCards : deal(heroCards.length, heroCards)],
-    [vision.querySelectorAll('.v-card[data-v] img'), visionPosters],
+    [nodes.map(c => c.querySelector('img')), cards, null, () => target === STOPS[0] ? heroCards : fan2Cards],
     [wTiles.map(c => c.querySelector('img')), waveItems],
     [cCards.map(c => c.querySelector('img')), closerPics, cCards.map(c => c.querySelector('span'))],
     [story.querySelectorAll('.st-mini img, .st-photo img, .st-phone img'), []],
@@ -627,6 +629,7 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
       imgs.forEach((im, i) => {
         if (!im) return;
         const it = fresh[i];
+        if (it && im.src.endsWith(it.url.replace(/^\//, '')) ) return;   // already showing: no fade
         im.style.transition = 'opacity .45s ease';
         im.style.opacity = '0';
         const pre = new Image();
