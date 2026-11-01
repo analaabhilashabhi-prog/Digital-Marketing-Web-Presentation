@@ -148,19 +148,21 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 .card:hover .card-go { background: var(--torii-orange); transform: translateX(4px); }
 
 /* ---------- Brand: logo + story on the left, Designs and Videos on the right ---------- */
-.v-brand .brand-left { position: absolute; left: 130px; top: 120px; width: 700px; }
+.v-brand .brand-left {
+  position: absolute; left: 130px; top: 150px; bottom: 150px; width: 760px;
+  display: flex; flex-direction: column; justify-content: space-between;   /* top to bottom, level with the cards */
+}
 .brand-logo {
-  width: 520px; height: 210px; margin: 34px 0 40px; display: grid; place-items: center;
-  background: #fff; border: 1.5px solid var(--line); border-radius: 22px; padding: 30px;
+  width: 100%; height: 340px; margin-top: 22px; display: grid; place-items: center; box-sizing: border-box;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 28px; padding: 44px 70px;
+  box-shadow: 0 34px 60px -50px rgba(0,0,0,.4);
 }
 .brand-logo { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }  /* rows must not grow to the image's natural size */
 .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
-.v-brand .lede { font-size: 26px; }
-/* A client with several institutions (NGI): smaller logo box, then a row of their logos */
-.v-brand.has-inst .brand-left { top: 100px; }
-.v-brand.has-inst .brand-logo { height: 170px; margin: 24px 0 26px; }
-.v-brand.has-inst .title { font-size: 60px; }
-.v-brand.has-inst .lede { font-size: 24px; margin-top: 16px; }
+.v-brand .lede { margin: 0; max-width: none; font-size: 30px; line-height: 1.6; padding: 0 6px; }
+/* A client with several institutions (NGI): a shorter logo card, then a row of their logos */
+.v-brand.has-inst .brand-logo { height: 200px; padding: 30px 70px; }
+.v-brand.has-inst .lede { font-size: 24px; line-height: 1.55; }
 .inst-label { margin-top: 34px; font-size: 17px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--torii-orange); }
 .inst { margin-top: 16px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
 .inst-tile {
@@ -170,16 +172,17 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 .inst-tile:hover { border-color: var(--torii-orange); transform: translateY(-4px); }
 .inst-tile img { max-width: 100%; max-height: 100%; object-fit: contain; }
 /* Followers on each network: a quiet row after the description, line icons in each network's colour */
-.socials { display: flex; align-items: center; margin-top: 48px; }
-.social { display: flex; align-items: center; gap: 14px; padding: 0 28px; border-left: 1.5px solid var(--line); }
-.social:first-child { padding-left: 0; border-left: 0; }
-.social-ic { width: 52px; height: 52px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-.social b { display: block; font-size: 44px; font-weight: 800; line-height: 1.05; letter-spacing: -.01em; color: var(--ink); font-variant-numeric: tabular-nums; }
-.social small { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+/* Followers: one tile a network, each with the network's own logo */
+.socials { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 18px; }
+.social {
+  display: flex; align-items: center; gap: 14px; padding: 22px 20px; min-width: 0;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 22px; box-shadow: 0 26px 44px -40px rgba(0,0,0,.45);
+}
+.social-ic { width: 54px; height: 54px; flex: none; }
+.social b { display: block; font-size: 34px; font-weight: 800; line-height: 1.05; letter-spacing: -.01em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.social small { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .socials-note { margin-top: 16px; font-size: 17px; color: var(--muted); }
-.v-brand.has-inst .socials { margin-top: 44px; }
-.v-brand.has-inst .socials + .socials-note { margin-top: 16px; }
-.v-brand.has-inst .inst-label { margin-top: 36px; }
+.v-brand .inst-label { margin-top: 0; }
 .parent-co { margin-top: 26px; display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--muted); }
 .parent-co img { height: 34px; width: auto; }
 /* More than three cards: a grid of smaller cards under the heading */
@@ -438,9 +441,7 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 .tile:hover .tile-del { opacity: 1; }
 .tile-del:hover { background: #C2341B; }
 /* NGI's counts are five digits each: a little tighter so all three fit beside the cards */
-.v-brand.has-inst .social { padding: 0 22px; }
-.v-brand.has-inst .social:first-child { padding-left: 0; }
-.v-brand.has-inst .social b { font-size: 40px; }
+
 
 /* "layout": "natural": every design at its own shape (banners, posters), in flowing columns */
 .grid.natural { display: block; column-count: 4; column-gap: 28px; }
