@@ -271,11 +271,11 @@ const views = {
     const span = id => { const r = rank.indexOf(id); return r < 1 ? 'b-xl' : r < 3 ? 'b-wide' : r < 5 ? 'b-tall' : ''; };
     const what = n.media === 'video' ? 'video' : 'design';
     const cover = ({ items }) => {
-      if (n.media === 'image') return items.slice(0, 4).map((it, k) => `<img src="${it.thumb || it.url}" alt="" loading="lazy"${k ? '' : ' class="on"'}>`).join('');
+      if (n.media === 'image') return items.slice(0, 4).map((it, k) => `<img src="${it.tiny || it.thumb || it.url}" alt="" loading="lazy" decoding="async"${k ? '' : ' class="on"'}>`).join('');
       const it = items[0], id = ytId(it);
       return id
-        ? `<iframe src="${ytEmbed(id, `autoplay=1&mute=1&loop=1&playlist=${id}&controls=0`)}" allow="autoplay; encrypted-media" loading="lazy" tabindex="-1"></iframe>`
-        : `<video data-src="${it.url}" muted loop playsinline preload="none" data-auto></video>`;
+        ? `<img class="on yt-still" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" decoding="async" data-yt="${id}">`
+        : `<video data-src="${it.url}"${it.poster ? ` poster="${it.poster}"` : ''} muted loop playsinline preload="none" data-auto></video>`;
     };
     return `
       <div class="view v-gallery v-bento">
@@ -310,10 +310,10 @@ const views = {
             <div class="tile-media" style="aspect-ratio:${it.w && it.h ? `${it.w} / ${it.h}` : '4 / 5'}">
               ${isAdmin() && !ytId(it) ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
               ${it.kind === 'image'
-                ? `<img src="${it.url}" alt="${esc(prettify(it.name))}" loading="lazy">`
+                ? `<img src="${it.tiny || it.url}" alt="${esc(prettify(it.name))}" loading="lazy" decoding="async">`
                 : ytId(it)
                   ? `<iframe src="${ytEmbed(ytId(it), `autoplay=1&mute=1&loop=1&playlist=${ytId(it)}&controls=0`)}" allow="autoplay; encrypted-media" loading="lazy" title="${esc(it.name)}"></iframe>`
-                  : `<video data-src="${it.url}" muted loop playsinline preload="none" data-auto></video>`}
+                  : `<video data-src="${it.url}"${it.poster ? ` poster="${it.poster}"` : ''} muted loop playsinline preload="none" data-auto></video>`}
             </div>
             <div class="pin-name"><span>${esc(prettify(it.name))}</span><i>•••</i></div>
           </a>`;
@@ -418,9 +418,10 @@ function warmNext(n) {
   const next = order[order.indexOf(n) + 1];
   if (!next) return;
   collect(next, 'image').slice(0, 30).forEach(it => {
-    if (warmed.has(it.url)) return;
-    warmed.add(it.url);
-    const im = new Image(); im.decoding = 'async'; im.src = it.url;
+    const src = it.tiny || it.url;
+    if (warmed.has(src)) return;
+    warmed.add(src);
+    const im = new Image(); im.decoding = 'async'; im.src = src;
   });
 }
 
@@ -491,6 +492,19 @@ async function show(n) {
     canvas.innerHTML = portalView(n, { asset, shots, upload: n.folder ? uploadButton(n) : '' });
     cleanup = animatePortal(canvas, i => openLightbox(shots, i));
   } else canvas.innerHTML = views[n.type](n);
+  // a YouTube category on the bento grid plays while the pointer rests on it (a dozen players
+  // at once would weigh the page down); its picture drifts gently meanwhile
+  canvas.querySelectorAll('.bento-tile .yt-still').forEach(im => {
+    const tile = im.closest('.bento-tile'), box = im.parentElement;
+    let f = null, hold = 0;
+    tile.addEventListener('mouseenter', () => {
+      hold = setTimeout(() => {
+        f = Object.assign(document.createElement('iframe'), { src: ytEmbed(im.dataset.yt, `autoplay=1&mute=1&loop=1&playlist=${im.dataset.yt}&controls=0`), allow: 'autoplay; encrypted-media', tabIndex: -1 });
+        box.append(f);
+      }, 250);
+    });
+    tile.addEventListener('mouseleave', () => { clearTimeout(hold); f?.remove(); f = null; });
+  });
   // design tiles on a bento grid turn through their designs, each tile on its own beat
   if (n.type === 'bento' && n.media === 'image') {
     let beat = 0;
@@ -531,6 +545,8 @@ async function show(n) {
   // films then fills in steadily instead of leaving some blank.
   const auto = [...canvas.querySelectorAll('video[data-auto]')];
   if (auto.length) {
+    const onHide = () => auto.forEach(v => document.hidden ? v.pause() : v.src && v.isConnected && v.dataset.seen && v.play().catch(() => {}));
+    document.addEventListener('visibilitychange', onHide);
     const seen = new Set(), queue = [];
     let busy = 0;
     const next = () => {
@@ -550,6 +566,7 @@ async function show(n) {
     const io = new IntersectionObserver(es => {
       es.forEach(e => {
         const v = e.target;
+        v.dataset.seen = e.isIntersecting ? '1' : '';
         if (e.isIntersecting) {
           seen.add(v);
           if (v.src) v.play().catch(() => {});

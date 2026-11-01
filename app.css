@@ -475,7 +475,8 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
    shortest of six columns, its name under it; a soft shade on hover */
 .pins { display: flex; align-items: flex-start; gap: 18px; }
 .pin-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
-.pin .tile-media { border-radius: 16px; background: #EFEDEA; box-shadow: none; }
+.pin .tile-media { border-radius: 16px; background: #EFEDEA; box-shadow: none; contain: paint; }
+.pin .tile-media video { background: #EFEDEA; }
 .pin .tile-media img, .pin .tile-media video { width: 100%; height: 100%; object-fit: cover; }
 .pin .tile-media::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .28); opacity: 0; transition: opacity .2s; pointer-events: none; }
 .pin:hover .tile-media { transform: none; box-shadow: none; }
@@ -551,6 +552,9 @@ body.side-min .nav a:hover span { opacity: 1; transform: translate(0, -50%); }
 .bento-media img, .bento-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .bento-media img { opacity: 0; transition: opacity 1.2s ease; }
 .bento-media img.on { opacity: 1; }
+/* a YouTube category's picture drifts slowly until the pointer brings its film in */
+.bento-media .yt-still { animation: ytDrift 14s ease-in-out infinite alternate; }
+@keyframes ytDrift { from { transform: scale(1.04) translate(-1%, -1%); } to { transform: scale(1.12) translate(1%, 1%); } }
 /* a YouTube film covers its tile whatever the tile's shape, a little larger so YouTube's title bar falls outside */
 .bento-media iframe { position: absolute; left: 50%; top: 50%; width: max(125cqw, 222.2cqh); height: max(125cqh, 70.3cqw); transform: translate(-50%, -50%); border: 0; pointer-events: none; }
 .bento-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .78)); transition: background .4s; }
