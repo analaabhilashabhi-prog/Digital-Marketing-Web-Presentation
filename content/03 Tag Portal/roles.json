@@ -41,6 +41,41 @@
     { "role": "handler", "title": "Publish", "text": "The handler puts it out." }
   ],
   "request": { "title": "Placement poster", "from": "NCET", "due": "Needed by Fri, 9 AM" },
+  "story": {
+    "poster": "03 Tag Portal/flow/ngi-farmers-day.jpg",
+    "college": "NGI",
+    "title": "National Farmer's Day poster",
+    "brief": "A farmer holding wheat, with the village farm drawn inside him. NGI logo top right, date 23rd Dec. Line: “Honoring those who dedicated their life and soul for the fertility of our land.”",
+    "due": "Mon, 22 Dec · 9:00 AM",
+    "checks": [
+      "Logo and colours on brand",
+      "Date reads 23rd Dec",
+      "Words match the brief",
+      "Sharp enough for print"
+    ],
+    "posts": [
+      [
+        "LinkedIn",
+        "On National Farmer's Day, we honour the hands that feed the nation. 🌾 #NationalFarmersDay #NGI",
+        1248
+      ],
+      [
+        "Instagram",
+        "Rooted in gratitude 🌾 Happy National Farmer's Day! #FarmersDay #NGI",
+        3612
+      ],
+      [
+        "Facebook",
+        "Honoring those who dedicated their life and soul for the fertility of our land. Happy National Farmer's Day.",
+        986
+      ],
+      [
+        "YouTube",
+        "Happy National Farmer's Day from all of us at NGI. 🌾",
+        742
+      ]
+    ]
+  },
   "changes": [
     ["Image", "Use the new campus photo"],
     ["Content", "The date is 12 Nov, not 11 Nov"],

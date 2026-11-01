@@ -23,6 +23,7 @@ const RICON = {
   check: '<path d="M5 12.5 L10 17.5 L19 7"/>',
   eye: '<path d="M2.5 12 C5 7 8.5 5 12 5 C15.5 5 19 7 21.5 12 C19 17 15.5 19 12 19 C8.5 19 5 17 2.5 12 Z"/><circle cx="12" cy="12" r="3"/>',
   back: '<path d="M10 6 L4 12 L10 18"/><path d="M4 12 H14 A6 6 0 0 1 20 18"/>',
+  heart: '<path d="M12 20 C4.5 14.8 3 10.4 5 7.4 C6.8 4.8 10.4 5.2 12 8 C13.6 5.2 17.2 4.8 19 7.4 C21 10.4 19.5 14.8 12 20 Z"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/>',
   chip: '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5 V6 M15 2.5 V6 M9 18 V21.5 M15 18 V21.5 M2.5 9 H6 M2.5 15 H6 M18 9 H21.5 M18 15 H21.5"/>',
   leaf: '<path d="M5 19 C5 10 10 5 20 4 C19 14 14 19 5 19 Z"/><path d="M5 19 L13 11"/>',
@@ -77,10 +78,156 @@ function hierarchy(D, R) {
   };
 }
 
-export function roleChapters(D) {
+/* ---------- 3 · One request, five steps, told with one real poster ----------
+   (2026-11-01: "use this image and explain this entire process ... the photo should
+   carry on till the end"). NGI's National Farmer's Day poster goes the whole way: the
+   coordinator types the brief, the designer builds it piece by piece, the admin checks
+   and approves it, the coordinator accepts it, and the handler posts it on every page
+   with words written for each. One poster travels between the screens. Everything is
+   worked out from the chapter's clock, so Prev, Next and pause always land on the
+   right frame. */
+const SEG = [0, 10.5, 21, 27.5, 32, 44];            // when each step starts, and the chapter ends
+const PLACE = {                                     // where the poster sits in each step: left, top, width (4:5)
+  0: [1220, 236, 430], 1: [760, 270, 528], 2: [470, 222, 520], 3: [560, 240, 480], 4: [140, 264, 380],
+};
+// the poster's parts as boxes on the image (left, right, top, bottom, in %), in the order the designer adds them
+const LAYERS = [
+  ['Date · 23rd dec', 2, 16, 2.5, 8.5, 12.6],
+  ['NGI logo', 75, 98, 2, 15, 13.6],
+  ['Wheat', 8, 41, 24, 78, 14.8],
+  ['Farmer illustration', 30, 82, 17, 80, 16],
+  ['Headline', 21, 79, 76, 82.5, 17.4],
+  ['Tagline', 24, 77, 83, 93, 18.6],
+];
+const onPoster = (fx, fy) => [PLACE[1][0] + PLACE[1][2] * fx / 100, PLACE[1][1] + PLACE[1][2] * 1.25 * fy / 100];
+// the cursor: where it arrives, and when (it glides there over the 0.7 s before)
+const CURSOR = [
+  [1.2, 650, 366], [3.4, 650, 466], [7.5, 560, 670], [8.2, 560, 764], [9.3, 1004, 854],
+  [11, 1100, 640],
+  ...LAYERS.map(([, x0, x1, y0, y1, at]) => [at - .25, ...onPoster((x0 + x1) / 2, (y0 + y1) / 2)]),
+  [20, 1545, 202],
+  [22.3, 1200, 361], [23.1, 1200, 423], [23.9, 1200, 485], [24.7, 1200, 547], [25.5, 1455, 630],
+  [28.6, 1300, 470], [29.5, 1485, 572],
+];
+const CLICKS = [9.4, 20.1, 25.6, 29.6];
+const MOVE = .7;
+
+function story(D, R, L) {
+  const S = D.story, steps = D.steps, img = L(S.poster);
+  const actor = t => R[steps[Math.max(0, SEG.findIndex((s, i) => t >= s && t < SEG[i + 1]))]?.role || 'handler'];
+  const at = (v, extra = '') => ` data-at="${v}"${extra}`;
+  const typed = (a, b, text) => `<span data-type-at="${a},${b}" data-text="${esc(text)}"></span>`;
+  const btns = (no, yes, when) => `<div class="fl-btns"><span>${esc(no)}</span><span class="ok"${at(when)}>${ric('check')}${esc(yes)}</span></div>`;
+  return {
+    name: 'One request, five steps', hold: SEG[5],
+    title: 'One request, five steps',
+    line: 'Follow one real poster, from the brief to the feed.',
+    html: `
+      <div class="rl"><div class="rl-c"><div class="fl" data-step="0">
+        <div class="fl-steps"><i class="fl-track"><b></b></i>${steps.map((s, i) => `
+          <div class="fl-step" style="left:${560 + i * 200}px;--c:${R[s.role].color}"><span class="fl-dot">${ric(R[s.role].icon)}</span><small>${esc(R[s.role].name)}</small><b>${esc(s.title)}</b></div>`).join('')}
+        </div>
+
+        <div class="fl-panel fl-p0 fl-form">
+          <div class="fl-head">${badge(R.coord)}<span><b>New request</b><small>${esc(R.coord.name)} · ${esc(S.college)}</small></span></div>
+          <label style="top:114px">Title</label><div class="fl-field" style="top:136px;height:60px">${typed(1.4, 3.2, S.title)}</div>
+          <label style="top:216px">Brief</label><div class="fl-field area" style="top:238px;height:160px">${typed(3.5, 7.3, S.brief)}</div>
+          <label style="top:418px">Needed by</label><div class="fl-field" style="top:440px;height:60px;right:auto;width:360px">${typed(7.6, 8.1, S.due)}</div>
+          <label style="top:520px">Post on</label>
+          <div class="fl-chips">${S.posts.map(([p], i) => `<span${at((8.2 + i * .18).toFixed(2))}>${brand(p)}${esc(p)}</span>`).join('')}</div>
+          <div class="fl-btn"${at(9.4)}>Raise request</div>
+          <div class="fl-toast"${at(9.75)}>${ric('check')}Sent to the designers' board</div>
+        </div>
+
+        <div class="fl-panel fl-p1 fl-editor">
+          <div class="fl-bar">${badge(R.designer)}<b>Design studio</b><span>${esc(S.title)}</span><div class="fl-btn"${at(20.1)}>Send for approval</div></div>
+          <div class="fl-layers"><small>Layers</small>
+            ${[['Canvas · 1080 × 1350', 11.2], ...LAYERS.map(l => [l[0], l[5]])].map(([n, a]) => `<div${at(a)}>${ric('check')}${esc(n)}</div>`).join('')}
+          </div>
+          <div class="fl-brief"><small>Brief from ${esc(S.college)}</small><p>${esc(S.brief)}</p><i>${esc(S.due)}</i></div>
+          <div class="fl-toast"${at(20.4)}>${ric('check')}Sent to the admin</div>
+        </div>
+
+        <div class="fl-panel fl-p2 fl-review">
+          <div class="fl-head">${badge(R.admin)}<span><b>Admin review</b><small>${esc(S.title)}</small></span></div>
+          ${S.checks.map((c, i) => `<div class="fl-check"${at((22.4 + i * .8).toFixed(1))}>${ric('check')}${esc(c)}</div>`).join('')}
+          ${btns('Send back', 'Approve', 25.6)}
+        </div>
+
+        <div class="fl-panel fl-p3 fl-accept">
+          <div class="fl-head">${badge(R.coord)}<span><b>${esc(R.coord.name)}</b><small>${esc(S.college)}</small></span></div>
+          <p>Is this what we asked for?</p>
+          ${btns('Decline', 'Accept', 29.6)}
+        </div>
+
+        <div class="fl-panel fl-p4">${S.posts.map(([p, text, likes], i) => `
+          <div class="fl-post"${at((32.4 + i * .25).toFixed(2), ` style="left:${140 + i * 420}px"`)}>
+            <div class="fl-post__head">${brand(p)}<span><b>Nagarjuna Group of Institutions</b><small>${esc(p)} · just now</small></span></div>
+            <div class="fl-post__img">${i ? `<img src="${img}" alt="">` : ''}</div>
+            <p>${typed(33.4 + i * .6, 36 + i * .6, text)}</p>
+            <div class="fl-post__foot"><span>${ric('heart')}<b data-count-to="37.8,41.5,${likes}">0</b></span><em${at((37.4 + i * .25).toFixed(2))}>${ric('check')}Posted</em></div>
+          </div>`).join('')}
+        </div>
+
+        <div class="fl-poster">
+          <div class="fl-canvas">
+            <i class="fl-ph">${ric('pen')}Waiting for a designer</i>
+            ${LAYERS.map(([, x0, x1, y0, y1, a]) => `<img class="fl-layer"${at(a)} src="${img}" alt="" style="--t:${y0}%;--b:${100 - y1}%;--l:${x0}%;--r0:${100 - x0}%;--r1:${100 - x1}%">`).join('')}
+            <img class="fl-full"${at(19.4)} src="${img}" alt="">
+            <i class="fl-sel"></i>
+          </div>
+          <div class="fl-stamp"${at(26)}>${ric('check')}Approved</div>
+          <div class="fl-ok"${at(30)}>${ric('check')}Accepted by ${esc(S.college)}</div>
+        </div>
+
+        <div class="fl-cursor"><svg viewBox="0 0 24 24"><path d="M5 2.5 V19 L9.2 15 L12.2 21.5 L14.8 20.3 L11.9 14 L17.8 13.8 Z"/></svg><em></em></div>
+      </div></div></div>`,
+
+    tick(t, el) {
+      const root = el.querySelector('.fl');
+      const k = Math.max(0, SEG.findIndex((s, i) => t >= s && t < SEG[i + 1]));
+      const step = t >= SEG[4] ? 4 : k;
+      if (root.dataset.step !== String(step)) root.dataset.step = step;
+      // the steps along the top
+      root.querySelectorAll('.fl-step').forEach((n, i) => { n.classList.toggle('on', i === step); n.classList.toggle('done', i < step); });
+      root.querySelector('.fl-track b').style.width = `${(clamp(step + (t - SEG[step]) / (SEG[step + 1] - SEG[step]), 0, 4) / 4 * 100).toFixed(2)}%`;
+      // things that happen at a moment, words being typed, numbers counting up
+      root.querySelectorAll('[data-at]').forEach(e => e.classList.toggle('on', t >= +e.dataset.at));
+      root.querySelectorAll('[data-type-at]').forEach(e => {
+        const [a, b] = e.dataset.typeAt.split(',').map(Number), s = e.dataset.text;
+        const n = Math.round(s.length * clamp((t - a) / (b - a)));
+        if (e.dataset.n !== String(n)) { e.textContent = s.slice(0, n); e.dataset.n = n; }
+        e.classList.toggle('typing', t > a - .4 && t < b + .3);
+      });
+      root.querySelectorAll('[data-count-to]').forEach(e => {
+        const [a, b, to] = e.dataset.countTo.split(',').map(Number);
+        e.textContent = Math.round(to * ease(clamp((t - a) / (b - a)))).toLocaleString('en-US');
+      });
+      // the designer's selection box, around the part being placed
+      const sel = root.querySelector('.fl-sel'), cur = LAYERS.find(l => t >= l[5] - .3 && t < l[5] + 1.1);
+      sel.classList.toggle('on', !!cur);
+      if (cur) Object.assign(sel.style, { left: `${cur[1]}%`, top: `${cur[3]}%`, width: `${cur[2] - cur[1]}%`, height: `${cur[4] - cur[3]}%` });
+      // the cursor, with the name of whoever is working
+      const c = root.querySelector('.fl-cursor');
+      let x = CURSOR[0][1], y = CURSOR[0][2];
+      for (let j = 1; j < CURSOR.length; j++) {
+        const [ta, tx, ty] = CURSOR[j], [, px, py] = CURSOR[j - 1];
+        if (t < ta - MOVE) break;
+        const f = ease(clamp((t - (ta - MOVE)) / MOVE));
+        x = px + (tx - px) * f; y = py + (ty - py) * f;
+      }
+      c.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      c.classList.toggle('on', t > .8 && t < 30.8);
+      c.classList.toggle('click', CLICKS.some(s => t >= s && t < s + .35));
+      const r = actor(t);
+      if (c.dataset.who !== r.name) { c.dataset.who = r.name; c.querySelector('em').textContent = r.name; c.style.setProperty('--c', r.color); }
+    },
+  };
+}
+
+export function roleChapters(D, L) {
   const R = D.roles;
   const steps = D.steps;
-  const X = k => 200 + k * 380;          // where each step sits on the track (1920 wide)
   const tree = hierarchy(D, R);
 
   return [
@@ -132,46 +279,8 @@ export function roleChapters(D) {
         </div></div>`,
     },
 
-    /* 3 · One request, five steps */
-    {
-      name: 'One request, five steps', hold: 15,
-      title: 'One request, five steps',
-      line: 'At every moment, one named owner.',
-      html: `
-        <div class="rl"><div class="rl-c">
-          <div class="rl-track"${A('fade', .2)}><i class="rl-track__fill"></i></div>
-          ${steps.map((s, k) => {
-            const r = R[s.role];
-            return `
-            <div class="rl-step" data-k="${k}"${A('up', .4 + k * .2, `left:${X(k) - 160}px;--c:${r.color}`)}>
-              <span class="rl-step__dot">${ric(r.icon)}<em>${k + 1}</em></span>
-              <small>${esc(r.name)}</small><b>${esc(s.title)}</b><i>${esc(s.text)}</i>
-            </div>`;
-          }).join('')}
-          <div class="rl-token"${A('zoom', 1.2)}>
-            <span class="rl-token__doc">${ric('log')}</span>
-            <span class="rl-token__body"><b>${esc(D.request.title)}</b><small>${esc(D.request.from)} · ${esc(D.request.due)}</small></span>
-            <span class="rl-token__who"><i></i><span></span></span>
-          </div>
-        </div></div>`,
-      tick(t, el) {
-        // the request rests at each step for a moment, then moves on to the next owner
-        const s = clamp((t - 2) / 2.2, 0, steps.length - 1 + .001);
-        const k = Math.min(steps.length - 1, Math.floor(s)), f = ease(clamp((s - k) / .45));
-        const x = X(k) + (k < steps.length - 1 ? f * 380 : 0);
-        const at = f > .5 && k < steps.length - 1 ? k + 1 : k;
-        const tok = el.querySelector('.rl-token');
-        tok.style.left = `${(x - 190).toFixed(1)}px`;
-        el.querySelector('.rl-track__fill').style.width = `${((x - X(0)) / (X(4) - X(0)) * 100).toFixed(2)}%`;
-        el.querySelectorAll('.rl-step').forEach((n, i) => { n.classList.toggle('on', i === at); n.classList.toggle('done', i < at); });
-        const done = t > 2 + 2.2 * 4 + 1.6;
-        const r = R[steps[at].role];
-        const who = tok.querySelector('.rl-token__who');
-        who.style.setProperty('--c', done ? '#0F9D6E' : r.color);
-        who.querySelector('span').textContent = done ? 'Posted' : `With ${r.name}`;
-        who.classList.toggle('posted', done);
-      },
-    },
+    /* 3 · One request, five steps: one real poster, from the brief to the feed */
+    story(D, R, L),
 
     /* 4 · The approval loop */
     {
