@@ -297,7 +297,7 @@
 .ct-main { position: absolute; left: 260px; top: 64px; right: 0; bottom: 0; }
 .ct-page { position: absolute; inset: 0; transition: opacity .45s, transform .6s cubic-bezier(.2, .8, .2, 1); }
 .ct-page.ov { padding: 30px; }
-.ct:not([data-page=ov]) .ct-page.ov, .ct:not([data-page=tpl]) .ct-page.tpl, .ct:not([data-page=assets]) .ct-page.assets { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.ct:not([data-page=ov]) .ct-page.ov, .ct:not([data-page=tpl]) .ct-page.tpl, .ct:not([data-page=assets]) .ct-page.assets, .ct:not([data-page=brand]) .ct-page.brand { opacity: 0; transform: translateY(12px); pointer-events: none; }
 /* Overview */
 .ct-hero { position: relative; height: 150px; box-sizing: border-box; padding: 30px 36px; border-radius: 24px; color: #fff; background: radial-gradient(700px 300px at 100% 50%, rgba(245, 130, 42, .2), transparent 60%), linear-gradient(120deg, #0F1F4B, #1D2D66); }
 .ct-hero small { font-size: 13px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #F5A15E; }
@@ -383,6 +383,45 @@
 .k-tile.mono img { filter: brightness(0); opacity: .82; }
 .k-tile small { position: absolute; left: 18px; bottom: 14px; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
 .k-tile.mono small { color: #8A8174; }
+/* Brand Library: ads and films, three to a row */
+.ct-card.bl { width: 457px; height: 370px; }
+.ct-card.bl .ct-card__img { height: 260px; background: #0F1426; }
+.ct-card.bl .ct-card__img .fmt { left: auto; right: 12px; }
+.ct-card__img .kind { position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 8px; background: rgba(15, 20, 38, .82); color: #fff; font-size: 12.5px; font-weight: 700; }
+.ct-play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px; border-radius: 50%; background: #E53935; box-shadow: 0 10px 24px rgba(229, 57, 53, .45); transition: opacity .4s, transform .4s; }
+.ct-play::after { content: ''; position: absolute; left: 25px; top: 20px; border-left: 20px solid #fff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+.ct-card.bl .ct-card__in > b { margin-top: 16px; font-size: 19px; }
+.ct-bl-foot { display: flex; align-items: center; margin: 14px 18px 0; }
+.ct-bl-foot span { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 9px; background: #F2F4F8; font-size: 14px; font-weight: 600; color: #2C3550; }
+.ct-bl-foot .rl-svg { width: 16px; height: 16px; }
+.ct-bl-foot > .rl-svg { margin-left: auto; color: #9AA3B5; width: 18px; height: 18px; }
+/* the brand film, opened: it zooms up from its card and plays */
+.ct-zoom.film { background: #000; }
+.ct-zoom.film.big { left: 310px; top: 140px; width: 800px; height: 450px; }
+.ct-zoom.film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ct-zoom.film img { position: absolute; inset: 0; transition: opacity .5s, transform 7s; }
+.ct-zoom.film.playing img { opacity: 0; }
+.ct-zoom.film.live .ct-play { animation: ct-pulse 1.2s ease-in-out infinite; }
+.ct-zoom.film.big .ct-play { width: 92px; height: 92px; margin: -46px; }
+.ct-zoom.film.big .ct-play::after { left: 36px; top: 28px; border-left-width: 28px; border-top-width: 18px; border-bottom-width: 18px; }
+.ct-zoom.film.playing .ct-play { opacity: 0; transform: scale(1.4); }
+@keyframes ct-pulse { 50% { box-shadow: 0 0 0 18px rgba(229, 57, 53, .18), 0 10px 24px rgba(229, 57, 53, .45); } }
+.ct-player-bar { position: absolute; left: 40px; top: 510px; width: 800px; display: flex; align-items: center; gap: 16px; }
+.ct-player-bar i { flex: 1; height: 6px; border-radius: 6px; background: #ECEEF3; overflow: hidden; }
+.ct-player-bar b { display: block; height: 100%; width: 0; background: #E53935; }
+.ct-player-bar span { font-size: 14px; font-weight: 700; color: #6A7286; font-variant-numeric: tabular-nums; }
+.ct-ready { position: absolute; left: 40px; top: 556px; width: 800px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ct-ready small { width: 100%; font-size: 12.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #9AA3B5; }
+.ct-ready span { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid #E2E6EE; font-size: 15px; font-weight: 600; opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .5s cubic-bezier(.2, .8, .2, 1); }
+.ct-ready span.on { opacity: 1; transform: none; }
+.ct-ready span svg { width: 18px; height: 18px; }
+.ct-ready span .rl-svg { color: #F5822A; }
+.ct-open.vid .ct-info { left: 880px; width: 290px; }
+.ct-open.vid .ct-info > b { font-size: 34px; line-height: 1.1; }
+.ct-open.vid .ct-layer { font-size: 15px; }
+.ct-open.vid .ct-layer .rl-svg { color: #0F9D6E; }
+.ct-mp4 { position: absolute; left: 0; top: 500px; width: 290px; height: 56px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 14px; border: 1.5px solid #E2E6EE; font-size: 16px; font-weight: 700; color: #4A5470; }
+.ct-open.vid .ct-dl { width: 290px; }
 /* one template, opened: its picture zooms up from the card and comes to life */
 .ct-dim { position: absolute; inset: 0; z-index: 3; background: rgba(12, 20, 45, .5); backdrop-filter: blur(4px); opacity: 0; transition: opacity .5s; pointer-events: none; }
 .ct-dim.on { opacity: 1; }
