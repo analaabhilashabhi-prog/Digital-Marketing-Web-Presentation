@@ -165,23 +165,31 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 /* Our own brands: a smaller logo and line, so the organic statement leads */
 .v-brand.is-organic .brand-logo { height: 128px; padding: 22px 70px; margin-top: 18px; }
 .v-brand.is-organic .lede { font-size: 22px; line-height: 1.55; }
-.organic {
-  position: relative; overflow: hidden; padding: 24px 32px 22px; border-radius: 28px; color: #fff;
-  background: radial-gradient(420px 220px at 100% 0%, rgba(124, 227, 176, .22), transparent 70%), linear-gradient(135deg, #0B3527, #0F5A3E);
-  box-shadow: 0 30px 60px -34px rgba(11, 53, 39, .7);
+.organic { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
+/* a till receipt: straight, white, torn along the bottom, and every line comes to nothing */
+.receipt-wrap { filter: drop-shadow(0 20px 26px rgba(20, 30, 60, .13)) drop-shadow(0 2px 3px rgba(20, 30, 60, .06)); }
+.receipt {
+  padding: 22px 26px 34px; background: #fff; border-radius: 14px 14px 0 0; font-variant-numeric: tabular-nums;
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 22px 100%;
+          mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 22px 100%;
 }
-.organic-tag {
-  display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; background: rgba(255, 255, 255, .12);
-  font-size: 14px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #B7F0D2;
-}
-.organic-tag svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.organic-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 20px; }
-.organic-stats div + div { padding-left: 26px; border-left: 1px solid rgba(255, 255, 255, .16); }
-.organic-stats b { display: block; font-size: 58px; font-weight: 800; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-.organic-stats b small { font-size: .55em; font-weight: 700; margin: 0 2px; }
-.organic-stats div:first-child b { color: #7CE3B0; }
-.organic-stats span { display: block; margin-top: 10px; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .7); }
-.organic p { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .16); font-size: 18px; line-height: 1.5; color: rgba(255, 255, 255, .88); }
+.receipt small { display: block; padding-bottom: 12px; margin-bottom: 6px; border-bottom: 2px dashed #D9DDE4; font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.r-line, .r-total { opacity: 0; animation: r-print .45s ease-out both; animation-delay: calc(.35s + var(--i) * .2s); }
+@keyframes r-print { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.r-line { display: flex; align-items: center; gap: 10px; height: 38px; font-size: 17px; color: var(--ink); }
+.r-logo { width: 20px; height: 20px; flex: none; }
+.r-boost { display: grid; place-items: center; border-radius: 6px; background: #F2F1EF; }
+.r-boost svg { width: 14px; height: 14px; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linejoin: round; }
+.r-line i { flex: 1; margin: 0 4px; border-bottom: 2px dotted #D5D9E0; transform: translateY(5px); }
+.r-line b { font-weight: 800; }
+.r-total { display: flex; align-items: baseline; justify-content: space-between; margin-top: 10px; padding-top: 12px; border-top: 2px dashed #D9DDE4; }
+.r-total span { font: 600 18px/1 "Oswald", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.r-total b { font: 600 34px/1 "Oswald", sans-serif; color: var(--torii-orange); }
+/* what the nothing bought */
+.o-big { font: 600 104px/.9 "Oswald", sans-serif; letter-spacing: -.01em; color: var(--torii-orange); }
+.o-big small { display: block; margin-top: 8px; font-size: 38px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+.organic-say p { margin: 22px 0 0; padding-top: 18px; border-top: 2px solid var(--line); font-size: 19px; line-height: 1.45; color: var(--muted); }
+.organic-say p b { font: 600 30px/1 "Oswald", sans-serif; color: var(--ink); margin-right: 4px; }
 .inst-label { margin-top: 34px; font-size: 17px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--torii-orange); }
 .inst { margin-top: 16px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
 .inst-tile {

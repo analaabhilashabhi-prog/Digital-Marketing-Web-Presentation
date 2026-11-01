@@ -156,16 +156,20 @@ const followerCount = v => {
 const roundDown = n => n >= 1e4 ? `${Math.floor(n / 1e3)}K+` : n >= 1e3 ? `${Math.floor(n / 100) / 10}K+` : `${n}+`;
 function organic(n) {
   if (!n.organic) return '';
+  const nets = Object.keys(n.socials || {}).filter(k => k in SOCIAL);
   const total = Object.values(n.socials || {}).reduce((s, v) => s + followerCount(v), 0);
+  const lines = [...nets.map(k => [brand(k, 'r-logo'), `${SOCIAL[k]} ads`]), [`<span class="r-logo r-boost">${icon('ai')}</span>`, 'Boosted posts']];
   return `
     <div class="organic">
-      <div class="organic-tag">${icon('leaf')}Zero ads · 100% organic</div>
-      <div class="organic-stats">
-        <div><b>100<small>%</small></b><span>Organic growth</span></div>
-        <div><b><small>₹</small>0</b><span>Spent on ads</span></div>
-        <div><b>${roundDown(total)}</b><span>Followers, all earned</span></div>
+      <div class="receipt-wrap"><div class="receipt">
+        <small>Ad spend · since day one</small>
+        ${lines.map(([logo, name], i) => `<div class="r-line" style="--i:${i}">${logo}<span>${esc(name)}</span><i></i><b>₹0</b></div>`).join('')}
+        <div class="r-total" style="--i:${lines.length}"><span>Total</span><b>₹0.00</b></div>
+      </div></div>
+      <div class="organic-say">
+        <div class="o-big">100%<small>organic</small></div>
+        <p><b>${roundDown(total)}</b> followers, earned, not bought.</p>
       </div>
-      <p>Not a single rupee on ads or boosted posts. Every follower came from the work itself.</p>
     </div>`;
 }
 
