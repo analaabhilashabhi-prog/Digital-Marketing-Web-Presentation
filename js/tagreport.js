@@ -17,10 +17,11 @@ export const A = (kind, d, style = '') => ` data-a="${kind}" style="--d:${d}s;${
 // A number that counts up from 0 at a given second
 export const N = (value, d) => `<b data-count="${esc(value)}" data-d="${d}">${esc(value)}</b>`;
 
-const PLATFORM = {
-  LinkedIn: ['in', '#0A66C2'], Instagram: ['IG', '#C2367E'], YouTube: ['YT', '#E62117'], Facebook: ['f', '#1877F2'],
-};
-const chip = name => `<span class="tr-pf" style="background:${PLATFORM[name][1]}">${PLATFORM[name][0]}</span>`;
+import { brand } from './brands.js';
+
+// the networks the report covers, each shown with its own logo
+const PLATFORMS = ['LinkedIn', 'Instagram', 'YouTube', 'Facebook'];
+const chip = name => brand(name, 'tr-pf');
 
 const ICON = {
   people: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19 C4 15.5 6.3 13.8 9 13.8 C11.7 13.8 14 15.5 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 13.9 C18.3 13.7 20.2 15.4 20.6 18"/>',
@@ -87,7 +88,7 @@ function chapters(D, L) {
             <label${A('up', 2.7)}>Organisations</label>
             <div class="tr-chips">${D.colleges.map((c, i) => `<span class="tr-pick"${A('pop', 3 + i * .17)}>${icon('check')}${esc(c.name)}</span>`).join('')}</div>
             <label${A('up', 4.2)}>Social media</label>
-            <div class="tr-chips">${Object.keys(PLATFORM).map((p, i) => `<span class="tr-pick"${A('pop', 4.4 + i * .15)}>${chip(p)}${p}</span>`).join('')}</div>
+            <div class="tr-chips">${PLATFORMS.map((p, i) => `<span class="tr-pick"${A('pop', 4.4 + i * .15)}>${chip(p)}${p}</span>`).join('')}</div>
             <button class="tr-go"${A('up', 5)}><span class="a">Generate report</span><span class="b">Reading live data…</span><span class="c">${icon('check')}Report ready</span><i></i></button>
           </div>
           <svg class="tr-cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9.4 15 L12.4 21.5 L15 20.3 L12 14 L18 14 Z"/></svg>
@@ -200,8 +201,8 @@ function chapters(D, L) {
             <div class="tr-card"${A('up', 2.6)}>
               <h4>Posts by college and platform <small>darker = more posts</small></h4>
               <table class="tr-heat">
-                <tr><th></th>${Object.keys(PLATFORM).map(p => `<th>${chip(p)}${p}</th>`).join('')}<th>Total</th></tr>
-                ${D.colleges.map((c, i) => `<tr><td>${esc(c.name)}</td>${Object.keys(PLATFORM).map((p, j) => {
+                <tr><th></th>${PLATFORMS.map(p => `<th>${chip(p)}${p}</th>`).join('')}<th>Total</th></tr>
+                ${D.colleges.map((c, i) => `<tr><td>${esc(c.name)}</td>${PLATFORMS.map((p, j) => {
                   const v = c.platforms[p] || 0, a = v ? .14 + .8 * v / maxCell : 0;
                   return `<td><span class="${a > .5 ? 'dk' : ''}"${A('pop', 3 + i * .12 + j * .05, `background:${v ? `rgba(245,130,42,${a.toFixed(2)})` : '#EEF1F6'}`)}>${v || '–'}</span></td>`;
                 }).join('')}<td><b>${c.posts}</b></td></tr>`).join('')}

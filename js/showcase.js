@@ -15,6 +15,7 @@
 // Posters come from the slide's folder; deck.json's "featured" picks which ones and in what order.
 
 import { mountHome } from './home.js';
+import { brand, isBrand } from './brands.js';
 
 const H = 1080;                // one screen, in canvas units
 // The whole film runs along one number, p. Each stretch of p has its own length in seconds.
@@ -83,11 +84,8 @@ const visionCascade = j => ({ x: 640 + j * 165, y: 250 + j * 62, o: 1 });
 const visionGrid = j => j === 0
   ? { x: 420, y: 250, o: 0 }
   : { x: 1084 + ((j - 1) % 3) * (CELL_W + 22), y: 384 + Math.floor((j - 1) / 3) * (CELL_H + 22), o: 1 };
+// line icons for the rest; the networks are drawn with their own logos (js/brands.js)
 const ICONS = {
-  instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/>',
-  facebook: '<path d="M14.5 21 V13.5 H17 L17.5 10 H14.5 V8.3 C14.5 7.3 14.9 6.7 16 6.7 H17.6 V3.6 C17.1 3.5 16.2 3.4 15.2 3.4 C12.8 3.4 11 4.9 11 7.6 V10 H8.5 V13.5 H11 V21"/>',
-  linkedin: '<rect x="3" y="3" width="18" height="18" rx="3.5"/><path d="M8 10.5 V17 M8 7.2 V7.3 M11.5 17 V10.5 M11.5 13.6 C11.5 11.3 16.5 10.6 16.5 13.8 V17"/>',
-  youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.3 9.3 L15.2 12 L10.3 14.7 Z"/>',
   pen: '<path d="M12 3 L18 10 L15 18.5 H9 L6 10 Z"/><path d="M12 3 V11"/><circle cx="12" cy="12.4" r="1.4"/><path d="M9 21 H15"/>',
   megaphone: '<path d="M4 10 V14 H7 L15 18 V6 L7 10 Z"/><path d="M18.2 9.4 C19.6 10.7 19.6 13.3 18.2 14.6"/><path d="M7.5 14 L9 19.5 H11"/>',
   chart: '<path d="M4 20 H20"/><path d="M7 16.5 V12 M12 16.5 V7 M17 16.5 V10"/>',
@@ -287,7 +285,7 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
       </div>
       ${visionPosters.map((it, i) => `<a class="v-card" data-v="${i}"><img src="${esc(it.url)}" alt="" draggable="false"></a>`).join('')}
 
-      ${ICON_ORDER.map(k => `<span class="v-icon" title="${k}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg></span>`).join('')}
+      ${ICON_ORDER.map(k => `<span class="v-icon" title="${k}">${isBrand(k) ? brand(k) : `<svg viewBox="0 0 24 24">${ICONS[k]}</svg>`}</span>`).join('')}
     </section>
     <section class="sc-wave">
       ${waveItems.map((it, i) => `<a class="w-tile" data-w="${i}"><img src="${esc(it.url)}" alt="" draggable="false"></a>`).join('')}

@@ -77,7 +77,7 @@
 .tag-report.paused .tr-scene * { animation-play-state: paused !important; }
 
 .tr-ic { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.tr-pf { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; margin-right: 8px; color: #fff; font-size: 11px; font-weight: 800; vertical-align: middle; }
+.tr-pf { display: inline-block; width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; flex: none; }
 
 /* ---------- Report pages ---------- */
 .tr-page { position: absolute; inset: 0; padding: 34px 60px 0; background: #F1F3F7; }

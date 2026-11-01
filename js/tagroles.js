@@ -4,6 +4,7 @@
 // The words come from content/03 Tag Portal/roles.json.
 
 import { A, N, esc, icon, clamp } from './tagreport.js';
+import { brand } from './brands.js';
 
 const ease = t => t * t * (3 - 2 * t);
 
@@ -30,8 +31,7 @@ const RICON = {
 };
 const ric = (name, cls = '') => `<svg class="rl-svg ${cls}" viewBox="0 0 24 24">${RICON[name] || RICON.person}</svg>`;
 const badge = (r, cls = '') => `<span class="rl-ic ${cls}" style="--c:${r.color}">${ric(r.icon)}</span>`;
-const PLATFORM = { LinkedIn: ['in', '#0A66C2'], Instagram: ['IG', '#C2367E'], YouTube: ['YT', '#E62117'], Facebook: ['f', '#1877F2'] };
-const pchip = p => `<span class="tr-pf" style="background:${PLATFORM[p][1]}">${PLATFORM[p][0]}</span>`;
+const pchip = p => brand(p, 'tr-pf');
 
 /* ---------- 1 · The hierarchy, left to right ----------
    University Admin → its schools → the Digital Marketing Manager → the team the

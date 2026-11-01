@@ -10,6 +10,7 @@ import { mountTagHero } from './taghero.js';
 import { mountTagReport } from './tagreport.js';
 import { portalView, animatePortal } from './portal.js';
 import { roleChapters } from './tagroles.js';
+import { brand } from './brands.js';
 
 const $ = id => document.getElementById(id);
 const nav = $('nav'), crumbs = $('crumbs'), frame = $('frame'), slide = $('slide'), canvas = $('canvas');
@@ -141,18 +142,13 @@ function arrows() {
 
 /* ---------- Followers on each social network, under a brand's logo ---------- */
 // "socials" in deck.json: { "linkedin": 24206, "instagram": 0, "facebook": 0 } (0 until it is filled in)
-const SOCIAL = {
-  linkedin: ['LinkedIn', '<rect width="24" height="24" rx="5" fill="#0A66C2"/><path fill="#fff" d="M5.2 9.4h2.9V19H5.2zM6.65 4.8a1.68 1.68 0 1 1 0 3.36 1.68 1.68 0 0 1 0-3.36zM9.9 9.4h2.78v1.3h.04c.39-.73 1.33-1.5 2.74-1.5 2.93 0 3.47 1.93 3.47 4.43V19h-2.9v-4.7c0-1.12-.02-2.56-1.56-2.56-1.56 0-1.8 1.22-1.8 2.48V19H9.9z"/>'],
-  instagram: ['Instagram', '<defs><radialGradient id="ig-glow" cx="28%" cy="108%" r="140%"><stop offset="0" stop-color="#FFD776"/><stop offset=".12" stop-color="#FFD776"/><stop offset=".42" stop-color="#F3612C"/><stop offset=".62" stop-color="#D6297B"/><stop offset=".95" stop-color="#5B4FE9"/></radialGradient></defs><rect width="24" height="24" rx="6.5" fill="url(#ig-glow)"/><rect x="5" y="5" width="14" height="14" rx="4.2" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.25" cy="7.75" r="1" fill="#fff"/>'],
-  facebook: ['Facebook', '<circle cx="12" cy="12" r="12" fill="#1877F2"/><path fill="#fff" d="M13.5 24v-8.6h2.9l.44-3.4H13.5V9.85c0-.98.28-1.65 1.68-1.65h1.78V5.17A24 24 0 0 0 14.36 5c-2.58 0-4.34 1.57-4.34 4.46V12H7.1v3.4h2.92V24z"/>'],
-  youtube: ['YouTube', '<rect y="3.5" width="24" height="17" rx="5" fill="#FF0000"/><path fill="#fff" d="M9.7 8.4v7.2l6.2-3.6z"/>'],
-};
+const SOCIAL = { linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube' };
 function socials(n) {
   if (!n.socials) return '';
   // a network left out of "socials" is not shown
-  return `<div class="socials">${Object.entries(SOCIAL).filter(([k]) => k in n.socials).map(([k, [name, logo]]) => `
+  return `<div class="socials">${Object.entries(SOCIAL).filter(([k]) => k in n.socials).map(([k, name]) => `
     <div class="social" title="${name}">
-      <svg class="social-ic" viewBox="0 0 24 24">${logo}</svg>
+      ${brand(k, 'social-ic')}
       <span><b>${typeof n.socials[k] === 'string' ? esc(n.socials[k]) : Number(n.socials[k] || 0).toLocaleString('en-US')}</b><small>${name}</small></span>
     </div>`).join('')}</div>${n.socialsNote ? `<div class="socials-note">${esc(n.socialsNote)}</div>` : ''}`;
 }
@@ -550,21 +546,17 @@ $('confirmYes').addEventListener('click', async () => {
 
 /* Social platforms circling the session screen, like the partner logos on Torii's */
 const PLATFORMS = [
-  '<rect x="2" y="2" width="20" height="20" rx="4" fill="#0A66C2"/><path d="M7 10 V17 M7 7 V7.1 M11 17 V10 M11 13.5 A3 3 0 0 1 17 13.5 V17" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>',
-  '<defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEC053"/><stop offset=".5" stop-color="#F2203E"/><stop offset="1" stop-color="#5258CF"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig)"/><rect x="6.5" y="6.5" width="11" height="11" rx="3.5" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="2.6" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="16.3" cy="7.7" r="1" fill="#fff"/>',
-  '<rect x="1.5" y="5" width="21" height="14" rx="4" fill="#FF0000"/><path d="M10 9 L15.5 12 L10 15 Z" fill="#fff"/>',
-  '<circle cx="12" cy="12" r="10" fill="#1877F2"/><path d="M13.2 21.5 V14 H15.6 L16 11.2 H13.2 V9.6 C13.2 8.8 13.5 8.2 14.6 8.2 H16.1 V5.7 C15.8 5.7 14.9 5.6 13.9 5.6 C11.8 5.6 10.3 6.9 10.3 9.3 V11.2 H8 V14 H10.3 V21.5 Z" fill="#fff"/>',
-  '<path d="M21.6 12.2 C21.6 11.5 21.5 10.8 21.4 10.2 H12 V14 H17.4 C17.2 15.2 16.5 16.3 15.4 17 V19.5 H18.6 C20.5 17.7 21.6 15.2 21.6 12.2 Z" fill="#4285F4"/><path d="M12 22 C14.7 22 17 21.1 18.6 19.5 L15.4 17 C14.5 17.6 13.3 18 12 18 C9.4 18 7.2 16.3 6.4 13.9 H3.1 V16.4 C4.8 19.7 8.1 22 12 22 Z" fill="#34A853"/><path d="M6.4 13.9 C6.2 13.3 6.1 12.7 6.1 12 C6.1 11.3 6.2 10.7 6.4 10.1 V7.6 H3.1 C2.4 8.9 2 10.4 2 12 C2 13.6 2.4 15.1 3.1 16.4 Z" fill="#FBBC05"/><path d="M12 6 C13.5 6 14.8 6.5 15.8 7.5 L18.7 4.6 C17 3 14.7 2 12 2 C8.1 2 4.8 4.3 3.1 7.6 L6.4 10.1 C7.2 7.7 9.4 6 12 6 Z" fill="#EA4335"/>',
-  '<rect x="2" y="2" width="20" height="20" rx="5" fill="#111"/><path d="M7 7 L17 17 M17 7 L7 17" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
-  '<circle cx="12" cy="12" r="10" fill="#25D366"/><path d="M8.5 7.5 C8 8 7.6 8.8 7.9 9.9 C8.6 12.3 11.1 15.2 13.8 16 C14.9 16.4 15.8 16 16.3 15.4 L16.6 14.6 L14.6 13.5 L13.7 14.4 C12.3 13.8 10.9 12.4 10.2 11 L11.1 10 L10 8 Z" fill="#fff"/>',
-  '<rect x="2" y="2" width="20" height="20" rx="5" fill="#F05D29"/><path d="M7 17 V13 M12 17 V8 M17 17 V11" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>',
+  brand('linkedin'), brand('instagram'), brand('youtube'), brand('facebook'),
+  '<svg viewBox="0 0 24 24"><path d="M21.6 12.2 C21.6 11.5 21.5 10.8 21.4 10.2 H12 V14 H17.4 C17.2 15.2 16.5 16.3 15.4 17 V19.5 H18.6 C20.5 17.7 21.6 15.2 21.6 12.2 Z" fill="#4285F4"/><path d="M12 22 C14.7 22 17 21.1 18.6 19.5 L15.4 17 C14.5 17.6 13.3 18 12 18 C9.4 18 7.2 16.3 6.4 13.9 H3.1 V16.4 C4.8 19.7 8.1 22 12 22 Z" fill="#34A853"/><path d="M6.4 13.9 C6.2 13.3 6.1 12.7 6.1 12 C6.1 11.3 6.2 10.7 6.4 10.1 V7.6 H3.1 C2.4 8.9 2 10.4 2 12 C2 13.6 2.4 15.1 3.1 16.4 Z" fill="#FBBC05"/><path d="M12 6 C13.5 6 14.8 6.5 15.8 7.5 L18.7 4.6 C17 3 14.7 2 12 2 C8.1 2 4.8 4.3 3.1 7.6 L6.4 10.1 C7.2 7.7 9.4 6 12 6 Z" fill="#EA4335"/></svg>',
+  brand('x'), brand('whatsapp'),
+  '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#F05D29"/><path d="M7 17 V13 M12 17 V8 M17 17 V11" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>',
 ];
 $('orbit').innerHTML =
   [520, 820, 1140].map(d => `<div class="ring" style="width:${d}px;height:${d}px"></div>`).join('') +
   PLATFORMS.map((svg, i) => {
     // alternate between the middle and outer ring, spread around the circle
     const r = i % 2 ? 570 : 410, a = (i / PLATFORMS.length) * Math.PI * 2 + .35;
-    return `<div class="chip" style="--i:${i};left:calc(50% + ${Math.round(Math.cos(a) * r)}px);top:calc(50% + ${Math.round(Math.sin(a) * r * .78)}px)"><svg viewBox="0 0 24 24">${svg}</svg></div>`;
+    return `<div class="chip" style="--i:${i};left:calc(50% + ${Math.round(Math.cos(a) * r)}px);top:calc(50% + ${Math.round(Math.sin(a) * r * .78)}px)">${svg}</div>`;
   }).join('');
 
 addEventListener('hashchange', route);
