@@ -66,7 +66,7 @@ async function load() {
 }
 
 const itemsOf = n => n.categories
-  ? n.categories.flatMap(c => c.youtube ? [{ kind: 'video', url: 'yt:' + c.youtube }] : media[c.folder]?.items || [])
+  ? n.categories.flatMap(c => c.youtube ? [].concat(c.youtube).map(id => ({ kind: 'video', url: 'yt:' + id })) : media[c.folder]?.items || [])
   : (n.folder && media[n.folder]?.items) || [];
 const logoOf = n => (n.folder && media[n.folder]?.logo) || null;
 // A file under content/, e.g. "Logos/tag-portal.png"
@@ -377,8 +377,9 @@ async function show(n) {
     const groups = n.categories
       // one card a category, its videos played in turn
       ? n.categories.map(c => c.youtube
-        // streamed from YouTube rather than a file here: its picture on the card
-        ? { name: c.title, lead: c.lead, poster: `https://i.ytimg.com/vi/${c.youtube}/maxresdefault.jpg`, items: [{ src: 'yt:' + c.youtube, w: 1920, h: 1080, start: c.start }] }
+        // streamed from YouTube rather than a file here (one film, or a list of them): the first one's picture on the card
+        ? { name: c.title, lead: c.lead, poster: `https://i.ytimg.com/vi/${[].concat(c.youtube)[0]}/maxresdefault.jpg`,
+            items: [].concat(c.youtube).map(id => ({ src: 'yt:' + id, w: 1920, h: 1080, start: c.start })) }
         : { name: c.title, lead: c.lead, items: (media[c.folder]?.items || []).filter(i => i.kind === 'video').map(i => ({ ...item(i), start: c.start })) })
       // a single folder: all its videos together, laid out like any category
       : [{ name: n.title, items: vids.map(item) }];

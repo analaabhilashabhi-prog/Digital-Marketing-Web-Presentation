@@ -287,7 +287,16 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
   /* A card shows a still, never a playing film: a frame a third of the way in. */
   function still(g) {
     const it = g.poster ? { src: g.poster } : g.items[0];
-    if (!isFilm(it.src)) return h('img', { class: 'sg-card__media', src: it.src, alt: '', decoding: 'async' });
+    if (!isFilm(it.src)) {
+      const img = h('img', { class: 'sg-card__media', src: it.src, alt: '', decoding: 'async' });
+      // not every YouTube film has a full-size picture: YouTube's small grey stand-in means take the standard one
+      if (it.src.includes('/maxresdefault.')) {
+        const std = () => { img.src = it.src.replace('/maxresdefault.', '/hqdefault.'); };
+        img.addEventListener('load', () => { if (img.naturalWidth <= 120) std(); }, { once: true });
+        img.addEventListener('error', std, { once: true });
+      }
+      return img;
+    }
     const v = h('video', { class: 'sg-card__media', src: it.src, preload: 'metadata', playsinline: true });
     v.muted = true;
     v.addEventListener('loadedmetadata', () => { v.currentTime = Math.min(v.duration * 0.3, 20); }, { once: true });
