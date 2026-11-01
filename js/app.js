@@ -271,7 +271,7 @@ const views = {
                 ? `<img src="${it.url}" alt="${esc(prettify(it.name))}" loading="lazy">`
                 : ytId(it)
                   ? `<iframe src="${ytEmbed(ytId(it), `autoplay=1&mute=1&loop=1&playlist=${ytId(it)}&controls=0`)}" allow="autoplay; encrypted-media" loading="lazy" title="${esc(it.name)}"></iframe>`
-                  : `<video src="${it.url}" muted loop playsinline preload="metadata" data-auto></video>`}
+                  : `<video data-src="${it.url}" muted loop playsinline preload="none" data-auto></video>`}
             </div>
             <div class="pin-name"><span>${esc(prettify(it.name))}</span><i>•••</i></div>
           </a>`;
@@ -448,11 +448,40 @@ async function show(n) {
       t.addEventListener('mouseleave', () => { v.pause(); v.currentTime = 1; });
     }
   });
-  // pinboard videos play by themselves, muted, while they are on screen
-  const auto = canvas.querySelectorAll('video[data-auto]');
+  // Pinboard videos play by themselves, muted, while they are on screen. The browser
+  // fetches only a few files from one server at a time, so they are started one after
+  // another, top of the page first, each once the one before can play; a page full of
+  // films then fills in steadily instead of leaving some blank.
+  const auto = [...canvas.querySelectorAll('video[data-auto]')];
   if (auto.length) {
-    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()),
-      { root: canvas.querySelector('.g-body') });
+    const seen = new Set(), queue = [];
+    let busy = 0;
+    const next = () => {
+      while (busy < 2 && queue.length) {
+        const v = queue.shift();
+        if (!seen.has(v)) continue;
+        busy++;
+        let done = false;
+        const free = () => { if (!done) { done = true; busy--; next(); } };
+        v.addEventListener('loadeddata', free, { once: true });
+        v.addEventListener('error', free, { once: true });
+        setTimeout(free, 4000);
+        v.src = v.dataset.src;
+        v.play().catch(() => {});
+      }
+    };
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) {
+          seen.add(v);
+          if (v.src) v.play().catch(() => {});
+          else if (!queue.includes(v)) queue.push(v);
+        } else { seen.delete(v); if (v.src) v.pause(); }
+      });
+      queue.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      next();
+    }, { root: canvas.querySelector('.g-body') });
     auto.forEach(v => io.observe(v));
   }
 }
