@@ -251,9 +251,9 @@ const views = {
         <div class="g-actions">${uploadButton(n)}</div>
       </div>`;
     if (!items.length) return `<div class="view v-gallery">${head}${empty(n)}</div>`;
-    // Designs and "Made with AI" are a pinboard: every piece at its own shape, laid
-    // left to right into whichever column is shortest; videos there play on their own
-    if (kind === 'image' || kind === 'mixed') {
+    // Designs, Reels and "Made with AI" are a pinboard: every piece at its own shape,
+    // laid left to right into whichever column is shortest; videos there play on their own
+    if (kind === 'image' || kind === 'mixed' || n.layout === 'portrait') {
       const cols = Array.from({ length: PIN_COLS }, () => ({ h: 0, html: '' }));
       items.forEach((it, i) => {
         const r = it.w && it.h ? it.h / it.w : 1.25;
@@ -369,8 +369,8 @@ async function show(n) {
     cleanup = await mountHome(canvas);
     return;
   }
-  // Every video page plays as the NGI deck's streaming player
-  const vids = n.type === 'stream' || (n.type === 'gallery' && n.media === 'video') ? itemsOf(n).filter(i => i.kind === 'video') : [];
+  // Every video page plays as the NGI deck's streaming player; Reels are a pinboard instead
+  const vids = n.type === 'stream' || (n.type === 'gallery' && n.media === 'video' && n.layout !== 'portrait') ? itemsOf(n).filter(i => i.kind === 'video') : [];
   if (vids.length) {
     canvas.innerHTML = '<div class="view v-stream"></div>';
     const item = i => ({ src: i.url, w: i.w, h: i.h });
