@@ -260,6 +260,26 @@ const views = {
       <div class="cards">${n.children.map(card).join('')}</div>
     </div>`,
 
+  /* The founder (2026-11-01: from the HR Conclave's CEO profile, "just the photo and
+     description ... only one information ... LinkedIn followers ... every follower is
+     an organic follower that he earned"). "linkedin" in deck.json is the count. */
+  leader: n => `
+    <div class="view v-leader">
+      <div class="ld-glow" aria-hidden="true"></div>
+      <div class="ld-mark" aria-hidden="true">${esc(n.lastName || '')}</div>
+      <img class="ld-photo" src="${asset(n.photo)}" alt="${esc(n.title)}">
+      <div class="ld-text">
+        <div class="kicker">${esc(n.kicker || '')}</div>
+        <h1 class="ld-name"><span>${esc(n.firstName || '')}</span>${esc(n.lastName || '')}</h1>
+        ${n.text ? `<p class="ld-lede">${esc(n.text)}</p>` : ''}
+        <div class="ld-card">
+          <div class="ld-net">${brand('linkedin', 'ld-logo')}<span>LinkedIn followers</span></div>
+          <div class="ld-count" data-to="${followerCount(n.linkedin || 0)}">0</div>
+          <p class="ld-say"><b>100% organic.</b> Every follower earned, not one bought.</p>
+        </div>
+      </div>
+    </div>`,
+
   /* A bento grid of a page's categories (2026-11-01: "the designs should be divided into
      categories ... shown as a bento grid ... if we click on that, it should go into that
      folder"). The fullest categories get the biggest tiles; design tiles turn through a
@@ -492,6 +512,19 @@ async function show(n) {
     canvas.innerHTML = portalView(n, { asset, shots, upload: n.folder ? uploadButton(n) : '' });
     cleanup = animatePortal(canvas, i => openLightbox(shots, i));
   } else canvas.innerHTML = views[n.type](n);
+  // the founder's followers count up once the page has settled in
+  const count = n.type === 'leader' && canvas.querySelector('.ld-count');
+  if (count) {
+    const to = +count.dataset.to, t0 = performance.now() + 500;
+    let raf = 0;
+    const step = now => {
+      const k = Math.min(1, Math.max(0, (now - t0) / 1800));
+      count.textContent = Math.round(to * (1 - (1 - k) ** 3)).toLocaleString('en-IN') + (k === 1 ? '+' : '');
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    cleanup = () => cancelAnimationFrame(raf);
+  }
   // a YouTube category on the bento grid plays while the pointer rests on it (a dozen players
   // at once would weigh the page down); its picture drifts gently meanwhile
   canvas.querySelectorAll('.bento-tile .yt-still').forEach(im => {
