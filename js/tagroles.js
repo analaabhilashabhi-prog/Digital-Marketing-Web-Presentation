@@ -24,6 +24,27 @@ const RICON = {
   eye: '<path d="M2.5 12 C5 7 8.5 5 12 5 C15.5 5 19 7 21.5 12 C19 17 15.5 19 12 19 C8.5 19 5 17 2.5 12 Z"/><circle cx="12" cy="12" r="3"/>',
   back: '<path d="M10 6 L4 12 L10 18"/><path d="M4 12 H14 A6 6 0 0 1 20 18"/>',
   heart: '<path d="M12 20 C4.5 14.8 3 10.4 5 7.4 C6.8 4.8 10.4 5.2 12 8 C13.6 5.2 17.2 4.8 19 7.4 C21 10.4 19.5 14.8 12 20 Z"/>',
+  // the t@g console's own icons (chapter 4)
+  grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  spark: '<path d="M12 3 L13.8 10.2 L21 12 L13.8 13.8 L12 21 L10.2 13.8 L3 12 L10.2 10.2 Z"/>',
+  pulse: '<path d="M3 12 H7 L10 5 L14 19 L17 12 H21"/>',
+  template: '<rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M14 14 H20 M14 18 H20"/>',
+  box: '<path d="M12 3 L20 7.5 V16.5 L12 21 L4 16.5 V7.5 Z"/><path d="M4 7.5 L12 12 L20 7.5 M12 12 V21"/>',
+  image: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><circle cx="9" cy="9.5" r="1.8"/><path d="M4 17 L9.5 12.5 L13 15.5 L16 13 L20 16.5"/>',
+  camera: '<path d="M4 8 H7.5 L9 5.5 H15 L16.5 8 H20 V19 H4 Z"/><circle cx="12" cy="13" r="3.4"/>',
+  cap: '<path d="M2.5 9.5 L12 5 L21.5 9.5 L12 14 Z"/><path d="M6.5 11.5 V16 C8 17.8 16 17.8 17.5 16 V11.5"/>',
+  flag: '<path d="M5 21 V4 H17 L15 8 L17 12 H5"/>',
+  checksq: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5 L11 15.5 L16 9"/>',
+  palette: '<path d="M12 3.5 C6.8 3.5 3.5 7.3 3.5 11.8 C3.5 16.6 7.4 20.5 11.6 20.5 C13 20.5 13.4 19.6 13 18.6 C12.4 17.2 13.2 16 14.8 16 H16.8 C19 16 20.5 14.4 20.5 12 C20.5 7.3 16.8 3.5 12 3.5 Z"/><circle cx="8" cy="11" r="1.1"/><circle cx="11" cy="7.5" r="1.1"/><circle cx="15.5" cy="8.5" r="1.1"/>',
+  chat: '<path d="M4 5 H20 V16 H10 L5.5 19.5 V16 H4 Z"/><path d="M8 9.5 H16 M8 12.5 H13"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M16 16 L20 20"/>',
+  download: '<path d="M12 4 V15 M7.5 10.5 L12 15 L16.5 10.5"/><path d="M5 19.5 H19"/>',
+  trash: '<path d="M4.5 7 H19.5 M9.5 7 V4.5 H14.5 V7 M6.5 7 L7.5 20 H16.5 L17.5 7"/>',
+  chev: '<path d="M7 10 L12 15 L17 10"/>',
+  moon: '<path d="M19 14.5 A7.5 7.5 0 1 1 9.5 5 A6 6 0 0 0 19 14.5 Z"/>',
+  bell: '<path d="M6 16.5 V11 A6 6 0 0 1 18 11 V16.5 L19.5 18 H4.5 Z"/><path d="M10 20.5 H14"/>',
+  folder: '<path d="M3.5 6.5 H9.5 L11.5 8.5 H20.5 V18.5 H3.5 Z"/>',
+  file: '<path d="M6.5 3.5 H14 L18 7.5 V20.5 H6.5 Z"/><path d="M14 3.5 V7.5 H18"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/>',
   chip: '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5 V6 M15 2.5 V6 M9 18 V21.5 M15 18 V21.5 M2.5 9 H6 M2.5 15 H6 M18 9 H21.5 M18 15 H21.5"/>',
   leaf: '<path d="M5 19 C5 10 10 5 20 4 C19 14 14 19 5 19 Z"/><path d="M5 19 L13 11"/>',
@@ -228,6 +249,200 @@ function story(D, R, L) {
   };
 }
 
+/* ---------- 4 · Everything in one place: the Content tab ----------
+   (2026-11-01: "recreate how t@g looks when we log in ... the organization entering,
+   going to Content, clicking Templates ... zoom in on a template, it comes to life").
+   First the old way, the same file hunted for across computers; then t@g's admin
+   console, recreated: Overview, a click on Content → Templates, every college's
+   templates in one grid, and one opened, its PSD layers listed and downloaded.
+   Everything is worked out from the chapter's clock, like the poster story.
+   Positions are on the 1920×1080 stage; the console window sits at WIN. */
+const WIN = [90, 50];
+const SIDE = [
+  ['ov', 'Overview', 'grid'], ['tago', 'Tago AI', 'spark'],
+  'Administration', ['org', 'Organizations', 'building'], ['users', 'User Management', 'person'], ['logs', 'Activity Logs', 'pulse'],
+  'Content', ['tpl', 'Templates', 'template'], ['assets', 'Assets', 'box'], ['brand', 'Brand Library', 'image'], ['events', 'Events', 'camera'],
+  ['people', 'People Directory', 'cap'], ['sign', 'Signage', 'flag'],
+  'Workflow', ['appr', 'Approvals', 'checksq'], ['todo', 'Designs to be Done', 'palette'], ['post', 'To Be Posted', 'send'],
+  ['work', 'Assigned Work', 'briefcase'], ['req', 'College Requests', 'chat'],
+];
+const sideTop = {};                                  // each nav row's top, inside the window
+{ let y = 118; for (const s of SIDE) { if (typeof s === 'string') { sideTop[s] = y + 12; y += 42; } else { sideTop[s[0]] = y; y += 44; } } }
+// the templates in the grid: picture, name, category, format, whose
+const TEMPLATES = [
+  ['02 Our Own Brands/Torii Minds/Designs/05 Placement Training.jpg', 'torii placement training', 'Placement', 'PNG', 'ToriiMinds', '#F5822A'],
+  ['01 Our Clients/NGI/Designs/NGI 06.jpg', 'ncet childrens day', 'Celebrations', 'JPG', 'NCET', '#4B5BA8'],
+  ['02 Our Own Brands/Torii Minds/Designs/02 Guru Purnima.jpg', 'torii guru purnima', 'Festivals', 'PSD', 'ToriiMinds', '#F5822A'],
+  ['02 Our Own Brands/Technical Hub/Designs/009 7th Anniversary.jpg', 'hub 7th anniversary', 'Milestones', 'PNG', 'Technical Hub', '#2BA84A'],
+  ['02 Our Own Brands/Torii Minds/Designs/20 VLSI Design Program Launch.jpg', 'vlsi program launch', 'Workshops', 'PSD', 'ToriiMinds', '#F5822A'],
+  ['01 Our Clients/NGI/Designs/NGI 03.jpg', 'ngi farmers day', 'Events', 'JPG', 'NGI', '#138A8A'],
+  ['02 Our Own Brands/Torii Minds/Designs/13 International Youth Day.jpg', 'Youth day', 'Celebrations', 'PNG', 'Shared', '#6A7286'],
+  ['02 Our Own Brands/Technical Hub/Designs/008 Claude Partner Network.jpg', 'claude partner network', 'Partnerships', 'PSD', 'Shared', '#6A7286'],
+];
+const HERO = 2;                                      // the one that is opened
+const LAYER_NAMES = ['Torii logo', 'GURU · headline', 'Purnima · script', 'Guru silhouette', 'Full moon', 'Background · temple at dusk'];
+// a card's picture, inside the window: the grid starts at 290, 244; cards 337 wide, 24 apart
+const CARD = i => [290 + (i % 4) * 361, 244 + Math.floor(i / 4) * 356, 337, 236];
+const W2S = ([x, y]) => [x + WIN[0], y + WIN[1]];
+const LIB_CURSOR = [
+  [5, 1300, 640],
+  [6.6, ...W2S([130, sideTop.tpl + 21])],
+  [9.8, ...W2S([CARD(HERO)[0] + 168, CARD(HERO)[1] + 118])],
+  [12.4, 1290, 560],
+  [15, ...W2S([1040, 662])],                         // the PSD format
+  [16.3, ...W2S([1200, 744])],                       // Download
+  [18.4, 1500, 700],
+];
+const LIB_CLICKS = [7.2, 10.8, 15.2, 16.4];
+const LIB = { page: 7.3, open: 10.9, close: 19.2, gone: 19.9, psd: 15.2, dl: [16.45, 17.7], end: 20.1 };
+
+function library(L) {
+  const at = (a, b) => ` data-at="${a}"${b != null ? ` data-off="${b}"` : ''}`;
+  const hero = TEMPLATES[HERO], [hx, hy, hw, hh] = CARD(HERO);
+  const explorer = (cls, title, path, rows, gx, gy, d) => `
+    <div class="ct-fx ${cls}"${at(d, 3.3)} style="--gx:${gx}px;--gy:${gy}px">
+      <div class="ct-fx__bar">${ric('folder')}<b>${esc(title)}</b><i>—</i><i>☐</i><i>✕</i></div>
+      <div class="ct-fx__path"><span>${path.map(esc).join(' <em>›</em> ')}</span><div class="ct-fx__find">${ric('search')}guru purnima<i class="spin"></i></div></div>
+      ${rows.length ? rows.map(([n, m]) => `<div class="ct-fx__row">${ric('file')}<span>${esc(n)}</span><small>${esc(m)}</small></div>`).join('') : '<p>This folder is empty.</p>'}
+    </div>`;
+  return {
+    name: 'Everything in one place', hold: 25,
+    title: 'Everything in one place',
+    line: 'One Content tab for every college. Every template, ready to download.',
+    html: `
+      <div class="rl"><div class="rl-c"><div class="ct" data-page="ov">
+
+        <!-- before: one file, hunted for across computers -->
+        ${explorer('w1', 'Lab PC 03', ['This PC', 'D:', 'Marketing', 'old', 'New folder (2)'], [['poster_new (1).png', '12 Jul 2025'], ['guru_FINAL_v3.jpg', '03 Jul 2025'], ['final final 2.psd', '28 Jun 2025']], 260, 200, .3)}
+        ${explorer('w2', "Designer's laptop", ['Downloads', 'WhatsApp Images'], [['IMG-20250712-WA0031.jpg', '12 Jul 2025'], ['IMG-20250712-WA0032.jpg', '12 Jul 2025'], ['guru purnima (copy).png', '10 Jul 2025']], -300, 200, .55)}
+        ${explorer('w3', 'Pen drive (E:)', ['E:', 'backup 2024', 'misc'], [], 0, -160, .8)}
+        <div class="ct-q"${at(1.3, 3.3)}><b>Where is last year's Guru Purnima file?</b><span>Lab PC 03? The designer's laptop? A pen drive?</span></div>
+
+        <!-- t@g, as it looks once signed in -->
+        <div class="ct-win"${at(3.7)}>
+          <div class="ct-side">
+            <div class="ct-logo">t<i>@</i>g<small>Digital pulse of NGI — admin</small></div>
+            <i class="ct-group"${at(5.5, 8)} style="top:${sideTop.tpl - 6}px;height:${4 * 44 + 8}px"></i>
+            ${SIDE.map(s => typeof s === 'string'
+              ? `<span class="ct-lab" style="top:${sideTop[s]}px">${esc(s)}</span>`
+              : `<div class="ct-nav" data-k="${s[0]}" style="top:${sideTop[s[0]]}px">${ric(s[2])}${esc(s[1])}</div>`).join('')}
+          </div>
+          <div class="ct-top">
+            <span class="ct-pill">Administrator Console</span>
+            <span class="ct-ai">${ric('spark')}Tago AI</span><span class="ct-tic">${ric('moon')}</span><span class="ct-tic bell">${ric('bell')}<i>9+</i></span>
+            <span class="ct-me"><b>SA</b><span>Super Admin<small>Super Admin</small></span></span>
+          </div>
+          <div class="ct-main">
+            <div class="ct-page ov">
+              <div class="ct-hero">
+                <small>Sunday, 1 November</small><b>Good afternoon, Super 👋</b><p>Platform-wide administration overview.</p>
+                <span class="ct-sel">ToriiMinds${ric('chev')}</span>
+              </div>
+              <div class="ct-read">
+                <div class="ct-read__head"><span class="ct-spark">${ric('spark')}</span><span><b>Tago's read on your numbers</b><small>AI insight from your live analytics</small></span><em>Refresh</em></div>
+                <div class="ct-read__body">
+                  <div class="ct-total">
+                    <small>${ric('person')}Total followers</small>
+                    <b data-count-to="4.2,5.8,4496">0</b>
+                    <p>across 3 platforms <em>↑ +138 in 28 days</em></p>
+                    ${[['LinkedIn', '4,014', '+135'], ['Instagram', '342', '—'], ['YouTube', '140', '+3']].map(([p, n, d]) => `<div>${brand(p)}<span>${p}</span><b>${n}</b><em>${d}</em></div>`).join('')}
+                  </div>
+                  <div class="ct-insight"><span>${brand('LinkedIn')}LinkedIn</span><p>ToriiMinds is excelling, especially on LinkedIn, while there is room for growth on YouTube.</p></div>
+                </div>
+                <div class="ct-aud"><small>Audience by platform</small>
+                  ${[['LinkedIn', '4,014', '+135', 100, '#0A66C2'], ['Instagram', '342', 'no change', 9, '#E1306C'], ['YouTube', '140', '+3', 4, '#FF0000']].map(([p, n, d, w, c]) => `
+                    <div class="ct-bar"><span>${brand(p)}${p}</span><b>${n}</b><em>${d}</em><i${at(4.6)} style="--w:${w}%;--c:${c}"></i></div>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="ct-page tpl">
+              <div class="ct-tp-head"><i></i><b>Template Repository</b><p>Reusable marketing templates for every campaign. Anyone can upload; only the super admin can remove.</p><span class="ct-up">+ Upload Template</span></div>
+              <div class="ct-tp-tools"><div class="ct-search">${ric('search')}Search templates...</div><span>All colleges${ric('chev')}</span><span>All Categories${ric('chev')}</span><span class="ct-view">${ric('grid')}</span></div>
+              ${TEMPLATES.map(([src, name, cat, fmt, who, c], i) => { const [x, y] = CARD(i); return `
+                <div class="ct-card${i === HERO ? ' hero' : ''}"${A('up', (7.6 + i * .09).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
+                  <div class="ct-card__img"><img src="${L(src)}" alt=""><span class="fmt">${fmt}</span><span class="who" style="--c:${c}"><i></i>${esc(who)}</span></div>
+                  <b>${esc(name)}</b><small>${esc(cat)}</small>
+                  <div class="ct-card__foot"><span>SA</span>22 Aug 2026${ric('pen')}${ric('trash')}</div>
+                </div></div>`; }).join('')}
+            </div>
+          </div>
+
+          <!-- one template, opened -->
+          <i class="ct-dim"${at(LIB.open, LIB.close)}></i>
+          <div class="ct-modal"${at(LIB.open + .15, LIB.close)}>
+            <div class="ct-info">
+              <div class="ct-chips"><span class="fmt">PSD · layered</span><span class="who"><i></i>${esc(hero[4])}</span></div>
+              <b>Guru Purnima</b>
+              <small>${esc(hero[2])} · uploaded by Super Admin · 22 Aug 2026</small>
+              <label>Layers</label>
+              ${LAYER_NAMES.map((n, i) => `<div class="ct-layer"${at((12.1 + i * .32).toFixed(2))}>${ric('eye')}<i style="--k:${i}"></i><span>${esc(n)}</span>${i === 1 || i === 2 ? '<em>T</em>' : ''}</div>`).join('')}
+              <label class="f">Download as</label>
+              <div class="ct-fmts"><span data-f="psd">PSD</span><span data-f="png">PNG</span><span data-f="jpg">JPG</span></div>
+              <div class="ct-dl">${ric('download')}<span>Download PNG · 6 MB</span></div>
+            </div>
+          </div>
+          <div class="ct-zoom" style="--x:${hx}px;--y:${hy}px;--w:${hw}px;--h:${hh}px"><img src="${L(hero[0])}" alt=""></div>
+          <div class="ct-toast"${at(17.9, LIB.close)}>${ric('check')}guru-purnima.psd saved: open it, change the date, done.</div>
+
+          <!-- the point of it -->
+          <i class="ct-dim end"${at(LIB.end)}></i>
+          <div class="ct-end"${at(LIB.end + .2)}>
+            <b>Every template, for every college, in one place.</b>
+            <p>No more searching five computers for one file.</p>
+            <div>${['Templates', 'Assets', 'Brand Library', 'Events'].map((n, i) => `<span${at((LIB.end + .8 + i * .15).toFixed(2))}>${ric(['template', 'box', 'image', 'camera'][i])}${n}</span>`).join('')}</div>
+          </div>
+        </div>
+
+        <div class="fl-cursor ct-cursor" style="--c:#F5822A"><svg viewBox="0 0 24 24"><path d="M5 2.5 V19 L9.2 15 L12.2 21.5 L14.8 20.3 L11.9 14 L17.8 13.8 Z"/></svg><em>ToriiMinds</em></div>
+      </div></div></div>`,
+
+    tick(t, el) {
+      const root = el.querySelector('.ct');
+      const page = t >= LIB.page ? 'tpl' : 'ov';
+      if (root.dataset.page !== page) root.dataset.page = page;
+      root.querySelectorAll('[data-at]').forEach(e => e.classList.toggle('on', t >= +e.dataset.at && !(e.dataset.off && t >= +e.dataset.off)));
+      root.querySelectorAll('[data-off]').forEach(e => e.classList.toggle('off', t >= +e.dataset.off));
+      root.querySelectorAll('[data-count-to]').forEach(e => {
+        const [a, b, to] = e.dataset.countTo.split(',').map(Number);
+        e.textContent = Math.round(to * ease(clamp((t - a) / (b - a)))).toLocaleString('en-US');
+      });
+      // the sidebar: Overview, then Templates
+      root.querySelectorAll('.ct-nav').forEach(n => {
+        n.classList.toggle('act', n.dataset.k === page);
+        n.classList.toggle('hov', n.dataset.k === 'tpl' && t > 6.5 && t < LIB.page);
+      });
+      // the card under the cursor lifts; clicking it zooms its picture up
+      root.querySelector('.ct-card.hero').classList.toggle('hov', t > 9.6 && t < LIB.open);
+      const z = root.querySelector('.ct-zoom');
+      z.classList.toggle('on', t >= LIB.open && t < LIB.gone);
+      z.classList.toggle('big', t >= LIB.open + .05 && t < LIB.close);
+      z.classList.toggle('live', t >= LIB.open + .9 && t < LIB.close);
+      // the format, then the download
+      const f = t >= LIB.psd ? 'psd' : 'png';
+      root.querySelectorAll('.ct-fmts span').forEach(s => s.classList.toggle('sel', s.dataset.f === f));
+      const dl = root.querySelector('.ct-dl'), [d0, d1] = LIB.dl, p = clamp((t - d0) / (d1 - d0));
+      dl.style.setProperty('--p', `${(p * 100).toFixed(1)}%`);
+      dl.classList.toggle('done', t >= d1);
+      const label = t >= d1 ? 'Downloaded · ready to edit' : t >= d0 ? `Downloading… ${Math.round(p * 100)}%` : f === 'psd' ? 'Download PSD · 48 MB' : 'Download PNG · 6 MB';
+      const sp = dl.querySelector('span');
+      if (sp.textContent !== label) sp.textContent = label;
+      // the cursor
+      const c = root.querySelector('.ct-cursor');
+      let x = LIB_CURSOR[0][1], y = LIB_CURSOR[0][2];
+      for (let j = 1; j < LIB_CURSOR.length; j++) {
+        const [ta, tx, ty] = LIB_CURSOR[j], [, px, py] = LIB_CURSOR[j - 1];
+        if (t < ta - MOVE) break;
+        const k = ease(clamp((t - (ta - MOVE)) / MOVE));
+        x = px + (tx - px) * k; y = py + (ty - py) * k;
+      }
+      c.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      c.classList.toggle('on', t > 4.8 && t < 18.7);
+      c.classList.toggle('click', LIB_CLICKS.some(s => t >= s && t < s + .35));
+    },
+  };
+}
+
 export function roleChapters(D, L) {
   const R = D.roles;
   const steps = D.steps;
@@ -309,7 +524,10 @@ export function roleChapters(D, L) {
     /* 3 · One request, five steps: one real poster, from the brief to the feed */
     story(D, R, L),
 
-    /* 4 · Publish, or schedule */
+    /* 4 · Everything in one place: t@g's Content tab, Templates opened */
+    library(L),
+
+    /* 5 · Publish, or schedule */
     {
       name: 'Publish, or schedule', hold: 13,
       title: 'Publish, or schedule',
