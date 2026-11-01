@@ -273,10 +273,12 @@ const views = {
       // a handful of pieces fill the page instead: two or three to a row, each row
       // stretched edge to edge, every piece still at its own shape
       if (items.length <= 6) {
-        const sizes = { 1: [1], 2: [2], 3: [3], 4: [2, 2], 5: [2, 3], 6: [3, 3] }[items.length];
+        // tall pieces (reels) side by side in one row; wide ones two or three to a row
+        const tall = items.every(it => it.h > it.w);
+        const sizes = tall ? [items.length] : { 1: [1], 2: [2], 3: [3], 4: [2, 2], 5: [2, 3], 6: [3, 3] }[items.length];
         let k = 0;
         const rows = sizes.map(m => items.slice(k, k += m).map((it, j) => pin(it, k - m + j,
-          ` style="flex:${(it.w && it.h ? it.w / it.h : .8).toFixed(4)} 1 0"`)).join(''));
+          ` style="flex:${(it.w && it.h ? it.w / it.h : .8).toFixed(4)} 1 0;--ar:${(it.w && it.h ? it.w / it.h : .8).toFixed(4)}"`)).join(''));
         return `
           <div class="view v-gallery">
             ${head}
