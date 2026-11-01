@@ -256,8 +256,10 @@ function story(D, R, L) {
    then "after templates, assets", then the brand library). First the old way, the same
    file hunted for across computers; then t@g's admin console, recreated: Overview, a
    click on Content → Templates, one template opened with its PSD layers and downloaded;
-   then Assets, one college logo opened as a brand kit; then Brand Library, the brand
-   film opened, played and its link copied to share.
+   then Assets, scrolled through and one college logo opened as a brand kit; then Brand
+   Library, scrolled through, the brand film playing in its card ("every time you don't
+   have to click, even scroll can work"). A line under each tab says what is in it and
+   how it is used.
    Everything is worked out from the chapter's clock, like the poster story.
    Positions are on the 1920×1080 stage; the console window sits at WIN. */
 const WIN = [90, 50];
@@ -291,19 +293,29 @@ const ASSETS = [
   ['Logos/aditya-university.png', 'Aditya University logo', 'Logos', 'SVG', 'Aditya', '#6C5CE7'],
   ['Logos/NGI Institutions/04 Nagarjuna Pre-University College.png', 'PU College logo', 'Logos', 'PNG', 'NPUC', '#F5822A'],
   ['Logos/NGI Institutions/05 Nagarjuna Vidyaniketan.png', 'Vidyaniketan logo', 'Logos', 'JPEG', 'NVN', '#138A8A'],
+  ['Logos/technical-hub-wordmark.png', 'Technical Hub wordmark', 'Logos', 'SVG', 'Technical Hub', '#2BA84A'],
+  ['Logos/torii-minds-mark.png', 'Torii mark', 'Logos', 'PNG', 'ToriiMinds', '#F5822A'],
+  ['Logos/ncc-nagarjuna-construction.png', 'NCC logo', 'Logos', 'AI', 'NGI', '#138A8A'],
+  ['Logos/ngi-mark.png', 'NGI mark', 'Logos', 'PNG', 'NGI', '#138A8A'],
 ];
 const LIBRARY = [
   ['03 Tag Portal/library/ad-ai-ready-engineer.jpg', 'news paper ad', 'Print Ad', 'Shared', '#6A7286'],
-  ['03 Tag Portal/library/torii-brand-film.jpg', 'Torii brand film', 'Branding Video', 'ToriiMinds', '#F5822A', true],
+  ['03 Tag Portal/library/ncet-brand-film.jpg', 'NCET Branding Video', 'Branding Video', 'Shared', '#6A7286', true],
   ['03 Tag Portal/library/life-at-ncet.jpg', 'Life at NCET', 'Branding Video', 'Shared', '#6A7286', true],
+  ['03 Tag Portal/library/project-street.jpg', 'Project Street', 'Branding Video', 'ToriiMinds', '#F5822A', true],
+  ['03 Tag Portal/library/torii-brand-film.jpg', 'Torii brand film', 'Branding Video', 'ToriiMinds', '#F5822A', true],
   ['03 Tag Portal/library/ncet-x-torii.jpg', 'NCET Collaboration with ToriiMinds', 'Branding Video', 'Shared', '#6A7286', true],
-  ['03 Tag Portal/library/ad-decade-of-innovation.jpg', 'A decade of innovation', 'Print Ad', 'Technical Hub', '#2BA84A'],
+  ['03 Tag Portal/library/ncet-labs.jpg', 'Computer Science at NCET', 'Branding Video', 'Shared', '#6A7286', true],
+  ['03 Tag Portal/library/hostel-life.jpg', 'Hostel life at NCET', 'Branding Video', 'Shared', '#6A7286', true],
   ['03 Tag Portal/library/placement-story.jpg', 'Placement success story', 'Branding Video', 'ToriiMinds', '#F5822A', true],
 ];
 const FILM = '02 Our Own Brands/Torii Minds/Videos/04 Brand Films/02 Torii Brand Film 2.mp4';
 const CARD3 = i => [290 + (i % 3) * 481, 244 + Math.floor(i / 3) * 394, 457, 260];
-// the film: opened, played from a few seconds in, its link copied
-const BL = { card: 1, open: 34.2, play: 36.1, from: 10, length: 79.3, copy: 40.2, close: 42.6 };
+// the brand film: it starts playing in its card once the cursor rests on it
+const BL = { card: 4, hover: 39, play: 39.5, from: 10, stop: 44.6 };
+// the pages that scroll: [from, to, how far down]
+const SCROLLS = { assets: [[21.8, 23.2, 356], [24.2, 25.3, 0]], brand: [[36.6, 38.6, 420]] };
+const scrolled = (segs, t) => segs.reduce(([v, from], [a, b, to]) => [t >= a ? from + (to - from) * ease(clamp((t - a) / (b - a))) : v, to], [0, 0])[0];
 // a card's picture, inside the window: the grid starts at 290, 244; cards 337 wide, 24 apart
 const CARD = i => [290 + (i % 4) * 361, 244 + Math.floor(i / 4) * 356, 337, 236];
 const W2S = ([x, y]) => [x + WIN[0], y + WIN[1]];
@@ -311,10 +323,10 @@ const W2S = ([x, y]) => [x + WIN[0], y + WIN[1]];
 const OPENS = [
   { k: 'tpl', card: 2, fmt: [1, 0], open: 10.9, pick: 15.2, dl: [16.45, 17.7], close: 19.2,
     say: ['Download PNG · 6 MB', 'Download PSD · 48 MB', 'Downloaded · ready to edit'] },
-  { k: 'kit', card: 1, fmt: [0, 2], open: 23.3, pick: 26.4, dl: [27.5, 28.6], close: 30.2,
+  { k: 'kit', card: 1, fmt: [0, 2], open: 26.7, pick: 29.8, dl: [30.9, 32], close: 33.6,
     say: ['Download PNG · 1 MB', 'Download brand kit · 12 MB', 'Downloaded · every version inside'] },
 ];
-const PAGES = [[0, 'ov'], [7.3, 'tpl'], [20.3, 'assets'], [31.3, 'brand']];
+const PAGES = [[0, 'ov'], [7.3, 'tpl'], [20.3, 'assets'], [34.7, 'brand']];
 const LIB_CURSOR = [
   [5, 1300, 640],
   [6.6, ...W2S([130, sideTop.tpl + 21])],
@@ -324,20 +336,18 @@ const LIB_CURSOR = [
   [16.3, ...W2S([1200, 744])],                       // Download
   [18.4, 1500, 700],
   [20, ...W2S([130, sideTop.assets + 21])],
-  [22.4, ...W2S([CARD(1)[0] + 168, CARD(1)[1] + 118])],
-  [24.8, 1290, 560],
-  [26.2, ...W2S([1344, 662])],                       // Brand kit
-  [27.3, ...W2S([1200, 744])],                       // Download
-  [29.2, 1500, 700],
-  [31, ...W2S([130, sideTop.brand + 21])],
-  [33.6, ...W2S([CARD3(BL.card)[0] + 228, CARD3(BL.card)[1] + 130])],
-  [35.9, ...W2S([710, 365])],                        // play
-  [37.8, 1385, 460],
-  [40, ...W2S([1295, 704])],                         // Copy link
-  [41.4, 1600, 780],
+  [21.2, 1150, 600],                                 // rests on the grid while it scrolls
+  [25.8, ...W2S([CARD(1)[0] + 168, CARD(1)[1] + 118])],
+  [28.2, 1290, 560],
+  [29.6, ...W2S([1344, 662])],                       // Brand kit
+  [30.7, ...W2S([1200, 744])],                       // Download
+  [32.6, 1500, 700],
+  [34.4, ...W2S([130, sideTop.brand + 21])],
+  [35.8, 1150, 640],
+  [39.2, ...W2S([CARD3(BL.card)[0] + 228, CARD3(BL.card)[1] - SCROLLS.brand[0][2] + 130])],
 ];
-const LIB_CLICKS = [7.2, 10.8, 15.2, 16.4, 20.2, 23.2, 26.4, 27.4, 31.2, 34.1, 36, 40.2];
-const LIB_END = 43.4;
+const LIB_CLICKS = [7.2, 10.8, 15.2, 16.4, 20.2, 26.6, 29.8, 30.8, 34.6];
+const LIB_END = 45;
 
 function library(L) {
   const at = (a, b) => ` data-at="${a}"${b != null ? ` data-off="${b}"` : ''}`;
@@ -349,7 +359,7 @@ function library(L) {
     </div>`;
   // a repository page: its heading, tools and grid of cards
   const repo = (k, title, sub, what, items, t0, hero, logo) => `
-    <div class="ct-page ${k}">
+    <div class="ct-page ${k}"><div class="ct-scroll">
       <div class="ct-tp-head"><i></i><b>${esc(title)}</b><p>${esc(sub)}</p><span class="ct-up">+ Upload ${what}</span></div>
       <div class="ct-tp-tools"><div class="ct-search">${ric('search')}Search ${what.toLowerCase()}s...</div><span>All colleges${ric('chev')}</span><span>All Categories${ric('chev')}</span><span class="ct-view">${ric('grid')}</span></div>
       ${items.map(([src, name, cat, fmt, who, c], i) => { const [x, y] = CARD(i); return `
@@ -358,7 +368,9 @@ function library(L) {
           <b>${esc(name)}</b><small>${esc(cat)}</small>
           <div class="ct-card__foot"><span>SA</span>${logo ? '07 Sep 2026' : '22 Aug 2026'}${ric('pen')}${ric('trash')}</div>
         </div></div>`; }).join('')}
-    </div>`;
+    </div><i class="ct-sb"><b></b></i></div>`;
+  // what a tab holds and how it is used, said under it while it is on screen
+  const say = (label, text, a, b) => `<div class="ct-say"${at(a, b)}><small>${esc(label)}</small>${esc(text)}</div>`;
   // one thing opened: the dimmed console, the panel, the picture that zooms up from its card
   const opened = (o, body, zoom, fmts, toast) => {
     const [x, y, w, h] = CARD(o.card);
@@ -379,7 +391,7 @@ function library(L) {
   const tpl = TEMPLATES[OPENS[0].card], kit = ASSETS[OPENS[1].card];
   const rows = (names, t0, mark) => names.map((n, i) => `<div class="ct-layer"${at((t0 + i * .32).toFixed(2))}>${ric(mark ? mark(i) : 'eye')}<i style="--k:${i}"></i><span>${esc(n)}</span>${!mark && (i === 1 || i === 2) ? '<em>T</em>' : ''}</div>`).join('');
   return {
-    name: 'Everything in one place', hold: 48,
+    name: 'Everything in one place', hold: 50,
     title: 'Everything in one place',
     line: 'One Content tab for every college: its templates, its logos, its films.',
     html: `
@@ -429,18 +441,21 @@ function library(L) {
               </div>
             </div>
             ${repo('tpl', 'Template Repository', 'Reusable marketing templates for every campaign. Anyone can upload; only the super admin can remove.', 'Template', TEMPLATES, 7.6, OPENS[0].card)}
-            <div class="ct-page brand">
+            <div class="ct-page brand"><div class="ct-scroll">
               <div class="ct-tp-head"><i></i><b>Brand Library</b><p>Brand films, ads and videos, ready to share. Anyone can add; only the super admin can remove.</p><span class="ct-up">+ Add to Library</span></div>
               <div class="ct-tp-tools"><div class="ct-search">${ric('search')}Search the library...</div><span>All colleges${ric('chev')}</span><span>All types${ric('chev')}</span><span class="ct-view">${ric('grid')}</span></div>
               ${LIBRARY.map(([src, name, kind, who, c, film], i) => { const [x, y] = CARD3(i); return `
-                <div class="ct-card bl${i === BL.card ? ' hero' : ''}"${A('up', (31.5 + i * .09).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
-                  <div class="ct-card__img"><img src="${L(src)}" alt=""><span class="kind">${esc(kind)}</span>${film ? '<span class="fmt">VIDEO</span><i class="ct-play"></i>' : ''}<span class="who" style="--c:${c}"><i></i>${esc(who)}</span></div>
+                <div class="ct-card bl${i === BL.card ? ' hero' : ''}"${A('up', (34.9 + i * .07).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
+                  <div class="ct-card__img"><img src="${L(src)}" alt="">${i === BL.card ? `<video src="${L(FILM)}" muted playsinline preload="auto"></video><i class="ct-prog"><b></b></i>` : ''}<span class="kind">${esc(kind)}</span>${film ? '<span class="fmt">VIDEO</span><i class="ct-play"></i>' : ''}<span class="who" style="--c:${c}"><i></i>${esc(who)}</span></div>
                   <b>${esc(name)}</b>
                   <div class="ct-bl-foot"><span>${ric(film ? 'link' : 'download')}${film ? 'Open link' : 'View / download'}</span>${ric('trash')}</div>
                 </div></div>`; }).join('')}
-            </div>
+            </div><i class="ct-sb"><b></b></i></div>
             ${repo('assets', 'Asset Repository', 'Reusable branding assets and brand kit. Anyone can upload; only the super admin can remove.', 'Asset', ASSETS, 20.5, OPENS[1].card, true)}
           </div>
+          ${say('Templates', 'Ready-made designs for every occasion. Pick one, change the date, post it.', 8.4, 10.6)}
+          ${say('Assets', "Every college's logos and brand kit. The right logo, in the right format, every time.", 21, 26.4)}
+          ${say('Brand Library', 'Finished films and ads, ready to go. Play them at events, share the link, post anywhere.', 35.2, 44.6)}
 
           <!-- a template, opened: it comes to life, its layers listed, its PSD downloaded -->
           ${opened(OPENS[0], `
@@ -459,35 +474,12 @@ function library(L) {
             <b>NGI logo</b>
             <small>Logos · uploaded by Super Admin · 07 Sep 2026</small>
             <label>In the brand kit</label>
-            ${rows(['Full colour · PNG', 'White · for dark backgrounds', 'One colour · for print', 'Vector · SVG and AI', 'Clear space and sizes · PDF'], 24.6, () => 'check')}`,
+            ${rows(['Full colour · PNG', 'White · for dark backgrounds', 'One colour · for print', 'Vector · SVG and AI', 'Clear space and sizes · PDF'], 28, () => 'check')}`,
             `<div class="k-main"><img src="${L(kit[0])}" alt=""></div>
-             <div class="k-tile dark"${at(24.5)}><img src="${L(kit[0])}" alt=""><small>White</small></div>
-             <div class="k-tile mono"${at(24.75)}><img src="${L(kit[0])}" alt=""><small>One colour</small></div>`,
+             <div class="k-tile dark"${at(27.9)}><img src="${L(kit[0])}" alt=""><small>White</small></div>
+             <div class="k-tile mono"${at(28.15)}><img src="${L(kit[0])}" alt=""><small>One colour</small></div>`,
             [['png', 'PNG'], ['svg', 'SVG'], ['zip', 'Brand kit']],
             'ngi-brand-kit.zip saved: the right logo, every time.')}
-
-          <!-- the brand film, opened: it plays, then its link is copied to share -->
-          ${(() => { const [x, y, w, h] = CARD3(BL.card), f = LIBRARY[BL.card]; return `
-          <div class="ct-open vid">
-            <i class="ct-dim"${at(BL.open, BL.close)}></i>
-            <div class="ct-modal"${at(BL.open + .15, BL.close)}>
-              <div class="ct-player-bar"><i><b></b></i><span>0:00 / 1:19</span></div>
-              <div class="ct-ready"><small>Ready for</small>${['LinkedIn', 'Instagram', 'YouTube', 'Facebook'].map((p, i) => `<span${at((36.6 + i * .15).toFixed(2))}>${brand(p)}${p}</span>`).join('')}<span${at(37.2)}>${ric('grid')}Website</span><span${at(37.35)}>${ric('camera')}Event screens</span></div>
-              <div class="ct-info">
-                <div class="ct-chips"><span class="fmt">Branding Video</span><span class="who" style="--c:${f[4]}"><i></i>${esc(f[3])}</span></div>
-                <b>${esc(f[1])}</b>
-                <small>Brand films · added by Super Admin · 1080p</small>
-                <label>Use it for</label>
-                ${['Admissions and open days', 'College websites', 'Pitches to companies', 'Every social page'].map((n, i) => `<div class="ct-layer"${at((37 + i * .32).toFixed(2))}>${ric('check')}<span>${esc(n)}</span></div>`).join('')}
-                <div class="ct-mp4">${ric('download')}Download MP4</div>
-                <div class="ct-dl ct-copy">${ric('link')}<span>Copy link</span></div>
-              </div>
-            </div>
-            <div class="ct-zoom film" style="--x:${x}px;--y:${y}px;--w:${w}px;--h:${h}px">
-              <video src="${L(FILM)}" muted playsinline preload="auto"></video><img src="${L(f[0])}" alt=""><i class="ct-play"></i>
-            </div>
-            <div class="ct-toast"${at(BL.copy + .2, BL.close)}>${ric('check')}Link copied: paste it on the website, in a mail, anywhere.</div>
-          </div>`; })()}
 
           <!-- the point of it -->
           <i class="ct-dim end"${at(LIB_END)}></i>
@@ -514,7 +506,7 @@ function library(L) {
       // the sidebar follows the page; the next tab lights as the cursor reaches it
       root.querySelectorAll('.ct-nav').forEach(n => {
         n.classList.toggle('act', n.dataset.k === page);
-        n.classList.toggle('hov', (n.dataset.k === 'tpl' && t > 6.5 && t < 7.3) || (n.dataset.k === 'assets' && t > 19.9 && t < 20.3) || (n.dataset.k === 'brand' && t > 30.9 && t < 31.3));
+        n.classList.toggle('hov', (n.dataset.k === 'tpl' && t > 6.5 && t < 7.3) || (n.dataset.k === 'assets' && t > 19.9 && t < 20.3) || (n.dataset.k === 'brand' && t > 34.3 && t < 34.7));
       });
       // each opened thing: its card lifts, its picture zooms up, a format is picked, it downloads
       OPENS.forEach(o => {
@@ -533,27 +525,25 @@ function library(L) {
         const sp = dl.querySelector('span');
         if (sp.textContent !== label) sp.textContent = label;
       });
-      // the film: its card lifts, it zooms up, plays in time with the clock, its link is copied
-      const vb = root.querySelector('.ct-open.vid'), fz = vb.querySelector('.ct-zoom'), v = fz.querySelector('video');
-      root.querySelector('.ct-card.bl.hero').classList.toggle('hov', t > BL.open - 1.3 && t < BL.open);
-      fz.classList.toggle('on', t >= BL.open && t < BL.close + .7);
-      fz.classList.toggle('big', t >= BL.open + .05 && t < BL.close);
-      fz.classList.toggle('live', t >= BL.open + .9 && t < BL.play);
-      const playing = t >= BL.play && t < BL.close;
-      fz.classList.toggle('playing', playing);
+      // the pages that scroll, and their scrollbars
+      Object.entries(SCROLLS).forEach(([k, segs]) => {
+        const pg = root.querySelector(`.ct-page.${k}`), v = scrolled(segs, t);
+        pg.querySelector('.ct-scroll').style.transform = `translateY(${(-v).toFixed(1)}px)`;
+        const sb = pg.querySelector('.ct-sb');
+        sb.classList.toggle('on', segs.some(([a, b]) => t > a - .5 && t < b + .8));
+        sb.querySelector('b').style.transform = `translateY(${(v / 420 * 150).toFixed(1)}%)`;
+      });
+      // the brand film, playing in its card in time with the clock
+      const fc = root.querySelector('.ct-card.bl.hero'), v = fc.querySelector('video');
+      fc.classList.toggle('hov', t > BL.hover && t < BL.stop);
+      const playing = t >= BL.play && t < BL.stop;
+      fc.classList.toggle('playing', playing);
       if (playing) {
         const want = BL.from + t - BL.play;
         if (Math.abs(v.currentTime - want) > .8) v.currentTime = want;
         if (v.paused) v.play().catch(() => {});
       } else if (!v.paused) v.pause();
-      const pos = playing ? BL.from + t - BL.play : 0, mmss = n => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, '0')}`;
-      vb.querySelector('.ct-player-bar b').style.width = `${(pos / BL.length * 100).toFixed(2)}%`;
-      const tl = `${mmss(pos)} / ${mmss(BL.length)}`, ts = vb.querySelector('.ct-player-bar span');
-      if (ts.textContent !== tl) ts.textContent = tl;
-      const cp = vb.querySelector('.ct-copy');
-      cp.classList.toggle('done', t >= BL.copy);
-      const cl = t >= BL.copy ? 'Link copied' : 'Copy link';
-      if (cp.querySelector('span').textContent !== cl) cp.querySelector('span').textContent = cl;
+      fc.querySelector('.ct-prog b').style.width = `${(clamp((t - BL.play) / (BL.stop - BL.play)) * 100).toFixed(1)}%`;
       // the cursor
       const c = root.querySelector('.ct-cursor');
       let x = LIB_CURSOR[0][1], y = LIB_CURSOR[0][2];
@@ -564,7 +554,7 @@ function library(L) {
         x = px + (tx - px) * k; y = py + (ty - py) * k;
       }
       c.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
-      c.classList.toggle('on', t > 4.8 && t < 41.6);
+      c.classList.toggle('on', t > 4.8 && t < 44.4);
       c.classList.toggle('click', LIB_CLICKS.some(s => t >= s && t < s + .35));
     },
   };
