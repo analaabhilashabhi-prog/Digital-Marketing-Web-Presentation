@@ -23,42 +23,120 @@ const RICON = {
   eye: '<path d="M2.5 12 C5 7 8.5 5 12 5 C15.5 5 19 7 21.5 12 C19 17 15.5 19 12 19 C8.5 19 5 17 2.5 12 Z"/><circle cx="12" cy="12" r="3"/>',
   back: '<path d="M10 6 L4 12 L10 18"/><path d="M4 12 H14 A6 6 0 0 1 20 18"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/>',
+  chip: '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5 V6 M15 2.5 V6 M9 18 V21.5 M15 18 V21.5 M2.5 9 H6 M2.5 15 H6 M18 9 H21.5 M18 15 H21.5"/>',
+  leaf: '<path d="M5 19 C5 10 10 5 20 4 C19 14 14 19 5 19 Z"/><path d="M5 19 L13 11"/>',
+  briefcase: '<rect x="3" y="7.5" width="18" height="12" rx="2.5"/><path d="M9 7.5 V5.5 A1.5 1.5 0 0 1 10.5 4 H13.5 A1.5 1.5 0 0 1 15 5.5 V7.5 M3 13 H21"/>',
+  hub: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="3.8" r="1.8"/><circle cx="4.6" cy="17" r="1.8"/><circle cx="19.4" cy="17" r="1.8"/><path d="M12 5.6 V9 M6.2 16 L9.5 13.6 M17.8 16 L14.5 13.6"/>',
 };
 const ric = (name, cls = '') => `<svg class="rl-svg ${cls}" viewBox="0 0 24 24">${RICON[name] || RICON.person}</svg>`;
 const badge = (r, cls = '') => `<span class="rl-ic ${cls}" style="--c:${r.color}">${ric(r.icon)}</span>`;
 const PLATFORM = { LinkedIn: ['in', '#0A66C2'], Instagram: ['IG', '#C2367E'], YouTube: ['YT', '#E62117'], Facebook: ['f', '#1877F2'] };
 const pchip = p => `<span class="tr-pf" style="background:${PLATFORM[p][1]}">${PLATFORM[p][0]}</span>`;
 
-// A role's card in the tree: icon, name, a short line
-const node = (r, sub, d, x, y, w, cls = '') => `
-  <div class="rl-node ${cls}"${A('up', d, `left:${x}px;top:${y}px;width:${w}px;--c:${r.color}`)}>
-    ${badge(r)}<span><b>${esc(r.name)}</b><small>${esc(sub)}</small></span>
-  </div>`;
+/* ---------- 1 · The hierarchy ----------
+   University Admin → its schools → the Digital Marketing Manager → the team the
+   manager assigns. Curved links draw in tier by tier; then a glowing packet of
+   work keeps travelling down the chain, and each card pulses as it arrives.
+   Hovering a card lights its whole reporting line and dims the rest. */
+const COLS = [480, 960, 1440];                       // centres of the three columns
+const TIER = { top: [70, 116], org: [282, 112], mgr: [492, 128], team: [712, 108] };   // top, height
+const curve = (x0, y0, x1, y1) => { const m = (y0 + y1) / 2; return [x0, y0, x0, m, x1, m, x1, y1]; };
+const bez = ([x0, y0, a, b, c, d, x1, y1], t) => {
+  const u = 1 - t;
+  return [u * u * u * x0 + 3 * u * u * t * a + 3 * u * t * t * c + t * t * t * x1,
+          u * u * u * y0 + 3 * u * u * t * b + 3 * u * t * t * d + t * t * t * y1];
+};
+
+function hierarchy(D, R) {
+  const H = D.hierarchy;
+  const bottom = k => TIER[k][0] + TIER[k][1];
+  const nodes = [
+    { id: 'top', tier: 'top', x: 960, w: 520, name: R.super.name, sub: H.top.sub, icon: R.super.icon, color: R.super.color, tip: H.top.tip, d: .3 },
+    ...H.orgs.map((o, i) => ({ id: `o${i}`, tier: 'org', x: COLS[i], w: 400, name: o.name, sub: 'Sub-organisation', icon: o.icon, color: o.color, tip: o.tip, d: 1.6 + i * .2 })),
+    { id: 'mgr', tier: 'mgr', x: 960, w: 600, name: H.manager.name, sub: H.manager.sub, icon: H.manager.icon, color: H.manager.color, tip: H.manager.tip, d: 3.1 },
+    ...H.team.map((m, i) => ({ id: `t${i}`, tier: 'team', x: COLS[i], w: 420, name: R[m.role].name, sub: m.sub, icon: R[m.role].icon, color: R[m.role].color, tip: m.tip, d: 4.5 + i * .2 })),
+  ];
+  // each link: from, to, its curve, when it draws, the colour of what flows along it
+  const links = [
+    ...H.orgs.map((o, i) => ({ from: 'top', to: `o${i}`, c: curve(960, bottom('top'), COLS[i], TIER.org[0]), d: 1.1, color: o.color, wave: 0 })),
+    ...H.orgs.map((o, i) => ({ from: `o${i}`, to: 'mgr', c: curve(COLS[i], bottom('org'), 960, TIER.mgr[0]), d: 2.6, color: o.color, wave: 1 })),
+    ...H.team.map((m, i) => ({ from: 'mgr', to: `t${i}`, c: curve(960, bottom('mgr'), COLS[i], TIER.team[0]), d: 4, color: R[m.role].color, wave: 2 })),
+  ];
+  const pill = (text, y, d) => `<span class="rl-h-pill"${A('pop', d, `top:${y}px`)}>${esc(text)}</span>`;
+  const tierLabel = (text, k, d) => `<span class="rl-h-tier"${A('fade', d, `top:${TIER[k][0] + TIER[k][1] / 2}px`)}>${esc(text)}</span>`;
+  return {
+    nodes, links,
+    html: `
+      <div class="rl-h">
+        <svg class="rl-lines rl-h-svg" viewBox="0 0 1920 1080">
+          ${links.map((l, i) => `<path class="tr-draw rl-h-link" data-i="${i}" pathLength="1" style="--d:${l.d}s;--c:${l.color}" d="M ${l.c[0]} ${l.c[1]} C ${l.c.slice(2).join(' ')}"/>`).join('')}
+          ${links.map((l, i) => `<g class="rl-h-dot" data-i="${i}" style="--c:${l.color}"><circle r="15" class="halo"/><circle r="7"/></g>`).join('')}
+        </svg>
+        ${tierLabel('Leadership', 'top', .6)}${tierLabel('Sub-organisations', 'org', 1.8)}${tierLabel('Digital marketing', 'mgr', 3.3)}${tierLabel('The team', 'team', 4.7)}
+        ${pill('oversees', (bottom('top') + TIER.org[0]) / 2 - 18, 1.9)}
+        ${pill('sends requests', (bottom('org') + TIER.mgr[0]) / 2 - 18, 3.4)}
+        ${pill('assigns the work', (bottom('mgr') + TIER.team[0]) / 2 - 18, 4.9)}
+        ${nodes.map(n => `
+          <div class="rl-h-node t-${n.tier}" data-node="${n.id}"${A('up', n.d, `left:${n.x - n.w / 2}px;top:${TIER[n.tier][0]}px;width:${n.w}px;height:${TIER[n.tier][1]}px;--c:${n.color}`)}>
+            <div class="rl-h-card">
+              <span class="rl-h-ic">${ric(n.icon)}</span>
+              <span class="rl-h-txt"><b>${esc(n.name)}</b><small>${esc(n.sub)}</small></span>
+            </div>
+            <div class="rl-h-tip">${esc(n.tip)}</div>
+          </div>`).join('')}
+      </div>`,
+  };
+}
 
 export function roleChapters(D) {
   const R = D.roles;
   const steps = D.steps;
   const X = k => 200 + k * 380;          // where each step sits on the track (1920 wide)
+  const tree = hierarchy(D, R);
 
   return [
     /* 1 · Who logs in */
     {
-      name: 'Who logs in', hold: 12,
+      name: 'Who logs in', hold: 14,
       title: 'Who logs in',
-      line: 'One owner at the top, an admin for each college, and the team under them.',
-      html: `
-        <div class="rl"><div class="rl-c">
-          <svg class="rl-lines" viewBox="0 0 1920 1080">
-            <path class="tr-draw" pathLength="1" style="--d:1s" d="M 960 196 V 270 M 440 270 H 1560 M 440 270 V 330 M 840 270 V 330 M 1240 270 V 330 M 1560 270 V 344"/>
-            <path class="tr-draw" pathLength="1" style="--d:3.4s" d="M 440 430 V 560 M 840 430 V 560 M 1240 430 V 560 M 440 560 H 1440 M 480 560 V 620 M 960 560 V 620 M 1440 560 V 620"/>
-          </svg>
-          ${node(R.super, R.super.tag + ' · one account', .3, 730, 76, 460, 'big')}
-          ${D.colleges.map((c, i) => node(R.admin, c, 2 + i * .25, 260 + i * 400, 330, 360)).join('')}
-          <div class="rl-more"${A('pop', 2.8, 'left:1460px;top:344px')}>${esc(D.moreColleges)}</div>
-          ${node(R.coord, 'One in every college', 4.4, 270, 620, 420)}
-          ${node(R.designer, 'One shared board for all', 4.7, 750, 620, 420)}
-          ${node(R.handler, 'Runs the pages', 5, 1230, 620, 420)}
-        </div></div>`,
+      line: 'One admin, three schools, one manager, and the team they assign.',
+      html: `<div class="rl"><div class="rl-c">${tree.html}</div></div>`,
+      tick(t, el) {
+        const root = el.querySelector('.rl-h');
+        if (!root.dataset.wired) {
+          root.dataset.wired = '1';
+          // hover a card: its whole line up and down stays lit, everything else steps back
+          const up = id => tree.links.filter(l => l.to === id).flatMap(l => [l, ...up(l.from)]);
+          const down = id => tree.links.filter(l => l.from === id).flatMap(l => [l, ...down(l.to)]);
+          const paths = root.querySelectorAll('.rl-h-link');
+          root.addEventListener('mouseover', e => {
+            const n = e.target.closest('[data-node]');
+            if (!n) return;
+            const line = [...up(n.dataset.node), ...down(n.dataset.node)];
+            const ids = new Set([n.dataset.node, ...line.flatMap(l => [l.from, l.to])]);
+            root.classList.add('focus');
+            root.querySelectorAll('[data-node]').forEach(x => x.classList.toggle('hot', ids.has(x.dataset.node)));
+            root.querySelectorAll('[data-node]').forEach(x => x.classList.toggle('me', x === n));
+            paths.forEach(p => p.classList.toggle('hot', line.includes(tree.links[+p.dataset.i])));
+          });
+          root.addEventListener('mouseleave', () => {
+            root.classList.remove('focus');
+            root.querySelectorAll('.hot, .me').forEach(x => x.classList.remove('hot', 'me'));
+          });
+        }
+        // once every link is drawn, work flows down the chain: top → school → manager → team, again and again
+        const START = 6, LEG = 1.15, CYCLE = 4.2;
+        const arrived = new Set();
+        root.querySelectorAll('.rl-h-dot').forEach(g => {
+          const l = tree.links[+g.dataset.i];
+          const local = t < START ? -1 : ((t - START) % CYCLE) - l.wave * LEG;
+          const on = local >= 0 && local <= LEG;
+          g.style.opacity = on ? 1 : 0;
+          if (on) { const [x, y] = bez(l.c, ease(local / LEG)); g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`); }
+          if (local > LEG && local < LEG + .5) arrived.add(l.to);
+        });
+        root.querySelectorAll('[data-node]').forEach(n => n.classList.toggle('ping', arrived.has(n.dataset.node)));
+      },
     },
 
     /* 2 · What each login can do */

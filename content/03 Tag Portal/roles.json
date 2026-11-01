@@ -2,9 +2,9 @@
   "kicker": "t@g roles and flow",
   "groupLogo": "Logos/ngi-group-of-institutions.png",
   "roles": {
-    "super": { "name": "Super Admin", "tag": "Platform owner", "color": "#141E3C", "icon": "crown",
-      "can": ["Creates institutions and accounts", "Holds the branding register", "Gives the final sign-off"],
-      "sees": "Every institution" },
+    "super": { "name": "University Admin", "tag": "Platform owner", "color": "#141E3C", "icon": "crown",
+      "can": ["Creates schools and accounts", "Holds the branding register", "Gives the final sign-off"],
+      "sees": "Every school" },
     "admin": { "name": "Institution Admin", "tag": "Runs a college", "color": "#4B5BA8", "icon": "building",
       "can": ["Reviews and approves work", "Allocates work to the team", "Answers for the college's numbers"],
       "sees": "Their own colleges" },
@@ -14,13 +14,25 @@
     "designer": { "name": "Designer", "tag": "Makes the work", "color": "#6C5CE7", "icon": "pen",
       "can": ["Claims jobs from the shared board", "Submits designs for approval", "Fixes the change points"],
       "sees": "The designers' board" },
-    "handler": { "name": "Social Handler", "tag": "Puts it out", "color": "#138A8A", "icon": "send",
+    "handler": { "name": "Social Media Handler", "tag": "Puts it out", "color": "#138A8A", "icon": "send",
       "can": ["Writes copy for each channel", "Publishes, or schedules it", "Marks it posted, with the date"],
       "sees": "The pages they run" }
   },
-  "colleges": ["NCET", "NCMS", "NDC"],
-  "moreColleges": "+ 5 more",
-  "counts": [["8", "Institutions"], ["26", "People"], ["5", "Roles"]],
+  "hierarchy": {
+    "top": { "sub": "Owns the whole university", "tip": "Creates every account and sees all the schools." },
+    "orgs": [
+      { "name": "Engineering School", "icon": "chip", "color": "#2F6FEB", "tip": "Sends its requests: placements, fests, tech events." },
+      { "name": "Agriculture School", "icon": "leaf", "color": "#2F9E44", "tip": "Sends its requests: field days, research, admissions." },
+      { "name": "Business School", "icon": "briefcase", "color": "#C0841A", "tip": "Sends its requests: summits, alumni talks, admissions." }
+    ],
+    "manager": { "name": "Digital Marketing Manager", "sub": "Every request lands here", "icon": "hub", "color": "#D6336C",
+      "tip": "Receives every school's request and assigns it to the right person." },
+    "team": [
+      { "role": "coord", "sub": "Keeps each job on track", "tip": "Coordinates with the school until the work is accepted." },
+      { "role": "designer", "sub": "Designs the creatives", "tip": "Designs the posters, reels and campaign creatives." },
+      { "role": "handler", "sub": "Publishes on every page", "tip": "Writes the copy and puts it out on every channel." }
+    ]
+  },
   "steps": [
     { "role": "coord", "title": "Raise", "text": "The college says what it needs, by when." },
     { "role": "designer", "title": "Design", "text": "A designer claims it and does the work." },
@@ -50,6 +62,6 @@
     ["steps", "Nothing skips a step", "A stage can only be reached from the one before it."],
     ["log", "Every action is logged", "Uploads, approvals and changes: who did it, and when. Permanently."],
     ["lock", "Each college sees its own", "A college's data is walled off on the server, not just hidden."],
-    ["key", "Only the Super Admin creates accounts", "Everyone else is refused, institution heads included."]
+    ["key", "Only the University Admin creates accounts", "Everyone else is refused, institution heads included."]
   ]
 }
