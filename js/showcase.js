@@ -212,7 +212,11 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
     while (out.length < k && items.length) out.push(items[out.length % items.length]);
     return out;
   }
-  const cards = deal(7);
+  // The opening fan is fixed (2026-11-01: "I don't want them to randomly change ... fix some
+  // fixed photos"): deck.json's "hero", seven designs from every brand, NGI's Farmer's Day
+  // poster in the middle. Any name not found is dealt as before.
+  const fill = deal(7);
+  const cards = (n.hero || []).length ? n.hero.slice(0, 7).map((name, i) => byName(name) || fill[i]) : fill;
   const lead = cards.length - 1;   // the poster that rises first ends up on the right, as in the reference
   const two = n.scene2 || {};
   const three = n.scene3 || {};
@@ -606,7 +610,6 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
 
   // A fresh deal for every picture: each fades out, its new poster is decoded, then fades in
   const groups = [
-    [nodes.map(c => c.querySelector('img')), cards],
     [vision.querySelectorAll('.v-card[data-v] img'), visionPosters],
     [wTiles.map(c => c.querySelector('img')), waveItems],
     [cCards.map(c => c.querySelector('img')), closerPics, cCards.map(c => c.querySelector('span'))],
