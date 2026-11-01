@@ -29,6 +29,7 @@ const ICONS = {
   image: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="9" cy="9" r="2"/><path d="M21 15 L16 10 L5 21"/>',
   video: '<rect x="2.5" y="5" width="14" height="14" rx="2.5"/><path d="M16.5 10 L21.5 7 V17 L16.5 14"/>',
   folder: '<path d="M3 6.5 A1.5 1.5 0 0 1 4.5 5 H9.5 L11.5 7.5 H19.5 A1.5 1.5 0 0 1 21 9 V18 A1.5 1.5 0 0 1 19.5 19.5 H4.5 A1.5 1.5 0 0 1 3 18 Z"/>',
+  reels: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 9.5 L14.5 12 L10.5 14.5 Z"/>',
   human: '<circle cx="12" cy="8" r="4"/><path d="M4 21 C4 16.5 7.6 14 12 14 C16.4 14 20 16.5 20 21"/>',
   ai: '<path d="M12 3 L13.8 9.2 L20 11 L13.8 12.8 L12 19 L10.2 12.8 L4 11 L10.2 9.2 Z"/><path d="M19 3 L19.7 5.3 L22 6 L19.7 6.7 L19 9 L18.3 6.7 L16 6 L18.3 5.3 Z"/>',
   upload: '<path d="M12 16 V4 M7 9 L12 4 L17 9"/><path d="M4 15 V19 A1.5 1.5 0 0 0 5.5 20.5 H18.5 A1.5 1.5 0 0 0 20 19 V15"/>',
@@ -77,7 +78,7 @@ function collect(n, kind) {
 function metaFor(n) {
   const img = collect(n, 'image').length, vid = collect(n, 'video').length;
   const parts = [];
-  if (n.media !== 'video') parts.push(`${img} design${img === 1 ? '' : 's'}`);
+  if (n.media !== 'video') parts.push(`${img} ${n.media === 'mixed' ? 'image' : 'design'}${img === 1 ? '' : 's'}`);
   if (n.media !== 'image') parts.push(`${vid} video${vid === 1 ? '' : 's'}`);
   return parts.join(' · ');
 }
@@ -159,7 +160,8 @@ function socials(n) {
 /* ---------- Slides ---------- */
 function cardArt(n) {
   if (n.type === 'brand' && logoOf(n)) return `<img class="card-logo" src="${logoOf(n)}" alt="">`;
-  const kind = n.media === 'video' ? 'video' : 'image';
+  // "Made with AI" holds both: its pictures if it has any, else its videos
+  const kind = n.media === 'video' || (n.media === 'mixed' && !collect(n, 'image').length) ? 'video' : 'image';
   const pics = collect(n, kind).slice(0, 3);
   if (pics.length) {
     const el = i => kind === 'image'
@@ -209,7 +211,7 @@ const views = {
 
   gallery: n => {
     const kind = n.media;
-    const items = itemsOf(n).filter(i => i.kind === kind);
+    const items = itemsOf(n).filter(i => fits(n, i));
     const back = n.parent ? `<a class="back" href="#/${n.parent.id}">← ${esc(n.parent.title)}</a>` : '';
     const head = `
       <div class="g-head">
@@ -222,7 +224,7 @@ const views = {
       <a class="tile" data-i="${i}">
         <div class="tile-media">
           ${isAdmin() ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
-          ${kind === 'image'
+          ${it.kind === 'image'
             ? `<img src="${it.url}" alt="${esc(prettify(it.name))}" loading="lazy">`
             : `<video src="${it.url}#t=1" muted preload="metadata" playsinline></video><span class="play"></span>`}
         </div>
@@ -231,19 +233,24 @@ const views = {
     return `
       <div class="view v-gallery">
         ${head}
-        <div class="g-body"><div class="grid ${kind}s${n.layout === 'portrait' ? ' portrait' : ''}${n.layout === 'natural' ? ' natural' : ''}">${items.map(tile).join('')}</div></div>
+        <div class="g-body"><div class="grid ${kind === 'mixed' ? 'mixed' : kind + 's'}${n.layout === 'portrait' ? ' portrait' : ''}${n.layout === 'natural' ? ' natural' : ''}">${items.map(tile).join('')}</div></div>
       </div>`;
   },
 
 };
 
+// A gallery shows its own kind of file; "Made with AI" ("mixed") shows pictures and videos alike
+const fits = (n, i) => n.media === 'mixed' ? i.kind === 'image' || i.kind === 'video' : i.kind === n.media;
+
 function empty(n, heading) {
   const what = n.type === 'portal' ? 'screenshots (.jpg, .png, .webp)'
+    : n.media === 'mixed' ? 'images and videos made with AI (.jpg, .png, .mp4)'
     : n.media === 'video' ? 'videos (.mp4, .webm, .mov)' : 'posters and designs (.jpg, .png, .webp)';
+  const none = n.media === 'mixed' ? 'Nothing made with AI yet' : n.icon === 'reels' ? 'No reels yet' : `No ${n.media === 'video' ? 'videos' : 'designs'} yet`;
   return `
     <div class="empty">
       ${icon('upload')}
-      <h3>${esc(heading || `No ${n.media === 'video' ? 'videos' : 'designs'} yet`)}</h3>
+      <h3>${esc(heading || none)}</h3>
       <p>${isAdmin() ? 'Use Upload, or drop' : 'Drop'} ${what} into this folder, then come back to this slide:</p>
       <code>content/${esc(n.folder)}</code>
       ${n.type === 'portal' ? uploadButton(n) : ''}
@@ -253,7 +260,8 @@ function empty(n, heading) {
 /* ---------- Admin: upload into the slide's folder, remove from it ---------- */
 function uploadButton(n) {
   if (!isAdmin()) return '';
-  const accept = n.media === 'video' ? 'video/mp4,video/webm,video/quicktime,.mov,.m4v' : 'image/*';
+  const videos = 'video/mp4,video/webm,video/quicktime,.mov,.m4v';
+  const accept = n.media === 'video' ? videos : n.media === 'mixed' ? 'image/*,' + videos : 'image/*';
   return `<button class="upload-btn" data-upload>+ Upload</button><input type="file" data-file accept="${accept}" multiple hidden>`;
 }
 
@@ -357,7 +365,7 @@ async function show(n) {
   } else canvas.innerHTML = views[n.type](n);
 
   // Posters and videos open full screen; videos preview silently on hover
-  const list = n.type === 'portal' ? itemsOf(n).filter(i => i.kind === 'image').slice(0, 3) : itemsOf(n).filter(i => i.kind === n.media);
+  const list = n.type === 'portal' ? itemsOf(n).filter(i => i.kind === 'image').slice(0, 3) : itemsOf(n).filter(i => fits(n, i));
   const btn = canvas.querySelector('[data-upload]'), input = canvas.querySelector('[data-file]');
   if (btn) {
     btn.addEventListener('click', () => input.click());

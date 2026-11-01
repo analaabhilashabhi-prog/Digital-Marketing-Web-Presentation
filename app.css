@@ -190,6 +190,14 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 .cards.many .card-meta { font-size: 17px; }
 .v-brand .cards { left: auto; right: 130px; top: 150px; bottom: 150px; width: 900px; gap: 36px; }
 .v-brand .card { height: auto; flex: 1; }
+/* Designs, Videos, Reels and Made with AI: two by two */
+.v-brand .cards { width: 820px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 30px; }
+.v-brand .card { min-height: 0; }
+.v-brand .card-foot { padding: 18px 26px; }
+.v-brand .card-name { font-size: 30px; white-space: nowrap; }
+.v-brand .card-meta { font-size: 17px; }
+.v-brand .card-go { width: 50px; height: 50px; font-size: 24px; }
+.v-brand .card-icon { width: 96px; height: 96px; }
 
 /* ---------- Gallery: posters or videos ---------- */
 .v-gallery { padding: 0; }
@@ -439,6 +447,8 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 .natural .tile { display: inline-block; width: 100%; margin-bottom: 30px; break-inside: avoid; }
 .natural .tile-media { aspect-ratio: auto; height: auto; background: none; }
 .natural .tile-media img { height: auto; object-fit: initial; }
+/* "Made with AI": pictures and videos side by side, each at its own shape */
+.natural .tile-media video { height: auto; background: #111; }
 
 /* ---------- The side menu, folded down to its icons ---------- */
 .side { transition: width .3s cubic-bezier(.2,.8,.2,1), padding .3s; }
