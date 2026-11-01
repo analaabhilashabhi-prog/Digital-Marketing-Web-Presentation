@@ -15,41 +15,64 @@
 .rl-ic.big { width: 86px; height: 86px; border-radius: 24px; }
 .rl-ic.big .rl-svg { width: 42px; height: 42px; }
 
-/* ---------- 1 · The hierarchy: quiet cards, hairline links ---------- */
+/* ---------- 1 · The hierarchy, left to right ---------- */
 .rl-h { position: absolute; inset: 0; }
-.rl-h-svg path.rl-h-link { stroke: #D3D9E4; stroke-width: 2; transition: stroke .4s, stroke-width .4s, opacity .4s; }
+/* the columns' names, quietly above them */
+.rl-h-head {
+  position: absolute; top: 240px; text-align: center; font-size: 15px; font-weight: 800; letter-spacing: .22em;
+  text-transform: uppercase; color: #A3ACBD;
+}
+.rl-h-svg path.rl-h-link { stroke: #D6DCE6; stroke-width: 2.5; transition: stroke .4s, stroke-width .4s, opacity .4s; }
+/* a short light that keeps running along each link, one column after another */
+.rl-h-svg path.rl-h-flow {
+  stroke: var(--c); stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-dasharray: .14 .86; stroke-dashoffset: 1; opacity: 0;
+  filter: drop-shadow(0 0 6px var(--c));
+}
+.tr-scene.on .rl-h-flow { animation: rl-flow 3.6s cubic-bezier(.45, 0, .55, 1) calc(5.4s + var(--s) * 1.2s) infinite; }
+@keyframes rl-flow {
+  0% { stroke-dashoffset: 1.14; opacity: 0; }
+  6% { opacity: 1; }
+  33% { stroke-dashoffset: 0; opacity: 1; }
+  38%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
 
 /* a card: the outer box arrives (its animation owns transform and opacity), the inner one answers the pointer */
 .rl-h-node { position: absolute; z-index: 2; }
 .rl-h-card {
-  height: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 24px;
-  background: #fff; border-radius: 22px; box-shadow: 0 1px 2px rgba(20, 30, 60, .04), 0 14px 32px -18px rgba(20, 30, 60, .22);
-  transition: transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s, opacity .4s; cursor: default;
+  height: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 18px; padding: 0 24px;
+  background: #fff; border-radius: 24px; border: 1px solid #EBEEF3;
+  box-shadow: 0 1px 2px rgba(20, 30, 60, .04), 0 18px 36px -20px rgba(20, 30, 60, .25);
+  transition: transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s, opacity .4s, border-color .4s; cursor: default;
 }
-.rl-h-ic { width: 46px; height: 46px; border-radius: 14px; flex: none; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 11%, #fff); }
-.rl-h-ic .rl-svg { width: 24px; height: 24px; }
-.rl-h-card b { font-size: 24px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; color: #141E3C; }
+.rl-h-ic { width: 52px; height: 52px; border-radius: 16px; flex: none; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 11%, #fff); }
+.rl-h-ic .rl-svg { width: 26px; height: 26px; }
+.rl-h-card b { font-size: 22px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; color: #141E3C; }
+.rl-h-node.c-top .rl-h-ic { background: #141E3C; color: #fff; }
+.rl-h-node.c-top .rl-h-card b { font-size: 24px; }
 
-/* the manager: the one dark card, everything passes through it */
-.rl-h-node.t-mgr .rl-h-card { background: #141E3C; box-shadow: 0 22px 44px -18px rgba(20, 30, 60, .6); }
-.rl-h-node.t-mgr .rl-h-ic { background: var(--c); color: #fff; }
-.rl-h-node.t-mgr .rl-h-card b { color: #fff; font-size: 26px; }
+/* the manager: the one dark card, softly glowing, everything passes through it */
+.rl-h-node.c-mgr .rl-h-card { background: linear-gradient(135deg, #141E3C, #222E58); border-color: transparent; box-shadow: 0 24px 48px -18px rgba(20, 30, 60, .6); }
+.rl-h-node.c-mgr .rl-h-ic { background: var(--c); color: #fff; box-shadow: 0 10px 22px -6px color-mix(in srgb, var(--c) 70%, transparent); }
+.rl-h-node.c-mgr .rl-h-card b { color: #fff; font-size: 24px; }
+.rl-h-node.c-mgr::before {
+  content: ''; position: absolute; inset: -40px -50px; border-radius: 60px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 22%, transparent), transparent);
+  animation: rl-glow 3.2s ease-in-out infinite;
+}
+@keyframes rl-glow { 0%, 100% { opacity: .45; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.04); } }
 
-/* hover: the line stays lit, the rest steps back, and the card says what it does */
+/* hover: the path stays lit, the rest steps back, and the card says what it does */
 .rl-h.focus .rl-h-node:not(.hot) .rl-h-card { opacity: .3; }
-.rl-h.focus .rl-h-link:not(.hot) { opacity: .25; }
-.rl-h.focus .rl-h-link.hot { stroke: var(--c); stroke-width: 3; }
+.rl-h.focus .rl-h-link:not(.hot), .rl-h.focus .rl-h-flow:not(.hot) { opacity: .2 !important; }
+.rl-h.focus .rl-h-link.hot { stroke: var(--c); stroke-width: 3.5; }
 .rl-h-node.me { z-index: 6; }
-.rl-h-node.me .rl-h-card { transform: translateY(-4px); box-shadow: 0 0 0 2px var(--c), 0 22px 40px -16px color-mix(in srgb, var(--c) 45%, transparent); }
+.rl-h-node.me .rl-h-card { transform: translateY(-4px); border-color: var(--c); box-shadow: 0 0 0 1px var(--c), 0 24px 44px -16px color-mix(in srgb, var(--c) 45%, transparent); }
 .rl-h-tip {
-  position: absolute; left: 50%; top: calc(100% + 14px); width: max-content; max-width: 340px; padding: 11px 16px; border-radius: 12px;
+  position: absolute; left: 50%; top: calc(100% + 14px); width: max-content; max-width: 330px; padding: 11px 16px; border-radius: 12px;
   background: #141E3C; color: #fff; font-size: 17px; line-height: 1.4; text-align: center;
   opacity: 0; transform: translate(-50%, -6px); transition: opacity .3s, transform .3s; pointer-events: none; z-index: 5;
 }
 .rl-h-node.me .rl-h-tip { opacity: 1; transform: translate(-50%, 0); }
-/* the team sits at the foot of the slide: their notes open above them */
-.rl-h-node.t-team .rl-h-tip { top: auto; bottom: calc(100% + 14px); transform: translate(-50%, 6px); }
-.rl-h-node.t-team.me .rl-h-tip { transform: translate(-50%, 0); }
 
 /* ---------- 2 · What each login can do ---------- */
 .rl-roles { position: absolute; left: 50px; right: 50px; top: 130px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 25px; }

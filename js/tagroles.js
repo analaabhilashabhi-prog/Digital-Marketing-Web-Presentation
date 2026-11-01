@@ -33,38 +33,45 @@ const badge = (r, cls = '') => `<span class="rl-ic ${cls}" style="--c:${r.color}
 const PLATFORM = { LinkedIn: ['in', '#0A66C2'], Instagram: ['IG', '#C2367E'], YouTube: ['YT', '#E62117'], Facebook: ['f', '#1877F2'] };
 const pchip = p => `<span class="tr-pf" style="background:${PLATFORM[p][1]}">${PLATFORM[p][0]}</span>`;
 
-/* ---------- 1 · The hierarchy ----------
+/* ---------- 1 · The hierarchy, left to right ----------
    University Admin → its schools → the Digital Marketing Manager → the team the
-   manager assigns. Kept quiet on purpose (2026-11-01: "very minimal yet so
-   beautiful"): name-only cards, hairline links that draw in, the manager the one
-   dark card. Hovering a card lights its reporting line and says what it does. */
-const COLS = [570, 960, 1350];                       // centres of the three columns
-const TIER = { top: [120, 92], org: [314, 84], mgr: [500, 100], team: [702, 84] };   // top, height
-const curve = (x0, y0, x1, y1) => { const m = (y0 + y1) / 2; return [x0, y0, x0, m, x1, m, x1, y1]; };
+   manager assigns (2026-11-01: "try the horizontal way"). Each column slides in,
+   the links draw across, then a soft light keeps running along them in order, so
+   the work is seen to travel from the admin to the team. Hovering a card lights
+   its whole path and says what it does. */
+const COL = { top: [40, 330], org: [510, 330], mgr: [980, 450], team: [1570, 350] };   // left, width
+const ROWS = [345, 505, 665];                        // centres of the three stacked cards
+const MID = 505;                                     // the admin and the manager sit on the middle row
+const CARD_H = { top: 104, org: 92, mgr: 112, team: 92 };
+const curve = (x0, y0, x1, y1) => { const m = (x0 + x1) / 2; return [x0, y0, m, y0, m, y1, x1, y1]; };
 
 function hierarchy(D, R) {
   const H = D.hierarchy;
-  const bottom = k => TIER[k][0] + TIER[k][1];
+  const right = k => COL[k][0] + COL[k][1];
   const nodes = [
-    { id: 'top', tier: 'top', x: 960, w: 340, name: R.super.name, icon: R.super.icon, color: R.super.color, tip: H.top.tip, d: .3 },
-    ...H.orgs.map((o, i) => ({ id: `o${i}`, tier: 'org', x: COLS[i], w: 344, name: o.name, icon: o.icon, color: o.color, tip: o.tip, d: 1.4 + i * .15 })),
-    { id: 'mgr', tier: 'mgr', x: 960, w: 470, name: H.manager.name, icon: H.manager.icon, color: H.manager.color, tip: H.manager.tip, d: 2.7 },
-    ...H.team.map((m, i) => ({ id: `t${i}`, tier: 'team', x: COLS[i], w: 344, name: R[m.role].name, icon: R[m.role].icon, color: R[m.role].color, tip: m.tip, d: 3.9 + i * .15 })),
+    { id: 'top', col: 'top', y: MID, name: R.super.name, icon: R.super.icon, color: R.super.color, tip: H.top.tip, d: .3 },
+    ...H.orgs.map((o, i) => ({ id: `o${i}`, col: 'org', y: ROWS[i], name: o.name, icon: o.icon, color: o.color, tip: o.tip, d: 1.3 + i * .15 })),
+    { id: 'mgr', col: 'mgr', y: MID, name: H.manager.name, icon: H.manager.icon, color: H.manager.color, tip: H.manager.tip, d: 2.6 },
+    ...H.team.map((m, i) => ({ id: `t${i}`, col: 'team', y: ROWS[i], name: R[m.role].name, icon: R[m.role].icon, color: R[m.role].color, tip: m.tip, d: 3.9 + i * .15 })),
   ];
   const links = [
-    ...H.orgs.map((o, i) => ({ from: 'top', to: `o${i}`, c: curve(960, bottom('top'), COLS[i], TIER.org[0]), d: 1, color: o.color })),
-    ...H.orgs.map((o, i) => ({ from: `o${i}`, to: 'mgr', c: curve(COLS[i], bottom('org'), 960, TIER.mgr[0]), d: 2.3, color: o.color })),
-    ...H.team.map((m, i) => ({ from: 'mgr', to: `t${i}`, c: curve(960, bottom('mgr'), COLS[i], TIER.team[0]), d: 3.5, color: R[m.role].color })),
+    ...H.orgs.map((o, i) => ({ from: 'top', to: `o${i}`, c: curve(right('top'), MID, COL.org[0], ROWS[i]), d: 1, step: 0, color: o.color })),
+    ...H.orgs.map((o, i) => ({ from: `o${i}`, to: 'mgr', c: curve(right('org'), ROWS[i], COL.mgr[0], MID), d: 2.3, step: 1, color: o.color })),
+    ...H.team.map((m, i) => ({ from: 'mgr', to: `t${i}`, c: curve(right('mgr'), MID, COL.team[0], ROWS[i]), d: 3.6, step: 2, color: R[m.role].color })),
   ];
+  const d = l => `M ${l.c[0]} ${l.c[1]} C ${l.c.slice(2).join(' ')}`;
+  const heads = [['Leadership', 'top', .2], ['Schools', 'org', 1.2], ['Manager', 'mgr', 2.5], ['Team', 'team', 3.8]];
   return {
     links,
     html: `
       <div class="rl-h">
+        ${heads.map(([t, k, s]) => `<span class="rl-h-head"${A('fade', s, `left:${COL[k][0]}px;width:${COL[k][1]}px`)}>${esc(t)}</span>`).join('')}
         <svg class="rl-lines rl-h-svg" viewBox="0 0 1920 1080">
-          ${links.map((l, i) => `<path class="tr-draw rl-h-link" data-i="${i}" pathLength="1" style="--d:${l.d}s;--c:${l.color}" d="M ${l.c[0]} ${l.c[1]} C ${l.c.slice(2).join(' ')}"/>`).join('')}
+          ${links.map((l, i) => `<path class="tr-draw rl-h-link" data-i="${i}" pathLength="1" style="--d:${l.d}s;--c:${l.color}" d="${d(l)}"/>`).join('')}
+          ${links.map((l, i) => `<path class="rl-h-flow" data-i="${i}" pathLength="1" style="--c:${l.color};--s:${l.step}" d="${d(l)}"/>`).join('')}
         </svg>
         ${nodes.map(n => `
-          <div class="rl-h-node t-${n.tier}" data-node="${n.id}"${A('up', n.d, `left:${n.x - n.w / 2}px;top:${TIER[n.tier][0]}px;width:${n.w}px;height:${TIER[n.tier][1]}px;--c:${n.color}`)}>
+          <div class="rl-h-node c-${n.col}" data-node="${n.id}"${A('left', n.d, `left:${COL[n.col][0]}px;top:${n.y - CARD_H[n.col] / 2}px;width:${COL[n.col][1]}px;height:${CARD_H[n.col]}px;--c:${n.color}`)}>
             <div class="rl-h-card"><span class="rl-h-ic">${ric(n.icon)}</span><b>${esc(n.name)}</b></div>
             <div class="rl-h-tip">${esc(n.tip)}</div>
           </div>`).join('')}
@@ -89,10 +96,10 @@ export function roleChapters(D) {
         const root = el.querySelector('.rl-h');
         if (root.dataset.wired) return;
         root.dataset.wired = '1';
-        // hover a card: its whole line up and down stays lit, everything else steps back
+        // hover a card: its whole path stays lit, everything else steps back
         const up = id => tree.links.filter(l => l.to === id).flatMap(l => [l, ...up(l.from)]);
         const down = id => tree.links.filter(l => l.from === id).flatMap(l => [l, ...down(l.to)]);
-        const paths = root.querySelectorAll('.rl-h-link');
+        const lit = root.querySelectorAll('.rl-h-link, .rl-h-flow');
         root.addEventListener('mouseover', e => {
           const n = e.target.closest('[data-node]');
           if (!n) return;
@@ -100,7 +107,7 @@ export function roleChapters(D) {
           const ids = new Set([n.dataset.node, ...line.flatMap(l => [l.from, l.to])]);
           root.classList.add('focus');
           root.querySelectorAll('[data-node]').forEach(x => { x.classList.toggle('hot', ids.has(x.dataset.node)); x.classList.toggle('me', x === n); });
-          paths.forEach(p => p.classList.toggle('hot', line.includes(tree.links[+p.dataset.i])));
+          lit.forEach(p => p.classList.toggle('hot', line.includes(tree.links[+p.dataset.i])));
         });
         root.addEventListener('mouseleave', () => {
           root.classList.remove('focus');
