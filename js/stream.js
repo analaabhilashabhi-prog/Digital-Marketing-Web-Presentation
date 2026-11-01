@@ -41,6 +41,8 @@ function ytFilm(src, cls, start = 0, solo = false) {
   const spot = document.createElement('div');
   const box = h('div', { class: `${cls} sg-yt${solo ? ' is-solo' : ''}` }, h('div', { class: 'sg-yt__frame' }, spot), solo ? null : h('i', { class: 'sg-yt__shield' }));
   if (start) box.dataset.start = start;
+  // the film's still behind the player, so the box is never black while YouTube loads
+  box.style.background = `#000 url(https://i.ytimg.com/vi/${src.slice(3)}/hqdefault.jpg) center / cover no-repeat`;
   let player = null, muted = !solo, want = true;
   const fire = type => box.dispatchEvent(new Event(type));
   box.play = () => { want = true; player?.playVideo?.(); return Promise.resolve(); };
