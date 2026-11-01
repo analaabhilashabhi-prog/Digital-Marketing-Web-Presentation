@@ -203,8 +203,8 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
   items.forEach(it => { (pools[brandOf(it)] ||= []).push(it); });
   const brands = Object.keys(pools);
   // k pictures, one from each brand in turn (a fresh order every round), none repeated in one deal
-  function deal(k) {
-    const decks = Object.fromEntries(brands.map(b => [b, shuffle(pools[b])]));
+  function deal(k, skip = []) {
+    const decks = Object.fromEntries(brands.map(b => [b, shuffle(pools[b].filter(it => !skip.includes(it)))]));
     const out = [];
     while (out.length < k && brands.some(b => decks[b].length)) {
       for (const b of shuffle(brands)) { if (out.length < k && decks[b].length) out.push(decks[b].pop()); }
@@ -609,7 +609,10 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
   }
 
   // A fresh deal for every picture: each fades out, its new poster is decoded, then fades in
+  // the opening fan: its fixed designs on the first screen, a fresh deal of others anywhere else
+  const heroCards = [...cards];
   const groups = [
+    [nodes.map(c => c.querySelector('img')), cards, null, () => target === STOPS[0] ? heroCards : deal(heroCards.length, heroCards)],
     [vision.querySelectorAll('.v-card[data-v] img'), visionPosters],
     [wTiles.map(c => c.querySelector('img')), waveItems],
     [cCards.map(c => c.querySelector('img')), closerPics, cCards.map(c => c.querySelector('span'))],
@@ -618,9 +621,9 @@ export function mountShowcase(root, n, items, open, onScene = () => {}) {
   let dealt = 0;
   function reshuffle() {
     const turn = ++dealt;
-    groups.forEach(([imgs, list, labels]) => {
+    groups.forEach(([imgs, list, labels, pick]) => {
       imgs = [...imgs];
-      const fresh = deal(imgs.length);
+      const fresh = pick ? pick() : deal(imgs.length);
       imgs.forEach((im, i) => {
         if (!im) return;
         const it = fresh[i];
