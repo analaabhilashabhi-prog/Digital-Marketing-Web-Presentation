@@ -32,6 +32,7 @@ const ICONS = {
   folder: '<path d="M3 6.5 A1.5 1.5 0 0 1 4.5 5 H9.5 L11.5 7.5 H19.5 A1.5 1.5 0 0 1 21 9 V18 A1.5 1.5 0 0 1 19.5 19.5 H4.5 A1.5 1.5 0 0 1 3 18 Z"/>',
   reels: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 9.5 L14.5 12 L10.5 14.5 Z"/>',
   human: '<circle cx="12" cy="8" r="4"/><path d="M4 21 C4 16.5 7.6 14 12 14 C16.4 14 20 16.5 20 21"/>',
+  leaf: '<path d="M5 19 C5 10 10 5 20 4 C19 14 14 19 5 19 Z"/><path d="M5 19 L13 11"/>',
   ai: '<path d="M12 3 L13.8 9.2 L20 11 L13.8 12.8 L12 19 L10.2 12.8 L4 11 L10.2 9.2 Z"/><path d="M19 3 L19.7 5.3 L22 6 L19.7 6.7 L19 9 L18.3 6.7 L16 6 L18.3 5.3 Z"/>',
   upload: '<path d="M12 16 V4 M7 9 L12 4 L17 9"/><path d="M4 15 V19 A1.5 1.5 0 0 0 5.5 20.5 H18.5 A1.5 1.5 0 0 0 20 19 V15"/>',
 };
@@ -143,6 +144,31 @@ function arrows() {
 /* ---------- Followers on each social network, under a brand's logo ---------- */
 // "socials" in deck.json: { "linkedin": 24206, "instagram": 0, "facebook": 0 } (0 until it is filled in)
 const SOCIAL = { linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube' };
+/* ---------- Our own brands: grown 100% organically ----------
+   (2026-11-01: "technical hub and Tori is 100% organic promotions ... no ads were run")
+   "organic": true in deck.json puts the statement on the brand's page, with its
+   followers added up from "socials" ("8.7K", "500+" and 24206 all count). */
+const followerCount = v => {
+  if (typeof v === 'number') return v;
+  const m = String(v).match(/([\d.]+)\s*([KM])?/i);
+  return m ? parseFloat(m[1]) * ({ K: 1e3, M: 1e6 }[(m[2] || '').toUpperCase()] || 1) : 0;
+};
+const roundDown = n => n >= 1e4 ? `${Math.floor(n / 1e3)}K+` : n >= 1e3 ? `${Math.floor(n / 100) / 10}K+` : `${n}+`;
+function organic(n) {
+  if (!n.organic) return '';
+  const total = Object.values(n.socials || {}).reduce((s, v) => s + followerCount(v), 0);
+  return `
+    <div class="organic">
+      <div class="organic-tag">${icon('leaf')}Zero ads · 100% organic</div>
+      <div class="organic-stats">
+        <div><b>100<small>%</small></b><span>Organic growth</span></div>
+        <div><b><small>₹</small>0</b><span>Spent on ads</span></div>
+        <div><b>${roundDown(total)}</b><span>Followers, all earned</span></div>
+      </div>
+      <p>Not a single rupee on ads or boosted posts. Every follower came from the work itself.</p>
+    </div>`;
+}
+
 function socials(n) {
   if (!n.socials) return '';
   // a network left out of "socials" is not shown
@@ -188,7 +214,7 @@ const views = {
     </div>`,
 
   brand: n => `
-    <div class="view v-brand${n.institutions?.length ? ' has-inst' : ''}">
+    <div class="view v-brand${n.institutions?.length ? ' has-inst' : ''}${n.organic ? ' is-organic' : ''}">
       <div class="brand-left">
         <div>
           <div class="kicker">${esc(n.parent?.title || '')}</div>
@@ -196,6 +222,7 @@ const views = {
           <div class="brand-logo">${logoOf(n) ? `<img src="${logoOf(n)}" alt="${esc(n.title)}">` : `<div class="monogram">${esc(n.title)}</div>`}</div>
         </div>
         ${n.text ? `<p class="lede">${esc(n.text)}</p>` : ''}
+        ${organic(n)}
         ${n.institutions?.length ? `
           <div>
             <div class="inst-label">${n.institutions.length} institutions we handle</div>
