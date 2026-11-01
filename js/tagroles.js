@@ -403,6 +403,8 @@ function library(L) {
   const rows = (names, t0, mark) => names.map((n, i) => `<div class="ct-layer"${at((t0 + i * .32).toFixed(2))}>${ric(mark ? mark(i) : 'eye')}<i style="--k:${i}"></i><span>${esc(n)}</span>${!mark && (i === 1 || i === 2) ? '<em>T</em>' : ''}</div>`).join('');
   return {
     name: 'Everything in one place', hold: 54,
+    // Next / Prev step through its parts: the start, Templates, Assets, Brand Library, Events, the close
+    marks: [0, 6, 16.6, 29.6, 40.4, 49.2],
     title: 'Everything in one place',
     line: 'One Content tab for every college: its templates, logos, films and event photos.',
     html: `
@@ -553,7 +555,8 @@ function library(L) {
       fc.classList.toggle('hov', t > BL.hover && t < BL.stop);
       const playing = t >= BL.play && t < BL.stop;
       fc.classList.toggle('playing', playing);
-      if (playing) {
+      const held = !!el.closest('.paused');            // the film is paused with Space
+      if (playing && !held) {
         const want = BL.from + t - BL.play;
         if (Math.abs(v.currentTime - want) > .8) v.currentTime = want;
         if (v.paused) v.play().catch(() => {});

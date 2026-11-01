@@ -386,6 +386,7 @@ export function mountTagReport(root, n, L, onScene = () => {}, build = chapters)
     el.innerHTML = `
       <header class="tr-top"><small></small><h2></h2><p></p></header>
       <div class="tr-screen">
+        <div class="tr-paused">Paused · Space to carry on</div>
         <div class="tr-stage">${list.map((c, i) => `<section class="tr-scene" data-i="${i}">${c.html}</section>`).join('')}</div>
         <div class="tr-tab"><img src="${L('Logos/tag-portal.png')}" alt="t@g"></div>
       </div>`;
@@ -410,6 +411,7 @@ export function mountTagReport(root, n, L, onScene = () => {}, build = chapters)
       if (old) { old.classList.remove('show'); setTimeout(() => old !== scenes[at] && old.classList.remove('on'), 700); }
       at = i; t = 0;
       const s = scenes[i];
+      s.style.setProperty('--t0', '0s');
       s.classList.remove('on'); void s.offsetWidth;            // start its animations again from the top
       s.classList.add('show', 'on');
       counters = [...s.querySelectorAll('[data-count]')].map(b => ({ b, to: b.dataset.count, d: +b.dataset.d || 0 }));
@@ -419,6 +421,16 @@ export function mountTagReport(root, n, L, onScene = () => {}, build = chapters)
       tell(list[i], i);
       api.at = i;
       onScene();
+    }
+
+    // Jump to a moment inside the chapter: its entrance animations restart as if
+    // they had been playing since the chapter began
+    function seek(to) {
+      t = to;
+      const s = scenes[at];
+      s.style.setProperty('--t0', `${to}s`);
+      s.classList.remove('on'); void s.offsetWidth;
+      s.classList.add('on');
     }
 
     function frame(now) {
@@ -447,8 +459,14 @@ export function mountTagReport(root, n, L, onScene = () => {}, build = chapters)
     api = {
       at: 0, count: list.length,
       // Next / Prev (and the arrow keys) play the next or previous chapter, even
-      // from a pause; past either end the deck moves on
+      // from a pause; past either end the deck moves on. A chapter with "marks"
+      // (the moments its parts begin) is stepped through part by part first.
       step(dir) {
+        const marks = list[at].marks;
+        if (marks) {
+          const cur = marks.reduce((k, m, j) => t >= m ? j : k, 0), j = cur + dir;
+          if (j >= 0 && j < marks.length) { setPaused(false); seek(marks[j]); return true; }
+        }
         const i = at + dir;
         if (i < 0 || i >= list.length) return false;
         setPaused(false);

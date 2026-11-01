@@ -48,6 +48,8 @@
 .tr-scene.on [data-a=fade] { animation-name: tr-fade; }
 .tr-scene.on [data-a=left] { animation-name: tr-left; }
 .tr-scene.on [data-a=pop] { animation-name: tr-pop; animation-timing-function: cubic-bezier(.3, 1.6, .5, 1); animation-duration: .6s; }
+/* after a jump inside a chapter, entrances run as if playing since it began */
+.tr-scene.on [data-a] { animation-delay: calc(var(--d, 0s) - var(--t0, 0s)); }
 .tr-scene.on [data-a=zoom] { animation-name: tr-zoom; animation-duration: 1.1s; }
 .tr-scene.on [data-a=grow] { animation-name: tr-growx; animation-duration: 1.2s; }
 .tr-scene g[data-a] { transform-box: fill-box; transform-origin: center; }
@@ -75,6 +77,11 @@
 @keyframes tr-draw { to { stroke-dashoffset: 0; } }
 
 .tag-report.paused .tr-scene * { animation-play-state: paused !important; }
+.tr-paused {
+  position: absolute; z-index: 5; right: 24px; top: 18px; padding: 8px 16px; border-radius: 999px; background: rgba(20, 30, 60, .85); color: #fff;
+  font-size: 14px; font-weight: 700; letter-spacing: .04em; opacity: 0; transform: translateY(-6px); transition: opacity .25s, transform .25s; pointer-events: none;
+}
+.tag-report.paused .tr-paused { opacity: 1; transform: none; }
 
 .tr-ic { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .tr-pf { display: inline-block; width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; flex: none; }
