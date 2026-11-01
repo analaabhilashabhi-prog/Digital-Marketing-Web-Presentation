@@ -533,3 +533,36 @@ body.side-min .nav a:hover span { opacity: 1; transform: translate(0, -50%); }
 .confirm-btns .btn { flex: 1; justify-content: center; height: 42px; }
 @keyframes cfIn { from { opacity: 0; } }
 @keyframes cfPop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* ---------- A bento grid of categories (Technical Hub's designs and videos) ----------
+   The fullest categories get the biggest tiles; every tile shows its pieces, its name
+   and how many, and opens the category. */
+.bento { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 214px; grid-auto-flow: dense; gap: 18px; }
+.bento-tile {
+  position: relative; overflow: hidden; border-radius: 24px; background: #15171a; color: #fff; text-decoration: none;
+  box-shadow: 0 22px 40px -28px rgba(0, 0, 0, .55); animation: bentoIn .7s cubic-bezier(.2, .8, .2, 1) calc(var(--i) * 55ms) both;
+}
+@keyframes bentoIn { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+.b-xl { grid-column: span 2; grid-row: span 2; }
+.b-wide { grid-column: span 2; }
+.b-tall { grid-row: span 2; }
+.bento-media { position: absolute; inset: 0; container-type: size; transition: transform .9s cubic-bezier(.2, .8, .2, 1); }
+.bento-tile:hover .bento-media { transform: scale(1.05); }
+.bento-media img, .bento-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bento-media img { opacity: 0; transition: opacity 1.2s ease; }
+.bento-media img.on { opacity: 1; }
+/* a YouTube film covers its tile whatever the tile's shape, a little larger so YouTube's title bar falls outside */
+.bento-media iframe { position: absolute; left: 50%; top: 50%; width: max(125cqw, 222.2cqh); height: max(125cqh, 70.3cqw); transform: translate(-50%, -50%); border: 0; pointer-events: none; }
+.bento-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .78)); transition: background .4s; }
+.bento-tile:hover .bento-shade { background: linear-gradient(180deg, rgba(0, 0, 0, .1) 20%, rgba(0, 0, 0, .85)); }
+.bento-text { position: absolute; left: 24px; right: 80px; bottom: 20px; }
+.bento-text small { display: inline-block; margin-bottom: 10px; padding: 5px 12px; border-radius: 999px; background: var(--torii-orange); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+.bento-text b { display: block; font: 600 30px/1.08 "Oswald", sans-serif; letter-spacing: .01em; text-transform: uppercase; text-shadow: 0 2px 14px rgba(0, 0, 0, .4); }
+.b-xl .bento-text b { font-size: 52px; }
+.b-wide .bento-text b, .b-tall .bento-text b { font-size: 38px; }
+.bento-go { position: absolute; right: 20px; bottom: 20px; width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--ink); opacity: 0; transform: translateX(-8px); transition: opacity .3s, transform .3s; }
+.bento-go svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.bento-tile:hover .bento-go { opacity: 1; transform: none; }
+/* the way back from a video category to its grid */
+.sg-back { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; backdrop-filter: blur(6px); }
+.sg-back:hover { background: rgba(255, 255, 255, .26); }

@@ -34,6 +34,7 @@ const ICONS = {
   human: '<circle cx="12" cy="8" r="4"/><path d="M4 21 C4 16.5 7.6 14 12 14 C16.4 14 20 16.5 20 21"/>',
   leaf: '<path d="M5 19 C5 10 10 5 20 4 C19 14 14 19 5 19 Z"/><path d="M5 19 L13 11"/>',
   ai: '<path d="M12 3 L13.8 9.2 L20 11 L13.8 12.8 L12 19 L10.2 12.8 L4 11 L10.2 9.2 Z"/><path d="M19 3 L19.7 5.3 L22 6 L19.7 6.7 L19 9 L18.3 6.7 L16 6 L18.3 5.3 Z"/>',
+  arrow: '<path d="M5 12 H19 M13 6 L19 12 L13 18"/>',
   upload: '<path d="M12 16 V4 M7 9 L12 4 L17 9"/><path d="M4 15 V19 A1.5 1.5 0 0 0 5.5 20.5 H18.5 A1.5 1.5 0 0 0 20 19 V15"/>',
 };
 const icon = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24">${ICONS[name] || ICONS.folder}</svg>`;
@@ -92,7 +93,7 @@ function metaFor(n) {
 const path = n => { const p = []; for (let x = n; x; x = x.parent) p.unshift(x); return p; };
 
 /* ---------- Fit the 1920×1080 canvas into the frame ---------- */
-const FLUID = ['gallery', 'folder', 'brand', 'portal', 'stream'];
+const FLUID = ['gallery', 'folder', 'brand', 'portal', 'stream', 'bento'];
 function fit() {
   const r = frame.getBoundingClientRect();
   const pad = document.body.classList.contains('presenting') ? 0 : 14;
@@ -140,7 +141,7 @@ function renderCrumbs() {
 
 // A slide with scenes of its own (the Showcase) can still go back while it is past its first scene
 function arrows() {
-  const i = order.indexOf(current);
+  const i = order.indexOf(current.bentoOf || current) + (current.bentoOf ? .5 : 0);
   $('prev').disabled = i <= 0 && !(cleanup?.atStart && !cleanup.atStart());
   $('next').disabled = i >= order.length - 1 && !(cleanup?.atEnd && !cleanup.atEnd());
 }
@@ -212,6 +213,21 @@ const card = n => `
     </div>
   </a>`;
 
+// A bento page's categories that have something in them, with their pieces
+const bentoCats = n => (n.categories || []).map(c => ({
+  c, items: c.youtube ? [].concat(c.youtube).map(id => ({ kind: 'video', url: 'yt:' + id }))
+    : (media[c.folder]?.items || []).filter(i => i.kind === n.media),
+})).filter(x => x.items.length);
+// One category of a bento page, opened: the usual pinboard, or the video player
+function bentoPage(base, cid) {
+  const c = base.type === 'bento' && (base.categories || []).find(x => x.id === cid);
+  if (!c) return null;
+  const sub = { id: `${base.id}/${c.id}`, title: c.title, parent: base, depth: base.depth + 1, bentoOf: base, brand: base.brand };
+  return base.media === 'video'
+    ? { ...sub, type: 'stream', media: 'video', categories: [c] }
+    : { ...sub, type: 'gallery', media: base.media, folder: c.folder };
+}
+
 const views = {
   folder: n => `
     <div class="view v-folder">
@@ -243,6 +259,37 @@ const views = {
       </div>
       <div class="cards">${n.children.map(card).join('')}</div>
     </div>`,
+
+  /* A bento grid of a page's categories (2026-11-01: "the designs should be divided into
+     categories ... shown as a bento grid ... if we click on that, it should go into that
+     folder"). The fullest categories get the biggest tiles; design tiles turn through a
+     few of their designs, video tiles play one of their films. */
+  bento: n => {
+    const cats = bentoCats(n);
+    const back = n.parent ? `<a class="back" href="#/${n.parent.id}">← ${esc(n.parent.title)}</a>` : '';
+    const rank = [...cats].sort((a, b) => b.items.length - a.items.length).map(x => x.c.id);
+    const span = id => { const r = rank.indexOf(id); return r < 1 ? 'b-xl' : r < 3 ? 'b-wide' : r < 5 ? 'b-tall' : ''; };
+    const what = n.media === 'video' ? 'video' : 'design';
+    const cover = ({ items }) => {
+      if (n.media === 'image') return items.slice(0, 4).map((it, k) => `<img src="${it.thumb || it.url}" alt="" loading="lazy"${k ? '' : ' class="on"'}>`).join('');
+      const it = items[0], id = ytId(it);
+      return id
+        ? `<iframe src="${ytEmbed(id, `autoplay=1&mute=1&loop=1&playlist=${id}&controls=0`)}" allow="autoplay; encrypted-media" loading="lazy" tabindex="-1"></iframe>`
+        : `<video data-src="${it.url}" muted loop playsinline preload="none" data-auto></video>`;
+    };
+    return `
+      <div class="view v-gallery v-bento">
+        <div class="g-head">${back}<h1 class="title"><span class="kicker">${esc(n.brand || n.parent?.title || '')}</span>${esc(n.title)}</h1></div>
+        <div class="g-body"><div class="bento">${cats.map((x, i) => `
+          <a class="bento-tile ${span(x.c.id)}" href="#/${n.id}/${x.c.id}" style="--i:${i}">
+            <div class="bento-media">${cover(x)}</div>
+            <div class="bento-shade"></div>
+            <div class="bento-text"><small>${x.items.length} ${what}${x.items.length === 1 ? '' : 's'}</small><b>${esc(x.c.title)}</b></div>
+            <span class="bento-go">${icon('arrow')}</span>
+          </a>`).join('')}
+        </div></div>
+      </div>`;
+  },
 
   gallery: n => {
     const kind = n.media;
@@ -405,7 +452,7 @@ async function show(n) {
       // a single folder: all its videos together, laid out like any category
       : [{ name: n.title, items: vids.map(item) }];
     const extra = document.createElement('span');
-    extra.innerHTML = n.folder ? uploadButton(n) : '';
+    extra.innerHTML = n.bentoOf ? `<a class="sg-back" href="#/${n.bentoOf.id}">← All categories</a>` : n.folder ? uploadButton(n) : '';
     cleanup = mountStream(canvas.firstElementChild, {
       brand: n.brand || n.parent?.title || '', kicker: n.parent?.title ? `${n.brand || n.parent.title} · ${n.title}` : n.title, groups,
     }, { onMove: arrows, extra: extra.childElementCount ? extra : null });
@@ -432,7 +479,8 @@ async function show(n) {
     const scene3 = n.scene3 && { ...n.scene3, logos: (n.scene3.logos || []).map(l => ({ ...l, src: asset(l.src) })) };
     // Designs from every brand in "sources", each also known as "Brand/file name" (e.g. "TH/03 CEO Talk.jpg")
     const pool = Object.entries(n.sources || { '': n.folder }).flatMap(([brand, folder]) =>
-      (media[folder]?.items || []).filter(i => i.kind === 'image').map(i => ({ ...i, key: brand ? `${brand}/${i.name}` : i.name })));
+      Object.keys(media).filter(f => f === folder || f.startsWith(folder + '/')).flatMap(f => media[f].items)
+        .filter(i => i.kind === 'image').map(i => ({ ...i, key: brand ? `${brand}/${i.name}` : i.name })));
     cleanup = mountShowcase(canvas, { ...n, logo: n.logo && asset(n.logo), logo2: n.logo2 && asset(n.logo2), scene3 }, pool, openLightbox, arrows);
     arrows();
     return;
@@ -443,6 +491,20 @@ async function show(n) {
     canvas.innerHTML = portalView(n, { asset, shots, upload: n.folder ? uploadButton(n) : '' });
     cleanup = animatePortal(canvas, i => openLightbox(shots, i));
   } else canvas.innerHTML = views[n.type](n);
+  // design tiles on a bento grid turn through their designs, each tile on its own beat
+  if (n.type === 'bento' && n.media === 'image') {
+    let beat = 0;
+    const turn = setInterval(() => {
+      beat++;
+      canvas.querySelectorAll('.bento-tile').forEach((t, i) => {
+        const imgs = t.querySelectorAll('.bento-media img');
+        if (imgs.length < 2 || (beat + i) % 3) return;
+        const k = [...imgs].findIndex(im => im.classList.contains('on'));
+        imgs[k].classList.remove('on'); imgs[(k + 1) % imgs.length].classList.add('on');
+      });
+    }, 1400);
+    cleanup = () => clearInterval(turn);
+  }
 
   // Posters and videos open full screen; videos preview silently on hover
   const list = n.type === 'portal' ? itemsOf(n).filter(i => i.kind === 'image').slice(0, 3) : itemsOf(n).filter(i => fits(n, i));
@@ -508,11 +570,22 @@ function route() {
   if (!location.hash.startsWith('#/')) return showWelcome();
   const id = location.hash.slice(2) || 'home';
   showDeck();
-  show(byId[id] || order[0]);
+  // "base/category": one category of a bento page
+  const [a, b] = id.split('/');
+  show((b && byId[a] && bentoPage(byId[a], b)) || byId[id] || order[0]);
 }
 const go = step => {
   // Next / Prev play the slide's own scenes first, then move on to the next slide
   if (cleanup?.step?.(step)) return;
+  // inside a bento category: the next category, past the first back to the grid
+  const base = current.bentoOf;
+  if (base) {
+    const cs = bentoCats(base), i = cs.findIndex(x => x.c.id === current.id.split('/')[1]), t = cs[i + step];
+    if (t) location.hash = `#/${base.id}/${t.c.id}`;
+    else if (step < 0) location.hash = '#/' + base.id;
+    else if (order[order.indexOf(base) + 1]) location.hash = '#/' + order[order.indexOf(base) + 1].id;
+    return;
+  }
   const n = order[order.indexOf(current) + step];
   if (n) location.hash = '#/' + n.id;
 };
@@ -563,7 +636,7 @@ addEventListener('keydown', e => {
   // Up and Down go straight to the previous or next tab in the menu (sub-tabs included), skipping a slide's own scenes
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault();
-    const n = order[order.indexOf(current) + (e.key === 'ArrowDown' ? 1 : -1)];
+    const n = order[order.indexOf(current.bentoOf || current) + (e.key === 'ArrowDown' ? 1 : -1)];
     if (n) location.hash = '#/' + n.id;
   }
 });
@@ -571,7 +644,7 @@ addEventListener('keydown', e => {
 /* ---------- New files show up when you come back to the deck ---------- */
 addEventListener('focus', async () => {
   // Pages that play on their own are not rebuilt (a film would start again)
-  if ($('app').hidden || !current || ['home', 'showcase', 'stream', 'tag', 'taghero', 'tagreport', 'tagroles', 'portal'].includes(current.type) || current.media === 'video') return;
+  if ($('app').hidden || !current || ['home', 'showcase', 'stream', 'bento', 'tag', 'taghero', 'tagreport', 'tagroles', 'portal'].includes(current.type) || current.media === 'video') return;
   const id = current.id;
   await load();
   show(byId[id] || order[0]);
