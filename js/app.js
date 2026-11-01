@@ -251,6 +251,31 @@ const views = {
         <div class="g-actions">${uploadButton(n)}</div>
       </div>`;
     if (!items.length) return `<div class="view v-gallery">${head}${empty(n)}</div>`;
+    // Designs and "Made with AI" are a pinboard: every piece at its own shape, laid
+    // left to right into whichever column is shortest; videos there play on their own
+    if (kind === 'image' || kind === 'mixed') {
+      const cols = Array.from({ length: PIN_COLS }, () => ({ h: 0, html: '' }));
+      items.forEach((it, i) => {
+        const r = it.w && it.h ? it.h / it.w : 1.25;
+        const col = cols.reduce((a, b) => b.h < a.h ? b : a);
+        col.h += r + .14;                                  // the picture, and the name under it
+        col.html += `
+          <a class="tile pin" data-i="${i}">
+            <div class="tile-media" style="aspect-ratio:${it.w && it.h ? `${it.w} / ${it.h}` : '4 / 5'}">
+              ${isAdmin() ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
+              ${it.kind === 'image'
+                ? `<img src="${it.url}" alt="${esc(prettify(it.name))}" loading="lazy">`
+                : `<video src="${it.url}" muted loop playsinline preload="metadata" data-auto></video>`}
+            </div>
+            <div class="pin-name"><span>${esc(prettify(it.name))}</span><i>•••</i></div>
+          </a>`;
+      });
+      return `
+        <div class="view v-gallery">
+          ${head}
+          <div class="g-body"><div class="pins">${cols.map(c => `<div class="pin-col">${c.html}</div>`).join('')}</div></div>
+        </div>`;
+    }
     const tile = (it, i) => `
       <a class="tile" data-i="${i}">
         <div class="tile-media">
@@ -264,11 +289,13 @@ const views = {
     return `
       <div class="view v-gallery">
         ${head}
-        <div class="g-body"><div class="grid ${kind === 'mixed' ? 'mixed' : kind + 's'}${n.layout === 'portrait' ? ' portrait' : ''}${n.layout === 'natural' ? ' natural' : ''}">${items.map(tile).join('')}</div></div>
+        <div class="g-body"><div class="grid ${kind}s${n.layout === 'portrait' ? ' portrait' : ''}">${items.map(tile).join('')}</div></div>
       </div>`;
   },
 
 };
+
+const PIN_COLS = 6;
 
 // A gallery shows its own kind of file; "Made with AI" ("mixed") shows pictures and videos alike
 const fits = (n, i) => n.media === 'mixed' ? i.kind === 'image' || i.kind === 'video' : i.kind === n.media;
@@ -408,12 +435,19 @@ async function show(n) {
   }));
   canvas.querySelectorAll('.tile[data-i]').forEach(t => {
     t.addEventListener('click', () => openLightbox(list, +t.dataset.i));
-    const v = t.querySelector('video');
+    const v = t.querySelector('video:not([data-auto])');
     if (v) {
       t.addEventListener('mouseenter', () => { v.currentTime = 0; v.play().catch(() => {}); });
       t.addEventListener('mouseleave', () => { v.pause(); v.currentTime = 1; });
     }
   });
+  // pinboard videos play by themselves, muted, while they are on screen
+  const auto = canvas.querySelectorAll('video[data-auto]');
+  if (auto.length) {
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()),
+      { root: canvas.querySelector('.g-body') });
+    auto.forEach(v => io.observe(v));
+  }
 }
 
 /* ---------- Routing ---------- */

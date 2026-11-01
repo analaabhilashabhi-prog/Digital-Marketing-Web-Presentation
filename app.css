@@ -470,13 +470,19 @@ body.presenting .slide { border-radius: 0; box-shadow: none; }
 /* NGI's counts are five digits each: a little tighter so all three fit beside the cards */
 
 
-/* "layout": "natural": every design at its own shape (banners, posters), in flowing columns */
-.grid.natural { display: block; column-count: 4; column-gap: 28px; }
-.natural .tile { display: inline-block; width: 100%; margin-bottom: 30px; break-inside: avoid; }
-.natural .tile-media { aspect-ratio: auto; height: auto; background: none; }
-.natural .tile-media img { height: auto; object-fit: initial; }
-/* "Made with AI": pictures and videos side by side, each at its own shape */
-.natural .tile-media video { height: auto; background: #111; }
+/* Designs and "Made with AI": a pinboard, every piece at its own shape, laid into the
+   shortest of six columns, its name under it; a soft shade on hover */
+.pins { display: flex; align-items: flex-start; gap: 18px; }
+.pin-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.pin .tile-media { border-radius: 16px; background: #EFEDEA; box-shadow: none; }
+.pin .tile-media img, .pin .tile-media video { width: 100%; height: 100%; object-fit: cover; }
+.pin .tile-media::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .28); opacity: 0; transition: opacity .2s; pointer-events: none; }
+.pin:hover .tile-media { transform: none; box-shadow: none; }
+.pin:hover .tile-media::after { opacity: 1; }
+.pin .tile-del { z-index: 1; }
+.pin-name { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 0 6px; font-size: 16px; font-weight: 500; color: #211922; }
+.pin-name span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pin-name i { font-style: normal; font-size: 9px; letter-spacing: 1px; color: #211922; }
 
 /* ---------- The side menu, folded down to its icons ---------- */
 .side { transition: width .3s cubic-bezier(.2,.8,.2,1), padding .3s; }
@@ -503,9 +509,6 @@ body.side-min .nav a span {
   box-shadow: 0 10px 24px -10px rgba(0,0,0,.45); opacity: 0; transition: opacity .15s, transform .15s; z-index: 30;
 }
 body.side-min .nav a:hover span { opacity: 1; transform: translate(0, -50%); }
-
-/* Creatives designs: the pictures alone, no names under them */
-.natural .tile-name { display: none; }
 
 /* ---------- Sign out? ---------- */
 .confirm { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: rgba(20, 22, 21, .45); backdrop-filter: blur(4px); animation: cfIn .2s ease both; }
