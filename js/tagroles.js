@@ -264,22 +264,46 @@ export function roleChapters(D, L) {
       },
     },
 
-    /* 2 · What each login can do */
+    /* 2 · What each login can do: one phone a role, showing what it sees once signed in
+       (2026-11-01: "more premium ... a new design"). A spotlight walks from role to role;
+       hovering a phone holds the spotlight on it. */
     {
       name: 'What each login can do', hold: 14,
       title: 'What each login can do',
       line: 'Every role sees only what its job needs.',
       html: `
-        <div class="rl"><div class="rl-c">
-          <div class="rl-roles">${Object.values(R).map((r, i) => `
-            <div class="rl-role"${A('rise', .3 + i * .3, `--c:${r.color}`)}>
-              <div class="rl-role__top"><span class="rl-ic white">${ric(r.icon)}</span><b>${esc(r.name)}</b><small>${esc(r.tag)}</small></div>
-              <ul>${r.can.map((c, j) => `<li${A('left', 2 + i * .3 + j * .45)}>${ric('check', 'tick')}${esc(c)}</li>`).join('')}</ul>
-              <div class="rl-role__sees"${A('fade', 4.4 + i * .3)}>${ric('eye')}<span><small>Sees</small>${esc(r.sees)}</span></div>
+        <div class="rl"><div class="rl-c"><div class="lg">
+          ${Object.values(R).map((r, i) => `
+            <div class="lg-phone" data-i="${i}"${A('rise', .3 + i * .18, `left:${100 + i * 350}px;--c:${r.color}`)}>
+              <div class="lg-body"><div class="lg-screen">
+                <div class="lg-status"><b>9:41</b><i></i><span>t@g</span></div>
+                <div class="lg-top">
+                  <span class="lg-av">${ric(r.icon)}</span>
+                  <small>Signed in as</small>
+                  <b>${esc(r.name)}</b>
+                  <em>${esc(r.tag)}</em>
+                </div>
+                <div class="lg-can"><small>You can</small>
+                  ${r.can.map(c => `<div>${ric('check')}<span>${esc(c)}</span><i>›</i></div>`).join('')}
+                </div>
+                <div class="lg-sees">${ric('eye')}<span><small>You see</small>${esc(r.sees)}</span></div>
+                <div class="lg-lock">${ric('lock')}Everything else stays locked</div>
+              </div></div>
             </div>`).join('')}
-          </div>
-          <p class="rl-note"${A('up', 7.2)}>${ric('lock')}The boundary is enforced on the server, for every single request.</p>
-        </div></div>`,
+          <p class="rl-note"${A('up', 3.4)}>${ric('lock')}The boundary is enforced on the server, for every single request.</p>
+        </div></div></div>`,
+      tick(t, el) {
+        const root = el.querySelector('.lg');
+        if (!root.dataset.wired) {
+          root.dataset.wired = '1';
+          root.addEventListener('mouseover', e => { const p = e.target.closest('.lg-phone'); if (p) root.dataset.pin = p.dataset.i; });
+          root.addEventListener('mouseleave', () => { delete root.dataset.pin; });
+        }
+        const n = Object.keys(R).length;
+        const at = root.dataset.pin != null ? +root.dataset.pin : t < 2.8 ? -1 : Math.floor((t - 2.8) / 2.2) % n;
+        root.classList.toggle('spot', at >= 0);
+        root.querySelectorAll('.lg-phone').forEach((p, i) => p.classList.toggle('on', i === at));
+      },
     },
 
     /* 3 · One request, five steps: one real poster, from the brief to the feed */
