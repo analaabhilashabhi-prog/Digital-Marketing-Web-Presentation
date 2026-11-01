@@ -258,13 +258,8 @@ const views = {
     // Designs, Reels and "Made with AI" are a pinboard: every piece at its own shape,
     // laid left to right into whichever column is shortest; videos there play on their own
     if (kind === 'image' || kind === 'mixed' || n.layout === 'portrait') {
-      const cols = Array.from({ length: PIN_COLS }, () => ({ h: 0, html: '' }));
-      items.forEach((it, i) => {
-        const r = it.w && it.h ? it.h / it.w : 1.25;
-        const col = cols.reduce((a, b) => b.h < a.h ? b : a);
-        col.h += r + .14;                                  // the picture, and the name under it
-        col.html += `
-          <a class="tile pin" data-i="${i}">
+      const pin = (it, i, style = '') => `
+          <a class="tile pin" data-i="${i}"${style}>
             <div class="tile-media" style="aspect-ratio:${it.w && it.h ? `${it.w} / ${it.h}` : '4 / 5'}">
               ${isAdmin() && !ytId(it) ? `<button class="tile-del" data-name="${esc(it.name)}" title="Remove">✕</button>` : ''}
               ${it.kind === 'image'
@@ -275,6 +270,24 @@ const views = {
             </div>
             <div class="pin-name"><span>${esc(prettify(it.name))}</span><i>•••</i></div>
           </a>`;
+      // a handful of pieces fill the page instead: two or three to a row, each row
+      // stretched edge to edge, every piece still at its own shape
+      if (items.length <= 6) {
+        const sizes = { 1: [1], 2: [2], 3: [3], 4: [2, 2], 5: [2, 3], 6: [3, 3] }[items.length];
+        let k = 0;
+        const rows = sizes.map(m => items.slice(k, k += m).map((it, j) => pin(it, k - m + j,
+          ` style="flex:${(it.w && it.h ? it.w / it.h : .8).toFixed(4)} 1 0"`)).join(''));
+        return `
+          <div class="view v-gallery">
+            ${head}
+            <div class="g-body"><div class="pins-few">${rows.map(r => `<div class="pin-row">${r}</div>`).join('')}</div></div>
+          </div>`;
+      }
+      const cols = Array.from({ length: PIN_COLS }, () => ({ h: 0, html: '' }));
+      items.forEach((it, i) => {
+        const col = cols.reduce((a, b) => b.h < a.h ? b : a);
+        col.h += (it.w && it.h ? it.h / it.w : 1.25) + .14;   // the picture, and the name under it
+        col.html += pin(it, i);
       });
       return `
         <div class="view v-gallery">
