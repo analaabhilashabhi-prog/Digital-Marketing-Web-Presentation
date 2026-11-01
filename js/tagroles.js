@@ -88,7 +88,7 @@ function hierarchy(D, R) {
    right frame. */
 const SEG = [0, 10.5, 21, 27.5, 32, 44];            // when each step starts, and the chapter ends
 const PLACE = {                                     // where the poster sits in each step: left, top, width (4:5)
-  0: [1220, 236, 430], 1: [760, 270, 528], 2: [470, 222, 520], 3: [560, 240, 480], 4: [140, 264, 380],
+  0: [1220, 236, 430], 1: [700, 282, 500], 2: [470, 222, 520], 3: [560, 240, 480], 4: [140, 264, 380],
 };
 // the poster's parts as boxes on the image (left, right, top, bottom, in %), in the order the designer adds them
 const LAYERS = [
@@ -105,7 +105,7 @@ const CURSOR = [
   [1.2, 650, 366], [3.4, 650, 466], [7.5, 560, 670], [8.2, 560, 764], [9.3, 1004, 854],
   [11, 1100, 640],
   ...LAYERS.map(([, x0, x1, y0, y1, at]) => [at - .25, ...onPoster((x0 + x1) / 2, (y0 + y1) / 2)]),
-  [20, 1545, 202],
+  [20, 1545, 222],
   [22.3, 1200, 361], [23.1, 1200, 423], [23.9, 1200, 485], [24.7, 1200, 547], [25.5, 1455, 630],
   [28.6, 1300, 470], [29.5, 1485, 572],
 ];
@@ -128,6 +128,8 @@ function story(D, R, L) {
           <div class="fl-step" style="left:${560 + i * 200}px;--c:${R[s.role].color}"><span class="fl-dot">${ric(R[s.role].icon)}</span><small>${esc(R[s.role].name)}</small><b>${esc(s.title)}</b></div>`).join('')}
         </div>
 
+        <!-- everything below the steps, drawn a size larger so it fills the frame -->
+        <div class="fl-stage">
         <div class="fl-panel fl-p0 fl-form">
           <div class="fl-head">${badge(R.coord)}<span><b>New request</b><small>${esc(R.coord.name)} · ${esc(S.college)}</small></span></div>
           <label style="top:114px">Title</label><div class="fl-field" style="top:136px;height:60px">${typed(1.4, 3.2, S.title)}</div>
@@ -176,11 +178,12 @@ function story(D, R, L) {
             <img class="fl-full"${at(19.4)} src="${img}" alt="">
             <i class="fl-sel"></i>
           </div>
-          <div class="fl-stamp"${at(26)}>${ric('check')}Approved</div>
+          <div class="fl-stamp"${at(26)}>${ric('check')}Approved by Admin</div>
           <div class="fl-ok"${at(30)}>${ric('check')}Accepted by ${esc(S.college)}</div>
         </div>
 
         <div class="fl-cursor"><svg viewBox="0 0 24 24"><path d="M5 2.5 V19 L9.2 15 L12.2 21.5 L14.8 20.3 L11.9 14 L17.8 13.8 Z"/></svg><em></em></div>
+        </div>
       </div></div></div>`,
 
     tick(t, el) {

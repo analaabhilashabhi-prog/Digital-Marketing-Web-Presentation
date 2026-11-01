@@ -66,10 +66,11 @@
 .fl { position: absolute; inset: 0; }
 
 /* the five steps, small, along the top */
-.fl-steps { position: absolute; inset: 0 0 auto; height: 150px; }
-.fl-track { position: absolute; left: 560px; width: 800px; top: 64px; height: 3px; border-radius: 3px; background: #DDE2EB; }
+.fl-steps { position: absolute; inset: 0 0 auto; height: 110px; }
+.fl-stage { position: absolute; inset: 0; transform: scale(1.18); transform-origin: 960px 560px; }
+.fl-track { position: absolute; left: 560px; width: 800px; top: 36px; height: 3px; border-radius: 3px; background: #DDE2EB; }
 .fl-track b { display: block; height: 100%; width: 0; border-radius: 3px; background: linear-gradient(90deg, #F5822A, #6C5CE7, #4B5BA8, #F5822A, #138A8A); }
-.fl-step { position: absolute; top: 38px; width: 190px; margin-left: -95px; text-align: center; }
+.fl-step { position: absolute; top: 10px; width: 190px; margin-left: -95px; text-align: center; }
 .fl-dot {
   display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; background: #fff; color: var(--c);
   border: 3px solid #DDE2EB; transition: background .4s, color .4s, border-color .4s, transform .4s cubic-bezier(.3, 1.5, .5, 1), box-shadow .4s;
@@ -120,7 +121,7 @@
 .fl-form .fl-toast { left: 32px; top: 632px; }
 
 /* 2 · the design studio */
-.fl-editor { left: 240px; top: 170px; width: 1440px; height: 800px; background: #fff; border-radius: 26px; box-shadow: 0 24px 50px -24px rgba(20, 30, 60, .3); overflow: hidden; }
+.fl-editor { left: 240px; top: 190px; width: 1440px; height: 740px; background: #fff; border-radius: 26px; box-shadow: 0 24px 50px -24px rgba(20, 30, 60, .3); overflow: hidden; }
 .fl-editor::after { content: ''; position: absolute; left: 340px; right: 360px; top: 64px; bottom: 0; background: radial-gradient(circle, rgba(20, 30, 60, .08) 1.2px, transparent 1.4px) 0 0 / 22px 22px; z-index: 0; }
 .fl-bar { position: relative; height: 64px; display: flex; align-items: center; gap: 14px; padding: 0 20px; border-bottom: 1.5px solid #ECEFF4; }
 .fl-bar .rl-ic { width: 40px; height: 40px; border-radius: 12px; box-shadow: none; }
@@ -133,11 +134,11 @@
 .fl-layers div { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border-radius: 12px; background: #F5F6F9; font-size: 17px; font-weight: 600; color: #141E3C; opacity: 0; transform: translateX(-12px); transition: opacity .35s, transform .35s; }
 .fl-layers div.on { opacity: 1; transform: none; }
 .fl-layers .rl-svg { width: 20px; height: 20px; padding: 3px; box-sizing: border-box; border-radius: 50%; background: #6C5CE7; color: #fff; stroke-width: 3; }
-.fl-brief { position: absolute; right: 30px; top: 120px; width: 300px; box-sizing: border-box; padding: 22px; border-radius: 18px; background: #FFF6E8; border: 1.5px solid #F8DDB5; z-index: 1; transform: rotate(1.2deg); }
+.fl-brief { position: absolute; right: 30px; top: 150px; width: 300px; box-sizing: border-box; padding: 22px; border-radius: 18px; background: #FFF6E8; border: 1.5px solid #F8DDB5; z-index: 1; transform: rotate(1.2deg); }
 .fl-brief small { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #C0841A; }
 .fl-brief p { margin: 10px 0 12px; font-size: 17px; line-height: 1.5; color: #3D3424; }
 .fl-brief i { font-style: normal; font-size: 15px; font-weight: 700; color: #C0841A; }
-.fl-editor .fl-toast { right: 30px; top: 84px; z-index: 2; }
+.fl-editor .fl-toast { right: 30px; top: 80px; z-index: 2; }
 
 /* 3 · the admin's review */
 .fl-review { left: 1060px; top: 230px; width: 540px; box-sizing: border-box; padding: 26px 28px 28px; background: #fff; border-radius: 26px; box-shadow: 0 24px 50px -24px rgba(20, 30, 60, .3); }
@@ -175,7 +176,7 @@
 /* the poster: one element that travels from screen to screen */
 .fl-poster { position: absolute; z-index: 4; transition: left 1.1s cubic-bezier(.65, 0, .35, 1), top 1.1s cubic-bezier(.65, 0, .35, 1), width 1.1s cubic-bezier(.65, 0, .35, 1); }
 .fl[data-step="0"] .fl-poster { left: 1220px; top: 236px; width: 430px; }
-.fl[data-step="1"] .fl-poster { left: 760px; top: 270px; width: 528px; }
+.fl[data-step="1"] .fl-poster { left: 700px; top: 282px; width: 500px; }
 .fl[data-step="2"] .fl-poster { left: 470px; top: 222px; width: 520px; }
 .fl[data-step="3"] .fl-poster { left: 560px; top: 240px; width: 480px; }
 .fl[data-step="4"] .fl-poster { left: 140px; top: 264px; width: 380px; }
@@ -195,12 +196,14 @@
 .fl-sel::before, .fl-sel::after { content: ''; position: absolute; width: 10px; height: 10px; background: #fff; border: 2px solid #6C5CE7; }
 .fl-sel::before { left: -7px; top: -7px; } .fl-sel::after { right: -7px; bottom: -7px; }
 .fl-stamp, .fl-ok { position: absolute; display: flex; align-items: center; gap: 10px; font-weight: 800; color: #fff; opacity: 0; pointer-events: none; }
-.fl-stamp { left: 50%; top: 46%; padding: 14px 28px; border-radius: 16px; background: #0F9D6E; font-size: 32px; box-shadow: 0 16px 34px rgba(15, 157, 110, .4); transform: translate(-50%, -50%) rotate(-8deg) scale(1.6); transition: opacity .3s, transform .5s cubic-bezier(.3, 1.5, .5, 1); }
-.fl-stamp.on { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+/* approved: a straight badge in the corner, and the poster outlined in green */
+.fl-stamp { left: 16px; top: 16px; padding: 10px 16px; border-radius: 12px; background: #0F9D6E; font-size: 18px; box-shadow: 0 12px 26px -8px rgba(15, 157, 110, .55); transform: translateY(-8px); transition: opacity .4s, transform .4s; }
+.fl-stamp.on { opacity: 1; transform: none; }
+.fl[data-step="2"] .fl-poster:has(.fl-stamp.on) .fl-canvas { box-shadow: 0 0 0 4px #0F9D6E, 0 30px 60px -26px rgba(15, 157, 110, .5); }
 .fl-ok { left: 16px; top: 16px; padding: 10px 16px; border-radius: 12px; background: #F5822A; font-size: 18px; transform: translateY(-8px); transition: opacity .4s, transform .4s; box-shadow: 0 12px 26px -8px rgba(245, 130, 42, .55); }
 .fl-ok.on { opacity: 1; transform: none; }
 .fl-stamp .rl-svg, .fl-ok .rl-svg { stroke-width: 3; }
-.fl-ok .rl-svg { width: 22px; height: 22px; }
+.fl-ok .rl-svg, .fl-stamp .rl-svg { width: 22px; height: 22px; }
 .fl[data-step="4"] .fl-stamp, .fl[data-step="4"] .fl-ok, .fl[data-step="3"] .fl-stamp { opacity: 0; }
 
 /* the cursor, and who is holding it */
