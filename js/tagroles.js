@@ -58,7 +58,6 @@ export function roleChapters(D) {
           ${node(R.coord, 'One in every college', 4.4, 270, 620, 420)}
           ${node(R.designer, 'One shared board for all', 4.7, 750, 620, 420)}
           ${node(R.handler, 'Runs the pages', 5, 1230, 620, 420)}
-          <div class="rl-counts">${D.counts.map(([v, k], i) => `<div${A('up', 6.4 + i * .2)}>${N(v, 6.6 + i * .2)}<span>${esc(k)}</span></div>`).join('')}</div>
         </div></div>`,
     },
 
