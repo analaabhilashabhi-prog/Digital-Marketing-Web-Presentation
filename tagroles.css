@@ -297,7 +297,7 @@
 .ct-main { position: absolute; left: 260px; top: 64px; right: 0; bottom: 0; overflow: hidden; }
 .ct-page { position: absolute; inset: 0; transition: opacity .45s, transform .6s cubic-bezier(.2, .8, .2, 1); }
 .ct-page.ov { padding: 30px; }
-.ct:not([data-page=ov]) .ct-page.ov, .ct:not([data-page=tpl]) .ct-page.tpl, .ct:not([data-page=assets]) .ct-page.assets, .ct:not([data-page=brand]) .ct-page.brand { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.ct:not([data-page=ov]) .ct-page.ov, .ct:not([data-page=tpl]) .ct-page.tpl, .ct:not([data-page=assets]) .ct-page.assets, .ct:not([data-page=brand]) .ct-page.brand, .ct:not([data-page=events]) .ct-page.events { opacity: 0; transform: translateY(12px); pointer-events: none; }
 /* Overview */
 .ct-hero { position: relative; height: 150px; box-sizing: border-box; padding: 30px 36px; border-radius: 24px; color: #fff; background: radial-gradient(700px 300px at 100% 50%, rgba(245, 130, 42, .2), transparent 60%), linear-gradient(120deg, #0F1F4B, #1D2D66); }
 .ct-hero small { font-size: 13px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #F5A15E; }
@@ -469,6 +469,20 @@
 .ct-end span .rl-svg { color: #F5822A; }
 .ct-end span.seen { box-shadow: 0 0 0 2px #F5822A, 0 14px 28px -18px rgba(245, 130, 42, .6); }
 .ct-cursor { z-index: 20; }
+/* Events: photos from each college's events, each a linked Drive folder */
+.ct-card.ev { width: 457px; height: 370px; }
+.ct-card.ev .ct-card__img { height: 250px; }
+.ct-card.ev .ct-card__img img { object-position: center; }
+.ct-card.ev .ct-card__in > b { margin-top: 14px; font-size: 18px; }
+.ct-ev-meta { display: flex; align-items: center; gap: 6px; margin: 6px 18px 0; font-size: 13.5px; color: #9AA3B5; }
+.ct-ev-meta .rl-svg { width: 15px; height: 15px; }
+.ct-ev-meta .rl-svg + .rl-svg, .ct-ev-meta .rl-svg:nth-of-type(2) { margin-left: 10px; }
+.ct-drive { display: inline-flex; align-items: center; gap: 8px; margin: 12px 18px 0; padding: 8px 14px; border-radius: 10px; background: #E5621D; color: #fff; font-size: 14px; font-weight: 700; }
+.ct-drive .rl-svg { width: 16px; height: 16px; }
+/* an opened thing's formats and download, shown as there to use */
+.ct-fmts span, .ct-dl { opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .5s cubic-bezier(.2, .8, .2, 1); }
+.ct-fmts span.on { opacity: 1; transform: none; border-color: #F5822A; background: #FFF4EB; color: #E5621D; }
+.ct-dl.on { opacity: 1; transform: none; }
 
 /* ---------- 5 · Publish, or schedule ---------- */
 .rl-handler { position: absolute; left: 120px; top: 210px; width: 420px; box-sizing: border-box; padding: 34px 30px; background: #fff; border-radius: 24px; box-shadow: 0 16px 34px rgba(20, 30, 60, .1); }

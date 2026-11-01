@@ -44,6 +44,9 @@ const RICON = {
   moon: '<path d="M19 14.5 A7.5 7.5 0 1 1 9.5 5 A6 6 0 0 0 19 14.5 Z"/>',
   bell: '<path d="M6 16.5 V11 A6 6 0 0 1 18 11 V16.5 L19.5 18 H4.5 Z"/><path d="M10 20.5 H14"/>',
   link: '<path d="M10 14 L14 10"/><path d="M9 7.5 L11 5.5 A3.5 3.5 0 0 1 18.5 13 L16.5 15"/><path d="M15 16.5 L13 18.5 A3.5 3.5 0 0 1 5.5 11 L7.5 9"/>',
+  cal: '<rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10 H20 M8.5 3.5 V7 M15.5 3.5 V7"/>',
+  pin: '<path d="M12 21 C7.5 15.8 5.5 12.6 5.5 9.8 A6.5 6.5 0 0 1 18.5 9.8 C18.5 12.6 16.5 15.8 12 21 Z"/><circle cx="12" cy="9.8" r="2.3"/>',
+  out: '<path d="M14 4.5 H19.5 V10 M19.5 4.5 L11.5 12.5"/><path d="M17.5 14 V19.5 H4.5 V6.5 H10"/>',
   folder: '<path d="M3.5 6.5 H9.5 L11.5 8.5 H20.5 V18.5 H3.5 Z"/>',
   file: '<path d="M6.5 3.5 H14 L18 7.5 V20.5 H6.5 Z"/><path d="M14 3.5 V7.5 H18"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/>',
@@ -253,13 +256,14 @@ function story(D, R, L) {
 /* ---------- 4 · Everything in one place: the Content tab ----------
    (2026-11-01: "recreate how t@g looks when we log in ... the organization entering,
    going to Content, clicking Templates ... zoom in on a template, it comes to life",
-   then "after templates, assets", then the brand library). First the old way, the same
-   file hunted for across computers; then t@g's admin console, recreated: Overview, a
-   click on Content → Templates, one template opened with its PSD layers and downloaded;
-   then Assets, scrolled through and one college logo opened as a brand kit; then Brand
-   Library, scrolled through, the brand film playing in its card ("every time you don't
-   have to click, even scroll can work"). A line under each tab says what is in it and
-   how it is used.
+   then assets, the brand library and events). First the old way, the same file hunted
+   for across computers; then t@g's admin console, recreated: Overview, a click on
+   Content → Templates, one template opened to show its layers and formats; Assets,
+   scrolled through, one college logo opened as its brand kit; Brand Library, scrolled
+   through, the brand film playing in its card; Events, scrolled through ("you don't
+   have to click through all that ... don't click and download, just open it and let
+   them know these options are available"). A line under each tab says what is in it
+   and how it is used.
    Everything is worked out from the chapter's clock, like the poster story.
    Positions are on the 1920×1080 stage; the console window sits at WIN. */
 const WIN = [90, 50];
@@ -312,42 +316,50 @@ const LIBRARY = [
 const FILM = '02 Our Own Brands/Torii Minds/Videos/04 Brand Films/02 Torii Brand Film 2.mp4';
 const CARD3 = i => [290 + (i % 3) * 481, 244 + Math.floor(i / 3) * 394, 457, 260];
 // the brand film: it starts playing in its card once the cursor rests on it
-const BL = { card: 4, hover: 39, play: 39.5, from: 10, stop: 44.6 };
+const BL = { card: 4, hover: 35, play: 35.5, from: 10, stop: 40.4 };
+// events: photos from every college's events, each a linked Drive folder
+const EVENTS = [
+  ['ev-ikya', 'IKYA 2026', 'NCET', '14 Mar 2026', 'Main Ground'],
+  ['ev-ncc', 'INDEPENDENCE DAY-2026', 'NCET', '15 Aug 2026', 'Open Auditorium'],
+  ['ev-sih', 'Smart India Hackathon 2025', 'NCET', '08 Dec 2025', "Coder's Zone"],
+  ['ev-hr', 'Academic Council meeting', 'NCET', '22 Jul 2026', 'Board Room'],
+  ['ev-golden', 'Golden Day · 8th Anniversary', 'Technical Hub', '12 Jan 2026', 'Technical Hub'],
+  ['ev-ganesh', 'Ganesh Chaturthi celebrations', 'NCET', '27 Aug 2026', 'Campus'],
+  ['ev-sports', 'Activity for Freshers', 'NPUC CBPur', '05 Jul 2026', 'Sports Ground'],
+  ['ev-dasara', 'Dasara movie promotion', 'NCET', '20 Mar 2026', 'Open Auditorium'],
+  ['ev-howzzat', 'Howzzat cricket league', 'NCET', '18 Feb 2026', 'Cricket Ground'],
+];
+const EV_HOVER = [46, 49];                          // the card the cursor rests on once Events has scrolled
 // the pages that scroll: [from, to, how far down]
-const SCROLLS = { assets: [[21.8, 23.2, 356], [24.2, 25.3, 0]], brand: [[36.6, 38.6, 420]] };
+const SCROLLS = { assets: [[19.2, 20.6, 356], [21.6, 22.7, 0]], brand: [[32.6, 34.6, 420]], events: [[43.4, 45.4, 420]] };
 const scrolled = (segs, t) => segs.reduce(([v, from], [a, b, to]) => [t >= a ? from + (to - from) * ease(clamp((t - a) / (b - a))) : v, to], [0, 0])[0];
 // a card's picture, inside the window: the grid starts at 290, 244; cards 337 wide, 24 apart
 const CARD = i => [290 + (i % 4) * 361, 244 + Math.floor(i / 4) * 356, 337, 236];
 const W2S = ([x, y]) => [x + WIN[0], y + WIN[1]];
-// the two things opened: which card, and when it opens, picks a format, downloads and closes
+// the two things opened: which card, when it opens and closes; what it can be downloaded as
 const OPENS = [
-  { k: 'tpl', card: 2, fmt: [1, 0], open: 10.9, pick: 15.2, dl: [16.45, 17.7], close: 19.2,
-    say: ['Download PNG · 6 MB', 'Download PSD · 48 MB', 'Downloaded · ready to edit'] },
-  { k: 'kit', card: 1, fmt: [0, 2], open: 26.7, pick: 29.8, dl: [30.9, 32], close: 33.6,
-    say: ['Download PNG · 1 MB', 'Download brand kit · 12 MB', 'Downloaded · every version inside'] },
+  { k: 'tpl', card: 2, open: 10.9, close: 16.4, dl: 'Download · PSD, PNG or JPG' },
+  { k: 'kit', card: 1, open: 24.1, close: 29.4, dl: 'Download the brand kit · ZIP' },
 ];
-const PAGES = [[0, 'ov'], [7.3, 'tpl'], [20.3, 'assets'], [34.7, 'brand']];
+const PAGES = [[0, 'ov'], [7.3, 'tpl'], [17.7, 'assets'], [30.7, 'brand'], [41.5, 'events']];
 const LIB_CURSOR = [
   [5, 1300, 640],
   [6.6, ...W2S([130, sideTop.tpl + 21])],
   [9.8, ...W2S([CARD(2)[0] + 168, CARD(2)[1] + 118])],
   [12.4, 1290, 560],
-  [15, ...W2S([1040, 662])],                         // PSD
-  [16.3, ...W2S([1200, 744])],                       // Download
-  [18.4, 1500, 700],
-  [20, ...W2S([130, sideTop.assets + 21])],
-  [21.2, 1150, 600],                                 // rests on the grid while it scrolls
-  [25.8, ...W2S([CARD(1)[0] + 168, CARD(1)[1] + 118])],
-  [28.2, 1290, 560],
-  [29.6, ...W2S([1344, 662])],                       // Brand kit
-  [30.7, ...W2S([1200, 744])],                       // Download
-  [32.6, 1500, 700],
-  [34.4, ...W2S([130, sideTop.brand + 21])],
-  [35.8, 1150, 640],
-  [39.2, ...W2S([CARD3(BL.card)[0] + 228, CARD3(BL.card)[1] - SCROLLS.brand[0][2] + 130])],
+  [17.4, ...W2S([130, sideTop.assets + 21])],
+  [18.6, 1150, 600],                                 // rests on the grid while it scrolls
+  [23.2, ...W2S([CARD(1)[0] + 168, CARD(1)[1] + 118])],
+  [25.6, 1290, 560],
+  [30.4, ...W2S([130, sideTop.brand + 21])],
+  [31.8, 1150, 640],
+  [35.2, ...W2S([CARD3(BL.card)[0] + 228, CARD3(BL.card)[1] - SCROLLS.brand[0][2] + 130])],
+  [41.2, ...W2S([130, sideTop.events + 21])],
+  [42.6, 1150, 640],
+  [46.2, ...W2S([CARD3(4)[0] + 228, CARD3(4)[1] - SCROLLS.events[0][2] + 130])],
 ];
-const LIB_CLICKS = [7.2, 10.8, 15.2, 16.4, 20.2, 26.6, 29.8, 30.8, 34.6];
-const LIB_END = 45;
+const LIB_CLICKS = [7.2, 10.8, 17.6, 24, 30.6, 41.4];
+const LIB_END = 49.4;
 
 function library(L) {
   const at = (a, b) => ` data-at="${a}"${b != null ? ` data-off="${b}"` : ''}`;
@@ -372,28 +384,27 @@ function library(L) {
   // what a tab holds and how it is used, said under it while it is on screen
   const say = (label, text, a, b) => `<div class="ct-say"${at(a, b)}><small>${esc(label)}</small>${esc(text)}</div>`;
   // one thing opened: the dimmed console, the panel, the picture that zooms up from its card
-  const opened = (o, body, zoom, fmts, toast) => {
+  const opened = (o, body, zoom, fmts) => {
     const [x, y, w, h] = CARD(o.card);
     return `
       <div class="ct-open ${o.k}" data-k="${o.k}">
         <i class="ct-dim"${at(o.open, o.close)}></i>
         <div class="ct-modal"${at(o.open + .15, o.close)}>
           <div class="ct-info">${body}
-            <label class="f">Download as</label>
-            <div class="ct-fmts">${fmts.map(([f, n]) => `<span data-f="${f}">${n}</span>`).join('')}</div>
-            <div class="ct-dl">${ric('download')}<span>${esc(o.say[0])}</span></div>
+            <label class="f">Available as</label>
+            <div class="ct-fmts">${fmts.map((n, i) => `<span${at((o.open + 3 + i * .15).toFixed(2))}>${n}</span>`).join('')}</div>
+            <div class="ct-dl"${at((o.open + 3.6).toFixed(2))}>${ric('download')}<span>${esc(o.dl)}</span></div>
           </div>
         </div>
         <div class="ct-zoom" style="--x:${x}px;--y:${y}px;--w:${w}px;--h:${h}px">${zoom}</div>
-        <div class="ct-toast"${at(o.dl[1] + .2, o.close)}>${ric('check')}${esc(toast)}</div>
       </div>`;
   };
   const tpl = TEMPLATES[OPENS[0].card], kit = ASSETS[OPENS[1].card];
   const rows = (names, t0, mark) => names.map((n, i) => `<div class="ct-layer"${at((t0 + i * .32).toFixed(2))}>${ric(mark ? mark(i) : 'eye')}<i style="--k:${i}"></i><span>${esc(n)}</span>${!mark && (i === 1 || i === 2) ? '<em>T</em>' : ''}</div>`).join('');
   return {
-    name: 'Everything in one place', hold: 50,
+    name: 'Everything in one place', hold: 54,
     title: 'Everything in one place',
-    line: 'One Content tab for every college: its templates, its logos, its films.',
+    line: 'One Content tab for every college: its templates, logos, films and event photos.',
     html: `
       <div class="rl"><div class="rl-c"><div class="ct" data-page="ov">
 
@@ -445,19 +456,31 @@ function library(L) {
               <div class="ct-tp-head"><i></i><b>Brand Library</b><p>Brand films, ads and videos, ready to share. Anyone can add; only the super admin can remove.</p><span class="ct-up">+ Add to Library</span></div>
               <div class="ct-tp-tools"><div class="ct-search">${ric('search')}Search the library...</div><span>All colleges${ric('chev')}</span><span>All types${ric('chev')}</span><span class="ct-view">${ric('grid')}</span></div>
               ${LIBRARY.map(([src, name, kind, who, c, film], i) => { const [x, y] = CARD3(i); return `
-                <div class="ct-card bl${i === BL.card ? ' hero' : ''}"${A('up', (34.9 + i * .07).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
+                <div class="ct-card bl${i === BL.card ? ' hero' : ''}"${A('up', (30.9 + i * .07).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
                   <div class="ct-card__img"><img src="${L(src)}" alt="">${i === BL.card ? `<video src="${L(FILM)}" muted playsinline preload="auto"></video><i class="ct-prog"><b></b></i>` : ''}<span class="kind">${esc(kind)}</span>${film ? '<span class="fmt">VIDEO</span><i class="ct-play"></i>' : ''}<span class="who" style="--c:${c}"><i></i>${esc(who)}</span></div>
                   <b>${esc(name)}</b>
                   <div class="ct-bl-foot"><span>${ric(film ? 'link' : 'download')}${film ? 'Open link' : 'View / download'}</span>${ric('trash')}</div>
                 </div></div>`; }).join('')}
             </div><i class="ct-sb"><b></b></i></div>
-            ${repo('assets', 'Asset Repository', 'Reusable branding assets and brand kit. Anyone can upload; only the super admin can remove.', 'Asset', ASSETS, 20.5, OPENS[1].card, true)}
+            <div class="ct-page events"><div class="ct-scroll">
+              <div class="ct-tp-head"><i></i><b>Events</b><p>Event photos captured by the Zolo team — kept at a linked Drive folder or album.</p><span class="ct-up">+ Add Event</span></div>
+              <div class="ct-tp-tools"><div class="ct-search">${ric('search')}Search name, description or location...</div><span>All colleges${ric('chev')}</span><span class="ct-view">${ric('grid')}</span></div>
+              ${EVENTS.map(([src, name, who, date, where], i) => { const [x, y] = CARD3(i); return `
+                <div class="ct-card ev${i === 4 ? ' hero' : ''}"${A('up', (41.7 + i * .07).toFixed(2), `left:${x - 260}px;top:${y - 64}px`)}><div class="ct-card__in">
+                  <div class="ct-card__img"><img src="${L(`03 Tag Portal/library/${src}.jpg`)}" alt=""><span class="kind">${esc(who)}</span></div>
+                  <b>${esc(name)}</b>
+                  <div class="ct-ev-meta">${ric('cal')}${esc(date)}${ric('pin')}${esc(where)}</div>
+                  <span class="ct-drive">${ric('folder')}Open in Drive${ric('out')}</span>
+                </div></div>`; }).join('')}
+            </div><i class="ct-sb"><b></b></i></div>
+            ${repo('assets', 'Asset Repository', 'Reusable branding assets and brand kit. Anyone can upload; only the super admin can remove.', 'Asset', ASSETS, 17.9, OPENS[1].card, true)}
           </div>
           ${say('Templates', 'Ready-made designs for every occasion. Pick one, change the date, post it.', 8.4, 10.6)}
-          ${say('Assets', "Every college's logos and brand kit. The right logo, in the right format, every time.", 21, 26.4)}
-          ${say('Brand Library', 'Finished films and ads, ready to go. Play them at events, share the link, post anywhere.', 35.2, 44.6)}
+          ${say('Assets', "Every college's logos and brand kit. The right logo, in the right format, every time.", 18.4, 23.8)}
+          ${say('Brand Library', 'Finished films and ads, ready to go. Play them at events, share the link, post anywhere.', 31.2, 40.4)}
+          ${say('Events', "Every event's photos, one click from its Drive folder. Find last year's fest in seconds.", 42, 49)}
 
-          <!-- a template, opened: it comes to life, its layers listed, its PSD downloaded -->
+          <!-- a template, opened: it comes to life, its layers and formats listed -->
           ${opened(OPENS[0], `
             <div class="ct-chips"><span class="fmt">PSD · layered</span><span class="who"><i></i>${esc(tpl[4])}</span></div>
             <b>Guru Purnima</b>
@@ -465,8 +488,7 @@ function library(L) {
             <label>Layers</label>
             ${rows(['Torii logo', 'GURU · headline', 'Purnima · script', 'Guru silhouette', 'Full moon', 'Background · temple at dusk'], 12.1)}`,
             `<img src="${L(tpl[0])}" alt="">`,
-            [['psd', 'PSD'], ['png', 'PNG'], ['jpg', 'JPG']],
-            'guru-purnima.psd saved: open it, change the date, done.')}
+            ['PSD', 'PNG', 'JPG'])}
 
           <!-- a logo, opened as a brand kit: on light, on dark, in one colour -->
           ${opened(OPENS[1], `
@@ -474,19 +496,18 @@ function library(L) {
             <b>NGI logo</b>
             <small>Logos · uploaded by Super Admin · 07 Sep 2026</small>
             <label>In the brand kit</label>
-            ${rows(['Full colour · PNG', 'White · for dark backgrounds', 'One colour · for print', 'Vector · SVG and AI', 'Clear space and sizes · PDF'], 28, () => 'check')}`,
+            ${rows(['Full colour · PNG', 'White · for dark backgrounds', 'One colour · for print', 'Vector · SVG and AI', 'Clear space and sizes · PDF'], 25.4, () => 'check')}`,
             `<div class="k-main"><img src="${L(kit[0])}" alt=""></div>
-             <div class="k-tile dark"${at(27.9)}><img src="${L(kit[0])}" alt=""><small>White</small></div>
-             <div class="k-tile mono"${at(28.15)}><img src="${L(kit[0])}" alt=""><small>One colour</small></div>`,
-            [['png', 'PNG'], ['svg', 'SVG'], ['zip', 'Brand kit']],
-            'ngi-brand-kit.zip saved: the right logo, every time.')}
+             <div class="k-tile dark"${at(25.3)}><img src="${L(kit[0])}" alt=""><small>White</small></div>
+             <div class="k-tile mono"${at(25.55)}><img src="${L(kit[0])}" alt=""><small>One colour</small></div>`,
+            ['PNG', 'SVG', 'Brand kit'])}
 
           <!-- the point of it -->
           <i class="ct-dim end"${at(LIB_END)}></i>
           <div class="ct-end"${at(LIB_END + .2)}>
-            <b>Every template, logo and film, in one place.</b>
+            <b>Templates, logos, films and event photos. One place.</b>
             <p>No more searching five computers for one file.</p>
-            <div>${['Templates', 'Assets', 'Brand Library', 'Events'].map((n, i) => `<span class="${i < 3 ? 'seen' : ''}"${at((LIB_END + .8 + i * .15).toFixed(2))}>${ric(['template', 'box', 'image', 'camera'][i])}${n}</span>`).join('')}</div>
+            <div>${['Templates', 'Assets', 'Brand Library', 'Events'].map((n, i) => `<span class="seen"${at((LIB_END + .8 + i * .15).toFixed(2))}>${ric(['template', 'box', 'image', 'camera'][i])}${n}</span>`).join('')}</div>
           </div>
         </div>
 
@@ -506,9 +527,10 @@ function library(L) {
       // the sidebar follows the page; the next tab lights as the cursor reaches it
       root.querySelectorAll('.ct-nav').forEach(n => {
         n.classList.toggle('act', n.dataset.k === page);
-        n.classList.toggle('hov', (n.dataset.k === 'tpl' && t > 6.5 && t < 7.3) || (n.dataset.k === 'assets' && t > 19.9 && t < 20.3) || (n.dataset.k === 'brand' && t > 34.3 && t < 34.7));
+        n.classList.toggle('hov', (n.dataset.k === 'tpl' && t > 6.5 && t < 7.3) || (n.dataset.k === 'assets' && t > 17.3 && t < 17.7)
+          || (n.dataset.k === 'brand' && t > 30.3 && t < 30.7) || (n.dataset.k === 'events' && t > 41.1 && t < 41.5));
       });
-      // each opened thing: its card lifts, its picture zooms up, a format is picked, it downloads
+      // each opened thing: its card lifts, its picture zooms up and comes to life
       OPENS.forEach(o => {
         const box = root.querySelector(`.ct-open.${o.k}`);
         root.querySelector(`.ct-page.${o.k === 'tpl' ? 'tpl' : 'assets'} .ct-card.hero`).classList.toggle('hov', t > o.open - 1.3 && t < o.open);
@@ -516,15 +538,8 @@ function library(L) {
         z.classList.toggle('on', t >= o.open && t < o.close + .7);
         z.classList.toggle('big', t >= o.open + .05 && t < o.close);
         z.classList.toggle('live', t >= o.open + .9 && t < o.close);
-        const f = o.fmt[t >= o.pick ? 1 : 0];
-        box.querySelectorAll('.ct-fmts span').forEach((s, i) => s.classList.toggle('sel', i === f));
-        const dl = box.querySelector('.ct-dl'), [d0, d1] = o.dl, p = clamp((t - d0) / (d1 - d0));
-        dl.style.setProperty('--p', `${(p * 100).toFixed(1)}%`);
-        dl.classList.toggle('done', t >= d1);
-        const label = t >= d1 ? o.say[2] : t >= d0 ? `Downloading… ${Math.round(p * 100)}%` : o.say[t >= o.pick ? 1 : 0];
-        const sp = dl.querySelector('span');
-        if (sp.textContent !== label) sp.textContent = label;
       });
+      root.querySelector('.ct-card.ev.hero').classList.toggle('hov', t > EV_HOVER[0] && t < EV_HOVER[1]);
       // the pages that scroll, and their scrollbars
       Object.entries(SCROLLS).forEach(([k, segs]) => {
         const pg = root.querySelector(`.ct-page.${k}`), v = scrolled(segs, t);
@@ -554,7 +569,7 @@ function library(L) {
         x = px + (tx - px) * k; y = py + (ty - py) * k;
       }
       c.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
-      c.classList.toggle('on', t > 4.8 && t < 44.4);
+      c.classList.toggle('on', t > 4.8 && t < 48.8);
       c.classList.toggle('click', LIB_CLICKS.some(s => t >= s && t < s + .35));
     },
   };
