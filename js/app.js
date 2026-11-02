@@ -463,7 +463,7 @@ async function show(n) {
   if (vids.length) {
     canvas.innerHTML = '<div class="view v-stream"></div>';
     const item = i => ({ src: i.url, w: i.w, h: i.h });
-    const groups = n.categories
+    let groups = n.categories
       // one card a category, its videos played in turn
       ? n.categories.map(c => c.youtube
         // streamed from YouTube rather than a file here (one film, or a list of them): the first one's picture on the card
@@ -472,6 +472,13 @@ async function show(n) {
         : { name: c.title, lead: c.lead, items: (media[c.folder]?.items || []).filter(i => i.kind === 'video').map(i => ({ ...item(i), start: c.start })) })
       // a single folder: all its videos together, laid out like any category
       : [{ name: n.title, items: vids.map(item) }];
+    // one film a card (Technical Hub): every video of a category gets its own card in the row,
+    // named from its file ("02 Walmart 22.6 LPA - Bhanu.mp4" → "Walmart 22.6 LPA - Bhanu"), or numbered
+    if (n.single) groups = groups.flatMap(g => g.items.length < 2 ? [g] : g.items.map((it, k) => {
+      const file = it.src.startsWith('yt:') ? '' : decodeURIComponent(it.src.split('/').pop()).replace(/\.[^.]+$/, '').replace(/^\d+\s*/, '');
+      return { name: file || `${g.name} ${String(k + 1).padStart(2, '0')}`, kicker: g.name, lead: g.lead,
+        poster: it.src.startsWith('yt:') ? `https://i.ytimg.com/vi/${it.src.slice(3)}/maxresdefault.jpg` : undefined, items: [it] };
+    }));
     const extra = document.createElement('span');
     extra.innerHTML = n.bentoOf ? `<a class="sg-back" href="#/${n.bentoOf.id}">← All categories</a>` : n.folder ? uploadButton(n) : '';
     cleanup = mountStream(canvas.firstElementChild, {

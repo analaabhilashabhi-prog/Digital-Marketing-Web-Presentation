@@ -242,6 +242,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     const n = pagesOf(g).length;
     if (n > 1) { item = (item + 1) % n; paint(); }
     else if (manyAt(g, 0)) layer?.querySelectorAll(FILMS).forEach(v => { rewind(v); v.play?.().catch(() => {}); });
+    else if (filmAt(g, 0) && block.single && groups.length > 1) play((current + 1) % groups.length);
     else if (filmAt(g, 0)) {
       /* A lone film plays again, from its start. */
       const v = layer?.querySelector(FILMS);
