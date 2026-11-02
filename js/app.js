@@ -8,6 +8,7 @@ import { mountStream } from './stream.js';
 import { mountTag } from './tag.js';
 import { mountTagHero } from './taghero.js';
 import { mountTagReport } from './tagreport.js';
+import { mountPdf } from './pdfview.js';
 import { portalView, animatePortal } from './portal.js';
 import { roleChapters } from './tagroles.js';
 import { brand } from './brands.js';
@@ -93,7 +94,7 @@ function metaFor(n) {
 const path = n => { const p = []; for (let x = n; x; x = x.parent) p.unshift(x); return p; };
 
 /* ---------- Fit the 1920×1080 canvas into the frame ---------- */
-const FLUID = ['gallery', 'folder', 'brand', 'portal', 'stream', 'bento'];
+const FLUID = ['gallery', 'folder', 'brand', 'portal', 'stream', 'bento', 'pdf'];
 function fit() {
   const r = frame.getBoundingClientRect();
   const pad = document.body.classList.contains('presenting') ? 0 : 14;
@@ -497,6 +498,12 @@ async function show(n) {
     arrows();
     return;
   }
+  // a PDF to read through together, with zoom
+  if (n.type === 'pdf') {
+    cleanup = mountPdf(canvas, n, asset(n.file));
+    arrows();
+    return;
+  }
   if (n.type === 'tag' || n.type === 'taghero') {
     canvas.innerHTML = '';
     cleanup = (n.type === 'tag' ? mountTag : mountTagHero)(canvas, { ...n, logo: n.logo && asset(n.logo) }, arrows);
@@ -701,7 +708,7 @@ addEventListener('keydown', e => {
 /* ---------- New files show up when you come back to the deck ---------- */
 addEventListener('focus', async () => {
   // Pages that play on their own are not rebuilt (a film would start again)
-  if ($('app').hidden || !current || ['home', 'showcase', 'stream', 'bento', 'tag', 'taghero', 'tagreport', 'tagroles', 'portal'].includes(current.type) || current.media === 'video') return;
+  if ($('app').hidden || !current || ['home', 'showcase', 'stream', 'bento', 'tag', 'taghero', 'tagreport', 'tagroles', 'portal', 'pdf'].includes(current.type) || current.media === 'video') return;
   const id = current.id;
   await load();
   show(byId[id] || order[0]);
