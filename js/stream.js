@@ -104,7 +104,8 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
      (2026-10-30: "all of four in a row… for the horizontal videos stack them
      vertically".) A category's vertical videos are gathered into rows and its
      horizontal ones into stacks, whichever kind comes first leading. */
-  const MAX_REELS = 4, MAX_STACK = 3;
+  // "single" (Technical Hub, 2026-11-02): every horizontal film plays on its own, full screen, one after another
+  const MAX_REELS = 4, MAX_STACK = block.single ? 1 : 3;
   const chunk = (list, n) => list.reduce((pages, it, i) => (i % n ? pages[pages.length - 1].push(it) : pages.push([it]), pages), []);
   function pack(items) {
     const reels = chunk(items.filter(tall), MAX_REELS);

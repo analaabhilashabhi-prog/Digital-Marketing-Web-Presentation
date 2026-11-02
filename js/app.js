@@ -222,7 +222,7 @@ const bentoCats = n => (n.categories || []).map(c => ({
 function bentoPage(base, cid) {
   const c = base.type === 'bento' && (base.categories || []).find(x => x.id === cid);
   if (!c) return null;
-  const sub = { id: `${base.id}/${c.id}`, title: c.title, parent: base, depth: base.depth + 1, bentoOf: base, brand: base.brand };
+  const sub = { id: `${base.id}/${c.id}`, title: c.title, parent: base, depth: base.depth + 1, bentoOf: base, brand: base.brand, single: base.single };
   return base.media === 'video'
     ? { ...sub, type: 'stream', media: 'video', categories: [c] }
     : { ...sub, type: 'gallery', media: base.media, folder: c.folder };
@@ -475,7 +475,7 @@ async function show(n) {
     const extra = document.createElement('span');
     extra.innerHTML = n.bentoOf ? `<a class="sg-back" href="#/${n.bentoOf.id}">← All categories</a>` : n.folder ? uploadButton(n) : '';
     cleanup = mountStream(canvas.firstElementChild, {
-      brand: n.brand || n.parent?.title || '', kicker: n.parent?.title ? `${n.brand || n.parent.title} · ${n.title}` : n.title, groups,
+      brand: n.brand || n.parent?.title || '', kicker: n.parent?.title ? `${n.brand || n.parent.title} · ${n.title}` : n.title, groups, single: n.single,
     }, { onMove: arrows, extra: extra.childElementCount ? extra : null });
     const ub = extra.querySelector('[data-upload]'), ui = extra.querySelector('[data-file]');
     if (ub) { ub.addEventListener('click', () => ui.click()); ui.addEventListener('change', () => ui.files.length && upload(n, ui.files, ub)); }
