@@ -73,6 +73,7 @@ button { font: inherit; color: inherit; }
   font-size: 13.5px; font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s;
 }
 .btn:hover { border-color: #cfccc7; }
+a.btn { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
 .btn:disabled { opacity: .4; cursor: default; }
 .btn-dark { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
 .btn-dark:hover { background: #000; }

@@ -452,6 +452,9 @@ async function show(n) {
   fit();
   setTimeout(() => current === n && warmNext(n), 900);
   renderNav(); renderCrumbs();
+  // one category of a bento page, opened: the way back sits in the top bar, beside Prev and Next, off the film
+  $('allCats').hidden = !n.bentoOf;
+  if (n.bentoOf) $('allCats').href = '#/' + n.bentoOf.id;
   document.title = `${n.title} · ${deck.title}`;
 
   if (n.type === 'home') {
@@ -481,7 +484,7 @@ async function show(n) {
         poster: it.src.startsWith('yt:') ? `https://i.ytimg.com/vi/${it.src.slice(3)}/maxresdefault.jpg` : undefined, items: [it] };
     }));
     const extra = document.createElement('span');
-    extra.innerHTML = n.bentoOf ? `<a class="sg-back" href="#/${n.bentoOf.id}">← All categories</a>` : n.folder ? uploadButton(n) : '';
+    extra.innerHTML = n.folder && !n.bentoOf ? uploadButton(n) : '';
     cleanup = mountStream(canvas.firstElementChild, {
       brand: n.brand || n.parent?.title || '', kicker: n.parent?.title ? `${n.brand || n.parent.title} · ${n.title}` : n.title, groups, single: n.single,
     }, { onMove: arrows, extra: extra.childElementCount ? extra : null });
