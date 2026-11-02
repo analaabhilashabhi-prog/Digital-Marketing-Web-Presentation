@@ -39,7 +39,7 @@ const loadYT = () => ytApi ||= new Promise(res => {
 });
 function ytFilm(src, cls, start = 0, solo = false) {
   const spot = document.createElement('div');
-  const box = h('div', { class: `${cls} sg-yt${solo ? ' is-solo' : ''}` }, h('div', { class: 'sg-yt__frame' }, spot), solo ? null : h('i', { class: 'sg-yt__shield' }));
+  const box = h('div', { class: `${cls} sg-yt${solo ? ' is-solo' : ''}` }, h('div', { class: 'sg-yt__frame' }, spot), h('i', { class: 'sg-yt__shield' }));
   if (start) box.dataset.start = start;
   // the film's still behind the player, so the box is never black while YouTube loads
   box.style.background = `#000 url(https://i.ytimg.com/vi/${src.slice(3)}/hqdefault.jpg) center / cover no-repeat`;
@@ -47,26 +47,22 @@ function ytFilm(src, cls, start = 0, solo = false) {
   const fire = type => box.dispatchEvent(new Event(type));
   box.play = () => { want = true; player?.playVideo?.(); return Promise.resolve(); };
   box.pause = () => { want = false; player?.pauseVideo?.(); };
+  Object.defineProperty(box, 'paused', { get: () => !want });
   Object.defineProperty(box, 'muted', { get: () => muted, set: m => { muted = m; if (player?.mute) m ? player.mute() : player.unMute(); } });
   box.rewind = () => player?.seekTo?.(start, true);
   box.stop = () => { want = false; player?.destroy?.(); player = null; };
   box.quality = () => player?.getPlaybackQuality?.();
-  /* The best the film has (2026-10-31: "play at max quality"). YouTube picks by
-     the connection unless held to one level, so it is asked for the top one,
-     the first it lists, as soon as it plays and again whenever it buffers. */
-  const best = p => {
-    const top = p.getAvailableQualityLevels?.()[0] || 'highres';
-    p.setPlaybackQualityRange?.(top, top);
-    p.setPlaybackQuality?.(top);
-  };
+  /* Quality is left to YouTube, which gives a player this large its full-HD stream:
+     forcing a level (2026-10-31) made YouTube flash its own pause button over
+     the film each time, and nothing of YouTube's may show (2026-11-02). */
   loadYT().then(YT => {
     if (!want) return;   // stopped before the player loaded
     player = new YT.Player(spot, {
       videoId: src.slice(3),
-      playerVars: { vq: 'highres', autoplay: 1, mute: muted ? 1 : 0, controls: solo ? 1 : 0, start, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: solo ? 0 : 1, fs: solo ? 1 : 0, modestbranding: 1 },
+      playerVars: { vq: 'highres', autoplay: 1, mute: muted ? 1 : 0, controls: 0, start, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: 1, fs: 0, modestbranding: 1 },
       events: {
-        onReady: e => { best(e.target); muted ? e.target.mute() : e.target.unMute(); want ? e.target.playVideo() : e.target.pauseVideo(); },
-        onStateChange: e => { if (e.data === 1 || e.data === 3) best(e.target); if (e.data === 0) fire('ended'); if (e.data === 1) box.classList.add('is-playing'); },
+        onReady: e => { muted ? e.target.mute() : e.target.unMute(); want ? e.target.playVideo() : e.target.pauseVideo(); },
+        onStateChange: e => { if (e.data === 0) fire('ended'); if (e.data === 1) box.classList.add('is-playing'); },
         onError: () => fire('error'),
       },
     });
@@ -459,7 +455,7 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     closeSolo(false);
     clearTimeout(timer);
     stage.querySelectorAll(FILMS).forEach(v => v.pause());
-    const v = isYT(src) ? ytFilm(src, 'sg-solo__video', start, true) : h('video', { class: 'sg-solo__video', src, controls: true, autoplay: true, playsinline: true, preload: 'auto' });
+    const v = isYT(src) ? ytFilm(src, 'sg-solo__video', start, true) : h('video', { class: 'sg-solo__video', src, autoplay: true, playsinline: true, preload: 'auto' });
     if (start && !isYT(src)) v.addEventListener('loadedmetadata', () => { if (v.duration > start + 5) v.currentTime = start; }, { once: true });
     v.muted = false;
     v.play?.().catch(() => { v.muted = true; v.play?.().catch(() => {}); });
@@ -467,8 +463,18 @@ export function mountStream(host, block, { onMove = () => {}, extra = null } = {
     back.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 12 H5 M11 6 L5 12 L11 18"/></svg>';
     back.addEventListener('click', e => { e.stopPropagation(); closeSolo(true); });
     v.addEventListener('ended', () => closeSolo(true));
-    solo = h('div', { class: 'sg-solo' }, v, back);
-    solo.addEventListener('click', e => e.stopPropagation());
+    /* No player's own controls (2026-11-02: "like the video was on our platform"):
+       only our pause button; a click anywhere on the film does the same */
+    const pp = h('button', { type: 'button', class: 'sg-solo__pp', 'aria-label': 'Pause' });
+    const paintPP = () => {
+      pp.innerHTML = v.paused ? '<svg viewBox="0 0 24 24"><path d="M8 5 L19 12 L8 19 Z"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z"/></svg>';
+      pp.setAttribute('aria-label', v.paused ? 'Play' : 'Pause');
+    };
+    const toggle = () => { if (v.paused) v.play?.().catch(() => {}); else v.pause(); paintPP(); };
+    pp.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+    paintPP();
+    solo = h('div', { class: 'sg-solo' }, v, back, pp);
+    solo.addEventListener('click', e => { e.stopPropagation(); toggle(); });
     root.appendChild(solo);
     root.classList.add('is-solo');
     // the whole screen, not just the slide (2026-10-30); the click is the gesture a browser asks for
